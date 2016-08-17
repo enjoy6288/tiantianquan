@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="support.base.dao.mapper.SweetUserMapper">
+	<resultMap id="sweetUser" type="support.base.pojo.po.SweetUser">
+		<result column="id" property="id" jdbcType="VARCHAR" />
+		<result column="user_name" property="userName" jdbcType="VARCHAR" />
+		<result column="avatar_url" property="avatarUrl" jdbcType="VARCHAR" />
+		<result column="sex" property="sex" jdbcType="INTEGER" />
+		<result column="passwd" property="passwd" jdbcType="VARCHAR" />
+		<result column="phone_num" property="phoneNum" jdbcType="VARCHAR" />
+		<result column="use_able" property="useAble" jdbcType="INTEGER" />
+		<result column="del_status" property="delStatus" jdbcType="INTEGER" />
+		<result column="login_time" property="loginTime" jdbcType="DATE" />
+		<result column="create_time" property="createTime" jdbcType="DATE" />
+	</resultMap>
+
+	<!-- 添加用户 -->
+	<insert id="saveUser" parameterType="support.base.pojo.po.SweetUser">
+		insert into sweet_user (id,
+		user_name, passwd,phone_num, create_time)
+		values (#{id},
+		#{userName},#{passwd},#{phoneNum},now())
+	</insert>
+
+	<update id="updateUser" parameterType="support.base.pojo.vo.SweetUserVo">
+		update sweet_user
+		<set>
+			<if test="phoneNum != null and phoneNum !=''">
+				 phone_num = #{ phoneNum},
+			</if>
+			<if test="avatarUrl != null and avatarUrl !=''">
+				 avatar_url = #{avatarUrl},
+			</if>
+			<if test="sex != null and sex !=''">
+				 sex = #{sex},
+			</if>
+			<if test="passwd != null and passwd !=''">
+				 passwd = #{ passwd},
+			</if>
+			<if test="useAble != null and useAble !=''">
+				 use_able = #{useAble},
+			</if>
+		</set>
+		<where>
+			 1=1
+			<if test="phoneNum != null and phoneNum !=''">
+				and phone_num = #{ phoneNum}
+			</if>
+			<if test="userName != null and userName !=''">
+				and user_name = #{userName}
+			</if>
+		</where>
+	</update>
+
+	<select id="queryUser" resultMap="sweetUser"
+		parameterType="support.base.pojo.vo.SweetUserVo">
+		select *
+		from sweet_user
+		<where>
+			1=1
+			<if test="phoneNum != null and phoneNum !=''">
+				and phone_num = #{phoneNum}
+			</if>
+			<if test="userName != null and userName !=''">
+				and user_name = #{userName}
+			</if>
+			<if test="passwd != null and passwd !=''">
+				and passwd = #{passwd}
+			</if>
+		</where>
+	</select>
+
+	<insert id="saveCollect" parameterType="support.base.pojo.po.SweetCollect">
+		insert into sweet_collect
+		(id, user_id, collect_product,collect_topic,collect_type)
+		values
+		(UUID(),#{userId},#{collectProduct},#{collectTopic},#{collectType})
+	</insert>
+
+</mapper>

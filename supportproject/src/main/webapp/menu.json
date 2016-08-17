@@ -1,0 +1,32 @@
+{
+   "menus" : [
+               {"icon" : "icon-sys","menuid" : "1","menuname" : "首页管理 ","url" : "","menus" : [
+                 {"icon" : "icon-log","menuid" : "1_1","menuname" : "添加商品","url" : "/supportproject/product/addProductView.action"
+                 },
+                 {"icon" : "icon-log","menuid" : "1_2","menuname" : "商品待上线","url" : "/supportproject/product/queryProductView.action?status=0&type=0"
+                 },
+                 {"icon" : "icon-log","menuid" : "1_3","menuname" : "商品已上线","url" : "/supportproject/product/queryProductView.action?status=1&type=0"
+                 },
+                 {"icon" : "icon-log","menuid" : "1_4","menuname" : "商品暂停中","url" : "/supportproject/product/queryProductView.action?status=2&type=0"
+                 },
+                 {"icon" : "icon-log","menuid" : "1_5","menuname" : "商品已删除","url" : "/supportproject/product/queryProductView.action?status=3&type=0"
+                 },
+                 {"icon" : "icon-log","menuid" : "1_6","menuname" : "商品数据统计","url" : "/supportproject/product/statisticsView.action?status=1&type=0"
+                 }] 
+               },
+               {"icon" : "icon-sys","menuid" : "2","menuname" : "专题管理 ","url" : "","menus" : [
+                  {"icon" : "icon-log","menuid" : "2_1","menuname" : "创建专题","url" : "/supportproject/topic/addTopicView.action"
+                 },
+                 {"icon" : "icon-log","menuid" : "2_2","menuname" : "专题待上线","url" : "/supportproject/topic/queryTopicView.action?status=0"
+                 },
+                 {"icon" : "icon-log","menuid" : "2_3","menuname" : "专题已上线","url" : "/supportproject/topic/queryTopicView.action?status=1"
+                 },
+                 {"icon" : "icon-log","menuid" : "2_4","menuname" : "专题暂停中","url" : "/supportproject/topic/queryTopicView.action?status=2"
+                 },
+                 {"icon" : "icon-log","menuid" : "2_5","menuname" : "专题已删除","url" : "/supportproject/topic/queryTopicView.action?status=3"
+                 },
+                 {"icon" : "icon-log","menuid" : "2_6","menuname" : "专题数据统计","url" : "/supportproject/topic/statisticsView.action?status=1"
+                 }] 
+               }
+             ]
+}

@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="support.base.dao.mapper.TopicMapper">
+	<resultMap id="topic" type="support.base.pojo.po.Topic">
+		<id column="id" jdbcType="VARCHAR" property="id" />
+		<result column="going_to" jdbcType="TINYINT" property="goingTo" />
+		<result column="dispaly_position" jdbcType="VARCHAR" property="dispalyPosition" />
+		<result column="topic_name" jdbcType="VARCHAR" property="topicName" />
+		<result column="topic_vice_name" jdbcType="VARCHAR" property="topicViceName" />
+		<result column="topic_desc" jdbcType="VARCHAR" property="topicDesc" />
+		<result column="banner_outterimg" jdbcType="VARCHAR" property="bannerOutterimg" />
+		<result column="banner_innerimg" jdbcType="VARCHAR" property="bannerInnerimg" />
+		<result column="shelves_time" jdbcType="TIMESTAMP" property="shelvesTime" />
+		<result column="collect_actually" jdbcType="BIGINT" property="collectActually" />
+		<result column="collect_manual" jdbcType="BIGINT" property="collectManual" />
+		<result column="scan_actually" jdbcType="BIGINT" property="scanActually" />
+		<result column="scan_manual" jdbcType="BIGINT" property="scanManual" />
+		<result column="sort_value" jdbcType="INTEGER" property="sortValue" />
+		<result column="category_id" jdbcType="BIGINT" property="categoryId" />
+		<result column="category_name" property="categoryName"
+			jdbcType="VARCHAR" />
+		<result column="remarks" jdbcType="VARCHAR" property="remarks" />
+		<result column="status" jdbcType="INTEGER" property="status" />
+		<result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+		<result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+	</resultMap>
+
+	<insert id="saveTopic" parameterType="support.base.pojo.po.Topic">
+		insert into sweet_topic (id,going_to, dispaly_position,
+		topic_name,
+		topic_vice_name,
+		banner_outterimg, banner_innerimg, shelves_time,
+		sort_value, category_id,
+		<if test="topicDesc != null">
+			topic_desc,
+		</if>
+		<if test="collectActually != null">
+			collect_actually,
+		</if>
+		<if test="collectManual != null">
+			collect_manual,
+		</if>
+		<if test="scanActually != null">
+			scan_actually,
+		</if>
+		<if test="scanManual != null">
+			scan_manual,
+		</if>
+		<if test="remarks != null">
+			remarks,
+		</if>
+		create_time,update_time)
+		values (UUID(),#{goingTo}, #{dispalyPosition},
+		#{topicName}, #{topicViceName},
+		#{bannerOutterimg},#{bannerInnerimg},#{shelvesTime},
+		#{sortValue},#{categoryId},
+		<if test="topicDesc != null">
+			#{topicDesc},
+		</if>
+		<if test="collectActually != null">
+			#{collectActually},
+		</if>
+		<if test="collectManual != null">
+			#{collectManual},
+		</if>
+		<if test="scanActually != null">
+			#{scanActually},
+		</if>
+		<if test="scanManual != null">
+			#{scanManual},
+		</if>
+
+		<if test="remarks != null">
+			#{remarks},
+		</if>
+		now(),now())
+	</insert>
+
+	<select id="queryTopicsNum" resultType="java.lang.Integer"
+		parameterType="support.base.pojo.vo.TopicVo">
+		select count(0)
+		from sweet_topic
+		<where>
+			1=1
+			<if test="status != null and status !=''">
+				and status = #{status}
+			</if>
+			<if test="shelvesTime != null and shelvesTime !=''">
+				<if test="scheduleTask != null and scheduleTask !=''">
+					and status =0
+				</if>
+				and shelves_time <![CDATA[<=]]>
+				#{shelvesTime}
+
+			</if>
+			<if test="dispalyPosition != null and dispalyPosition !=''">
+				and dispaly_position = #{dispalyPosition}
+			</if>
+			<if test="id != null and id !=''">
+				and id like CONCAT('%',#{id},'%')
+			</if>
+			<if test="topicName != null and topicName !=''">
+				and topic_name like CONCAT('%',#{topicName},'%')
+			</if>
+			<if test="categoryId != null and categoryId !=''">
+				and category_id = #{categoryId}
+			</if>
+			<!-- 附加查询统计字段 -->
+			<if test="begin != null and begin !=''">
+				and shelves_time <![CDATA[>]]>
+				#{begin}
+			</if>
+			<if test="end != null and end !=''">
+				and shelves_time <![CDATA[<]]>
+				#{end}
+			</if>
+		</where>
+	</select>
+
+	<select id="queryTopics" resultMap="topic"
+		parameterType="support.base.pojo.vo.TopicVo">
+		select a.*,b.category_name
+		from sweet_topic a
+		left join sweet_category b on
+		b.id=a.category_id
+		<where>
+			1=1
+			<if test="status != null and status !=''">
+				and status = #{status}
+			</if>
+			<if test="shelvesTime != null and shelvesTime !=''">
+				<if test="scheduleTask != null and scheduleTask !=''">
+					and status =0
+				</if>
+				and shelves_time <![CDATA[<=]]>
+				#{shelvesTime}
+
+			</if>
+			<if test="dispalyPosition != null and dispalyPosition !=''">
+				and dispaly_position = #{dispalyPosition}
+			</if>
+			<if test="id != null and id !=''">
+				and a.id like CONCAT('%',#{id},'%')
+			</if>
+			<if test="topicName != null and topicName !=''">
+				and topic_name like CONCAT('%',#{topicName},'%')
+			</if>
+			<if test="categoryId != null and categoryId !=''">
+				and category_id = #{categoryId}
+			</if>
+			<!-- 附加查询统计字段 -->
+			<if test="begin != null and begin !=''">
+				and shelves_time <![CDATA[>]]>
+				#{begin}
+			</if>
+			<if test="end != null and end !=''">
+				and shelves_time <![CDATA[<]]>
+				#{end}
+			</if>
+		</where>
+		order by shelves_time desc
+
+		<if test="pageQuery != null ">
+			limit
+			${pageQuery.PageQuery_start},${pageQuery.PageQuery_end}
+		</if>
+	</select>
+
+	<update id="updateTopic" parameterType="support.base.pojo.po.Topic">
+		update sweet_topic
+		<set>
+			<if test="goingTo != null">
+				going_to = #{goingTo},
+			</if>
+			<if test="dispalyPosition != null">
+				dispaly_position = #{dispalyPosition},
+			</if>
+			<if test="topicName != null">
+				topic_name = #{topicName},
+			</if>
+			<if test="topicViceName != null">
+				topic_vice_name = #{topicViceName},
+			</if>
+			<if test="topicDesc != null">
+				topic_desc = #{topicDesc}, 
+			</if>
+			<if test="bannerOutterimg != null">
+				banner_outterimg = #{bannerOutterimg},
+			</if>
+			<if test="bannerInnerimg != null">
+				banner_innerimg = #{bannerInnerimg},
+			</if>
+			<if test="shelvesTime != null">
+				shelves_time = #{shelvesTime},
+			</if>
+			<if test="collectActually != null">
+				collect_actually = #{collectActually},
+			</if>
+			<if test="collectManual != null">
+				collect_manual = #{collectManual},
+			</if>
+			<if test="scanActually != null">
+				scan_actually = #{scanActually},
+			</if>
+			<if test="scanManual != null">
+				scan_manual = #{scanManual},
+			</if>
+			<if test="sortValue != null">
+				sort_value = #{sortValue},
+			</if>
+			<if test="categoryId != null">
+				category_id = #{categoryId},
+			</if>
+			<if test="remarks != null">
+				remarks = #{remarks},
+			</if>
+			<if test="status != null">
+				status = #{status},
+			</if>
+			update_time = now(),
+		</set>
+		where id = #{id}
+	</update>
+
+	<!-- 批量更新数据 -->
+	<update id="updateTopics" parameterType="java.util.List">
+		<foreach collection="list" item="item" index="index" open=""
+			close="" separator=";">
+			update sweet_topic
+			<set>
+				status = #{item.status},
+				update_time = now()
+			</set>
+			where id = ${item.id}
+		</foreach>
+
+	</update>
+</mapper>

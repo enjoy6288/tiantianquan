@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="support.base.dao.mapper.FrontMapper">
+	<resultMap id="product" type="support.base.pojo.po.FrontProduct">
+		<id column="id" property="id" jdbcType="VARCHAR" />
+		<result column="img" property="img" jdbcType="VARCHAR" />
+		<result column="price_now" property="priceNow" jdbcType="VARCHAR" />
+		<result column="title" property="title" jdbcType="VARCHAR" />
+		<result column="product_desc" property="productDesc" jdbcType="VARCHAR" />
+		<result column="category_name" property="categoryName"
+			jdbcType="VARCHAR" />
+		<result column="link_url" property="linkUrl" jdbcType="VARCHAR" />
+		<result column="collect" jdbcType="BIGINT" property="collect" />
+	</resultMap>
+
+	<resultMap id="topic" type="support.base.pojo.po.FrontTopic">
+		<id column="id" jdbcType="VARCHAR" property="id" />
+		<result column="topic_name" jdbcType="VARCHAR" property="topicName" />
+		<result column="topic_vice_name" jdbcType="VARCHAR" property="topicViceName" />
+		<result column="topic_desc" jdbcType="VARCHAR" property="topicDesc" />
+		<result column="banner_outterimg" jdbcType="VARCHAR" property="bannerOutterimg" />
+		<result column="banner_innerimg" jdbcType="VARCHAR" property="bannerInnerimg" />
+		<result column="collect" jdbcType="BIGINT" property="collect" />
+		<result column="scan" jdbcType="BIGINT" property="scan" />
+	</resultMap>
+
+	<resultMap id="sweetCollect" type="support.base.pojo.po.SweetCollect">
+		<result column="id" property="id" jdbcType="VARCHAR" />
+		<result column="user_id" property="userId" jdbcType="VARCHAR" />
+		<result column="collect_product" property="collectProduct"
+			jdbcType="VARCHAR" />
+		<result column="collect_topic" property="collectTopic"
+			jdbcType="VARCHAR" />
+		<result column="link_url" property="linkUrl" jdbcType="VARCHAR" />
+		<result column="collect_type" property="collectType" jdbcType="INTEGER" />
+	</resultMap>
+
+	<select id="queryNewProducts" resultMap="product"
+		parameterType="support.base.pojo.vo.FrontQueryVo">
+		SELECT
+		a.id,
+		img,
+		price_now,
+		title,
+		link_url,
+		product_desc,
+		b.category_name,
+		(collect_actually+collect_manual) collect
+		from sweet_product a
+		left join
+		sweet_category b on b.id=a.category_id
+		<where>
+			status=1
+			<!-- 附加查询统计字段 -->
+			<if test="beginTime != null and beginTime !=''">
+				and date_format(shelves_time, '%Y-%m-%d') <![CDATA[>=]]>
+				date_format(#{beginTime}, '%Y-%m-%d')
+			</if>
+			<if test="endTime != null and endTime !=''">
+				and date_format(shelves_time, '%Y-%m-%d') <![CDATA[<=]]>
+				date_format(#{endTime}, '%Y-%m-%d')
+			</if>
+
+			<if test="topicId != null and topicId !=''">
+				and topic_id = #{topicId}
+			</if>
+		</where>
+		ORDER BY sort_value DESC
+		<if test="limitNum != null and limitNum !=''">
+			limit 0,${limitNum}
+		</if>
+	</select>
+
+	<select id="queryTopics" resultMap="topic"
+		parameterType="support.base.pojo.vo.FrontQueryVo">
+		SELECT
+		id,
+		topic_name,
+		topic_vice_name,
+		topic_desc,
+		banner_innerimg,
+		banner_outterimg,
+		(scan_actually+scan_manual) scan,
+		(collect_actually+collect_manual) collect
+		FROM
+		sweet_topic
+		<where>
+			status=1
+			<if test="topicId != null and topicId !=''">
+				and id = #{topicId}
+			</if>
+			<if test="dispalyPosition != null and dispalyPosition !=''">
+				and dispaly_position = #{dispalyPosition}
+			</if>
+			<if test="beginTime != null and beginTime !=''">
+				and date_format(shelves_time, '%Y-%m-%d') <![CDATA[>=]]>
+				date_format(#{beginTime}, '%Y-%m-%d')
+			</if>
+			<if test="endTime != null and endTime !=''">
+				and date_format(shelves_time, '%Y-%m-%d') <![CDATA[<=]]>
+				date_format(#{endTime}, '%Y-%m-%d')
+			</if>
+		</where>
+		ORDER BY sort_value DESC
+		<if test="limitNum != null and limitNum !=''">
+			limit 0,${limitNum}
+		</if>
+
+	</select>
+
+	<select id="queryProductCollect" resultMap="product"
+		parameterType="support.base.pojo.vo.SweetCollectVo">
+		select
+		a.id,
+		a.img,
+		a.price_now,
+		a.title,
+		link_url,
+		a.product_desc,
+		b.category_name,
+		(collect_actually+collect_manual) collect
+		from sweet_product a
+		LEFT JOIN
+		sweet_category b on b.id=a.category_id
+		LEFT JOIN sweet_collect c on
+		a.id=c.collect_product
+		<where>
+			collect_type = 0
+			<if test="userId != null and userId !=''">
+				and user_id = #{userId}
+			</if>
+		</where>
+	</select>
+
+	<select id="queryTopicCollect" resultMap="topic"
+		parameterType="support.base.pojo.vo.SweetCollectVo">
+		select
+		a.topic_name,
+		a.topic_vice_name,
+		a.topic_desc,
+		a.banner_innerimg,
+		a.banner_outterimg,
+		(scan_actually+scan_manual) scan,
+		(collect_actually+collect_manual) collect
+		from sweet_topic a
+		LEFT JOIN
+		sweet_collect b on a.id=b.collect_topic
+		<where>
+			collect_type = 1
+			<if test="userId != null and userId !=''">
+				and user_id = #{userId}
+			</if>
+		</where>
+	</select>
+
+	<select id="queryCollect" resultMap="sweetCollect"
+		parameterType="support.base.pojo.vo.SweetCollectVo">
+		select *
+		from sweet_collect
+		<where>
+			<if test="userId != null and userId !=''">
+				and user_id = #{userId}
+			</if>
+			<if test="collectProduct != null and collectProduct !=''">
+				and collect_product = #{collectProduct}
+			</if>
+			<if test="collectTopic != null and collectTopic !=''">
+				and collect_topic = #{collectTopic}
+			</if>
+		</where>
+	</select>
+
+</mapper>

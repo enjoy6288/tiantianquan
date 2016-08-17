@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="support.base.dao.mapper.ProductMapper">
+	<resultMap id="product" type="support.base.pojo.po.Product">
+		<id column="id" property="id" jdbcType="VARCHAR" />
+		<result column="type" property="type" jdbcType="TINYINT" />
+		<result column="topic_id" property="topicId" jdbcType="VARCHAR" />
+		<result column="category_id" property="categoryId" jdbcType="BIGINT" />
+		<result column="category_name" property="categoryName" jdbcType="BIGINT" />
+		<result column="going_to" property="goingTo" jdbcType="TINYINT" />
+		<result column="link_url" property="linkUrl" jdbcType="VARCHAR" />
+		<result column="taobao_id" property="taobaoId" jdbcType="VARCHAR" />
+		<result column="title" property="title" jdbcType="VARCHAR" />
+		<result column="product_desc" property="productDesc" jdbcType="VARCHAR" />
+		<result column="img" property="img" jdbcType="VARCHAR" />
+		<result column="price_now" property="priceNow" jdbcType="VARCHAR" />
+		<result column="price_old" property="priceOld" jdbcType="VARCHAR" />
+		<result column="collect_actually" property="collectActually"
+			jdbcType="BIGINT" />
+		<result column="collect_manual" property="collectManual"
+			jdbcType="BIGINT" />
+		<result column="shelves_time" property="shelvesTime" jdbcType="TIMESTAMP" />
+		<result column="sort_value" property="sortValue" jdbcType="INTEGER" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+		<result column="remarks" property="remarks" jdbcType="VARCHAR" />
+		<result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+		<result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<resultMap id="category" type="support.base.pojo.po.Category">
+		<id column="id" property="id" jdbcType="BIGINT" />
+		<result column="category_name" property="categoryName"
+			jdbcType="VARCHAR" />
+		<result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+
+	<insert id="saveProduct" parameterType="support.base.pojo.po.Product">
+		insert into sweet_product
+		(id,topic_id, category_id,going_to, link_url,
+		taobao_id,title, product_desc,
+		img,price_now,
+		<if test="type != null">
+			type,
+		</if>
+		<if test="priceOld != null">
+			price_old,
+		</if>
+		<if test="collectActually != null">
+			collect_actually,
+		</if>
+
+		<if test="collectManual != null">
+			collect_manual,
+		</if>
+		<if test="remarks != null">
+			remarks,
+		</if>
+		shelves_time, sort_value,create_time,update_time)
+		values (UUID(),#{topicId},
+		#{categoryId},#{goingTo}, #{linkUrl}, #{taobaoId},
+		#{title},
+		#{productDesc},#{img},#{priceNow},
+		<if test="type != null">
+			#{type},
+		</if>
+		<if test="priceOld != null">
+			#{priceOld},
+		</if>
+		<if test="collectActually != null">
+			#{collectActually},
+		</if>
+		<if test="collectManual != null">
+			#{collectManual},
+		</if>
+		<if test="remarks != null">
+			#{remarks},
+		</if>
+		#{shelvesTime},#{sortValue},now(),now())
+	</insert>
+
+	<select id="queryProductsNum" resultType="java.lang.Integer"
+		parameterType="support.base.pojo.vo.ProductVo">
+		select count(0)
+		from sweet_product
+		<where>
+			1=1
+			<if test="type != null and type !=''">
+				and type = #{type}
+			</if>
+			<if test="status != null and status !=''">
+				and status = #{status}
+			</if>
+			<if test="shelvesTime != null and shelvesTime !=''">
+				and shelves_time <![CDATA[<=]]> #{shelvesTime}
+			</if>
+			<if test="taobaoId != null and taobaoId !=''">
+				and taobao_id = #{taobaoId}
+			</if>
+			<if test="topicId != null and topicId !=''">
+				and topic_id = #{topicId}
+			</if>
+			<if test="categoryId != null and categoryId !=''">
+				and category_id = #{categoryId}
+			</if>
+			<if test="title != null and title !=''">
+				and title like CONCAT('%',#{title},'%')  
+			</if>
+			<!-- 附加查询统计字段 -->
+			<if test="begin != null and begin !=''">
+				and shelves_time <![CDATA[>]]> #{begin}
+			</if>
+			<if test="end != null and end !=''">
+				and shelves_time <![CDATA[<]]> #{end}
+			</if>
+		</where>
+	</select>
+
+	<select id="queryProducts" resultMap="product"
+		parameterType="support.base.pojo.vo.ProductVo">
+		select a.*,b.category_name 
+		from sweet_product a
+		left join sweet_category b on b.id=a.category_id
+		<where>
+			1=1
+			<if test="id != null and id !=''">
+				and a.id = #{id}
+			</if>
+			<if test="type != null and type !=''">
+				and type = #{type}
+			</if>
+			<if test="topicId != null and topicId !=''">
+				and topic_id = #{topicId}
+			</if>
+			<if test="status != null and status !=''">
+				and status = #{status}
+			</if>
+			<if test="shelvesTime != null and shelvesTime !=''">
+				<if test="scheduleTask != null and scheduleTask !=''">
+					and status =0
+				</if>
+				and shelves_time <![CDATA[<=]]>
+				#{shelvesTime}
+
+			</if>
+			<if test="taobaoId != null and taobaoId !=''">
+				and taobao_id = #{taobaoId}
+			</if>
+			<if test="categoryId != null and categoryId !=''">
+				and category_id = #{categoryId}
+			</if>
+			<if test="title != null and title !=''">
+				and title like CONCAT('%',#{title},'%')  
+			</if>
+			
+			<!-- 附加查询统计字段 -->
+			<if test="begin != null and begin !=''">
+				and shelves_time <![CDATA[>]]> #{begin}
+			</if>
+			<if test="end != null and end !=''">
+				and shelves_time <![CDATA[<]]> #{end}
+			</if>
+		</where>
+			order by shelves_time desc
+		<if test="pageQuery != null ">
+			limit
+			${pageQuery.PageQuery_start},${pageQuery.PageQuery_end}
+		</if>
+	</select>
+
+
+
+	<update id="updateProduct" parameterType="support.base.pojo.po.Product">
+		update sweet_product
+		<set>
+			<if test="topicId != null">
+				topic_id = #{topicId},
+			</if>
+			<if test="categoryId != null">
+				category_id = #{categoryId},
+			</if>
+			<if test="goingTo != null">
+				going_to = #{goingTo},
+			</if>
+			<if test="linkUrl != null">
+				link_url = #{linkUrl},
+			</if>
+			<if test="taobaoId != null">
+				taobao_id = #{taobaoId},
+			</if>
+			<if test="title != null">
+				title = #{title},
+			</if>
+			<if test="productDesc != null">
+				product_desc = #{productDesc},
+			</if>
+			<if test="img != null">
+				img = #{img},
+			</if>
+			<if test="priceNow != null">
+				price_now = #{priceNow},
+			</if>
+			<if test="priceOld != null">
+				price_old = #{priceOld},
+			</if>
+			<if test="collectActually != null">
+				collect_actually = #{collectActually},
+			</if>
+			<if test="collectManual != null">
+				collect_manual = #{collectManual},
+			</if>
+			<if test="shelvesTime != null">
+				shelves_time = #{shelvesTime},
+			</if>
+			<if test="sortValue != null">
+				sort_value = #{sortValue},
+			</if>
+			<if test="status != null">
+				status = #{status},
+			</if>
+			<if test="remarks != null">
+				remarks = #{remarks},
+			</if>
+			update_time = now()
+		</set>
+		where id = #{id}
+	</update>
+
+	<!-- 批量更新数据 -->
+	<update id="updateProducts" parameterType="java.util.List">
+		<foreach collection="list" item="item" index="index" open=""
+			close="" separator=";">
+			update sweet_product
+			<set>
+				status = #{item.status},
+				update_time = now()
+			</set>
+			where id = ${item.id}
+		</foreach>
+
+	</update>
+
+
+	<select id="queryCategorys" parameterType="java.lang.Integer" resultMap="category">
+		select id, category_name
+		from sweet_category
+		<if test="id != null and id != '' ">
+				where id=#{id}
+		</if>
+	</select>
+</mapper>
