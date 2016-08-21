@@ -8,8 +8,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
-import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
@@ -20,7 +22,6 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
-import org.apache.http.util.EntityUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -137,13 +138,13 @@ public class CommonUtil {
 
 	public static String upload(MultipartFile img,String position) {
 		String imgPath = "";
-		String realPath = SpringPropertyUtil.getContextProperty(position);
+		String realPath = SpringPropertyUtil.getContextProperty(Constant.FILE_PATH_PREFIX);
 		try {
 			if (img != null) {
 				SimpleDateFormat sdf = new SimpleDateFormat(
 						"yyyy_MM_dd_HH_mm_ss");
 				String format = sdf.format(new Date());
-				imgPath =format + ".jpg";
+				imgPath =position+format + ".jpg";
 				realPath=realPath+imgPath;
 				imgPath=SpringPropertyUtil.getContextProperty(Constant.IMG_PREFIX)+imgPath;
 				File localFile = new File(realPath);
@@ -158,4 +159,38 @@ public class CommonUtil {
 		}
 		return imgPath;
 	}
+	
+	   /**
+     * 接口签名算法,
+     *
+     * @param params
+     * @param secret
+     * @return
+     */
+    public static String getSignature(Map<String, String> params) {
+        // 先将参数以其参数名的字典序升序进行排序
+        Map<String, String> sortedParams = new TreeMap<>(params);
+        Set<Map.Entry<String, String>> entrySet = sortedParams.entrySet();
+
+        // 遍历排序后的字典，将所有参数按"key=value"格式拼接在一起
+        StringBuilder result = new StringBuilder();
+        for (Map.Entry<String, String> param : entrySet) {
+            result.append(param.getKey()).append("=").append(param.getValue());
+        }
+        result.append("sweetq");
+
+        // 使用MD5对待签名串求签
+        byte[] bytes = MD5Utils.md5Digest(result.toString());
+
+        // 将MD5输出的二进制结果转换为小写的十六进制
+        StringBuilder sign = new StringBuilder();
+        for (int i = 0; i < bytes.length; i++) {
+            String hex = Integer.toHexString(bytes[i] & 0xFF);
+            if (hex.length() == 1) {
+                sign.append("0");
+            }
+            sign.append(hex);
+        }
+        return sign.toString();
+    }
 }

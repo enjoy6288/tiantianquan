@@ -1,8 +1,11 @@
 package support.base.dao.mapper;
 
 
+import java.util.List;
+
 import support.base.pojo.po.SweetCollect;
 import support.base.pojo.po.SweetUser;
+import support.base.pojo.vo.SweetCollectVo;
 import support.base.pojo.vo.SweetUserVo;
 
 public interface SweetUserMapper {
@@ -10,7 +13,7 @@ public interface SweetUserMapper {
 
 	SweetUser queryUser(SweetUserVo vo);
 
-	int saveCollect(SweetCollect sweetCollect);
+	int saveCollect(List<SweetCollectVo> vos);
 	
 	int updateUser(SweetUserVo vo);
 

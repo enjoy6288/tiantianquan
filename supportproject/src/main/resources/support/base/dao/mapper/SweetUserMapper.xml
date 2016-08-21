@@ -26,23 +26,26 @@
 		update sweet_user
 		<set>
 			<if test="phoneNum != null and phoneNum !=''">
-				 phone_num = #{ phoneNum},
+				phone_num = #{ phoneNum},
 			</if>
 			<if test="avatarUrl != null and avatarUrl !=''">
-				 avatar_url = #{avatarUrl},
+				avatar_url = #{avatarUrl},
 			</if>
 			<if test="sex != null and sex !=''">
-				 sex = #{sex},
+				sex = #{sex},
 			</if>
 			<if test="passwd != null and passwd !=''">
-				 passwd = #{ passwd},
+				passwd = #{ passwd},
 			</if>
 			<if test="useAble != null and useAble !=''">
-				 use_able = #{useAble},
+				use_able = #{useAble},
 			</if>
 		</set>
 		<where>
-			 1=1
+			1=1
+			<if test="phoneNum != null and phoneNum !=''">
+				and id=#{id}
+			</if>
 			<if test="phoneNum != null and phoneNum !=''">
 				and phone_num = #{ phoneNum}
 			</if>
@@ -70,11 +73,14 @@
 		</where>
 	</select>
 
-	<insert id="saveCollect" parameterType="support.base.pojo.po.SweetCollect">
+	<insert id="saveCollect" parameterType="java.util.List">
 		insert into sweet_collect
 		(id, user_id, collect_product,collect_topic,collect_type)
-		values
-		(UUID(),#{userId},#{collectProduct},#{collectTopic},#{collectType})
+		 values
+		<foreach collection="list" item="item" index="index" separator=",">
+        (UUID(),#{item.userId},#{item.collectProduct},#{item.collectTopic},#{item.collectType})     
+   	 	</foreach>
 	</insert>
+	
 
 </mapper>

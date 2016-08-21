@@ -42,7 +42,7 @@ public class TopicAction {
 	// 添加专题页面
 	@RequestMapping("/addTopicView")
 	public String addTopicView(Model model) {
-		List<Category> categorys = productService.queryCategorys(null);
+		List<Category> categorys = (List<Category>) productService.queryCategorys(null);
 		model.addAttribute("categorys", categorys);
 		return "/topic/addTopic";
 	}
@@ -62,7 +62,7 @@ public class TopicAction {
 	@RequestMapping("/updateTopicView")
 	public String updateTopicView(Model model, TopicVo vo) {
 		// 获取类别信息
-		List<Category> categorys = productService.queryCategorys(null);
+		List<Category> categorys = (List<Category>) productService.queryCategorys(null);
 		model.addAttribute("categorys", categorys);
 		// 获取商品信息
 		List<Topic> topics = topicService.queryTopics(vo);
@@ -87,7 +87,7 @@ public class TopicAction {
 			if (file.exists()) {
 				file.delete();
 			}
-			topic.setBannerOutterimg(CommonUtil.upload(out,Constant.TOPIC_FILE_PATH));
+			topic.setBannerOutterimg(CommonUtil.upload(out,Constant.TOPIC));
 		}
 
 		// 内部banner
@@ -97,7 +97,7 @@ public class TopicAction {
 			if (file.exists()) {
 				file.delete();
 			}
-			topic.setBannerInnerimg(CommonUtil.upload(inner,Constant.TOPIC_FILE_PATH));
+			topic.setBannerInnerimg(CommonUtil.upload(inner,Constant.TOPIC));
 		}
 		topicService.updateTopic(topic);
 		return ResultUtil.createSubmitResult(ResultUtil.createSuccess(
@@ -107,7 +107,7 @@ public class TopicAction {
 	// 查询专题页面
 	@RequestMapping("/queryTopicView")
 	public String queryTopicView(Model model, int status) {
-		List<Category> categorys = productService.queryCategorys(null);
+		List<Category> categorys = (List<Category>) productService.queryCategorys(null);
 		model.addAttribute("categorys", categorys);
 		model.addAttribute("status", status);
 		return "/topic/topicList";
@@ -189,7 +189,7 @@ public class TopicAction {
 	// 商品统计页面
 	@RequestMapping("/statisticsView")
 	public String statisticsView(Model model, TopicVo vo) {
-		List<Category> categorys = productService.queryCategorys(null);
+		List<Category> categorys = (List<Category>) productService.queryCategorys(null);
 		model.addAttribute("categorys", categorys);
 		model.addAttribute("topic", vo);
 		return "/topic/topicStatistics";

@@ -1,16 +1,16 @@
 package support.base.util;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpSession;
+/**
+ * 缓存用户收藏的商品信息
+ * @author NE1634
+ *
+ */
+public class CollectCache {
 
-import support.base.pojo.po.Category;
-
-public class CommonUse {
-
-	private CommonUse() {
+	private CollectCache() {
 	}
 
 	private static Map<String, Object> caches;

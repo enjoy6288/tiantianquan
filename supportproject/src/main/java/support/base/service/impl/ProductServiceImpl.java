@@ -59,7 +59,7 @@ public class ProductServiceImpl implements ProductService {
 		if (!StringUtils.isEmpty(vo.getTopicId())) {
 			product.setType((byte) 1);
 		}
-		product.setImg(CommonUtil.upload(img,Constant.PRODUCT_FILE_PATH));
+		product.setImg(CommonUtil.upload(img,Constant.PRODUCT));
 		CommonUtil.VoToPo(vo, product);
 		return productMapper.saveProduct(product);
 	}
@@ -73,8 +73,8 @@ public class ProductServiceImpl implements ProductService {
 	public List<Category> queryCategorys(Long id) {
 		List<Category> categorys = null;
 		if (id == null) {
-			categorys = CommonUse.getCache("categorys") == null ? null
-					: CommonUse.getCache("categorys");
+			categorys =(List<Category>) ( CommonUse.getCache("categorys") == null ? null
+					: CommonUse.getCache("categorys"));
 			if (categorys == null) {
 				categorys = productMapper.queryCategorys(id);
 				CommonUse.addCache("categorys", categorys);

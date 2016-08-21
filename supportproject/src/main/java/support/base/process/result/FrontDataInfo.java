@@ -11,8 +11,8 @@ import java.util.Map;
  */
 public class FrontDataInfo {
 	//结果集
-	private Map data=new HashMap<String,List<Object>>();
-	private int code=0;
+	private Map data=new HashMap<String,Object>();
+	private int code=1;
 	private String info="操作成功";
 	public Map getData() {
 		return data;

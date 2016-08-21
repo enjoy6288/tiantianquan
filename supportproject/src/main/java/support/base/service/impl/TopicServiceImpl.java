@@ -42,11 +42,11 @@ public class TopicServiceImpl implements TopicService {
 		CommonUtil.VoToPo(vo, topic);
 		// 外部banner
 		if (out != null) {
-			topic.setBannerOutterimg(CommonUtil.upload(out,Constant.TOPIC_FILE_PATH));
+			topic.setBannerOutterimg(CommonUtil.upload(out,Constant.TOPIC));
 		}
 		// 内部banner
 		if (inner != null) {
-			topic.setBannerInnerimg(CommonUtil.upload(inner,Constant.TOPIC_FILE_PATH));
+			topic.setBannerInnerimg(CommonUtil.upload(inner,Constant.TOPIC));
 		}
 		topicMapper.saveTopic(topic);
 	}

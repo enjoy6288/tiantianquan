@@ -52,12 +52,10 @@
 			<mvc:exclude-mapping path="/css/**" />
 			<mvc:exclude-mapping path="/images/**" />
 			<mvc:exclude-mapping path="/styles/**" />
-			<mvc:exclude-mapping path="/user/**" /> 
 			<bean class="support.base.interceptor.SessionInterceptor" /> 
 		</mvc:interceptor> 
 	</mvc:interceptors>
-
-
+	
 	<!-- 视图解析器 -->
 	<bean
 		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
@@ -93,8 +91,7 @@
 		class="org.springframework.http.converter.StringHttpMessageConverter">
 		<property name="defaultCharset" value="UTF-8" />
 	</bean>
-
-
+	
 	<!-- sping task -->
 	<context:component-scan base-package="support.base.job" />
 	<task:scheduled-tasks>
@@ -102,6 +99,10 @@
 			cron="0 0 0 * * ? " />
 		<task:scheduled ref="topicTaskJob" method="job"
 			cron="0 0 0 * * ? " />
+			<task:scheduled ref="collectTaskJob" method="job"
+			cron="*/5 0 0 * * ? " />
 	</task:scheduled-tasks>
+	
+	
 
 </beans>

@@ -13,6 +13,9 @@ import support.base.action.ProductAction;
 import support.base.job.runThread.ProductRunnable;
 import support.base.service.ProductService;
 
+/**
+ * 执行product上线任务
+ */
 @Service
 public class ProductTaskJob {
 	@Autowired

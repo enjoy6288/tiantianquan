@@ -1,6 +1,7 @@
 package support.base.service;
 
-import javax.servlet.http.HttpSession;
+
+import org.springframework.web.multipart.MultipartFile;
 
 import com.alibaba.fastjson.JSONObject;
 
@@ -11,11 +12,12 @@ import support.base.pojo.vo.SweetUserVo;
 
 public interface UserService {
 	JSONObject saveUser(SweetUserVo vo);
-	JSONObject updateUser(SweetUserVo vo);
-	JSONObject login(SweetUserVo vo,HttpSession session);
-	JSONObject sendMsg(SweetUserVo vo,HttpSession session);
+	JSONObject updateUser(SweetUserVo vo,MultipartFile avatarImg);
+	JSONObject login(SweetUserVo vo);
+	JSONObject sendMsg(SweetUserVo vo);
 	JSONObject collect(SweetCollectVo vo);
-	JSONObject checkPhoneCode(SweetUserVo vo,HttpSession session);
+	JSONObject checkPhoneCode(SweetUserVo vo);
+	void saveCollect();
 	
 	
 }

@@ -1,38 +1,29 @@
 package support.base.action;
 
 import java.io.File;
-import java.security.MessageDigest;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import support.base.pojo.po.Category;
-import support.base.pojo.po.FrontProduct;
 import support.base.pojo.po.Product;
 import support.base.pojo.vo.PageQuery;
 import support.base.pojo.vo.ProductVo;
 import support.base.pojo.vo.StatisticDataInfo;
 import support.base.process.context.Config;
 import support.base.process.result.DataGridResultInfo;
-import support.base.process.result.ExceptionResultInfo;
-import support.base.process.result.ResultInfo;
 import support.base.process.result.ResultUtil;
 import support.base.process.result.SubmitResultInfo;
 import support.base.service.ProductService;
 import support.base.util.CommonUtil;
 import support.base.util.Constant;
-import support.base.util.SpringPropertyUtil;
 
 @Controller
 @RequestMapping("/product")
@@ -55,7 +46,7 @@ public class ProductAction {
 	// 商品统计
 	@RequestMapping("/statisticsView")
 	public String statisticsView(Model model, ProductVo vo) {
-		List<Category> categorys = productService.queryCategorys(null);
+		List<Category> categorys = (List<Category>) productService.queryCategorys(null);
 		model.addAttribute("categorys", categorys);
 		model.addAttribute("product", vo);
 		return "/product/productStatistics";
@@ -84,7 +75,7 @@ public class ProductAction {
 	// 添加商品页面
 	@RequestMapping("/addProductView")
 	public String addProductView(Model model, String topicId) {
-		List<Category> categorys = productService.queryCategorys(null);
+		List<Category> categorys = (List<Category>) productService.queryCategorys(null);
 		model.addAttribute("categorys", categorys);
 		model.addAttribute("topicId", topicId);
 		return "/product/addProduct";
@@ -103,7 +94,7 @@ public class ProductAction {
 	// 查询商品页面
 	@RequestMapping("/queryProductView")
 	public String queryProductView(Model model, ProductVo vo) {
-		List<Category> categorys = productService.queryCategorys(null);
+		List<Category> categorys = (List<Category>) productService.queryCategorys(null);
 		model.addAttribute("categorys", categorys);
 		model.addAttribute("product", vo);
 		return "/product/productList";
@@ -133,7 +124,7 @@ public class ProductAction {
 	@RequestMapping("/updateProductView")
 	public String updateProductView(Model model, ProductVo vo) {
 		// 获取类别信息
-		List<Category> categorys = productService.queryCategorys(null);
+		List<Category> categorys = (List<Category>) productService.queryCategorys(null);
 		model.addAttribute("categorys", categorys);
 		// 获取商品信息
 		List<Product> products = productService.queryProducts(vo);
@@ -156,7 +147,7 @@ public class ProductAction {
 			if (file.exists()) {
 				file.delete();
 			}
-			product.setImg(CommonUtil.upload(img,Constant.PRODUCT_FILE_PATH));
+			product.setImg(CommonUtil.upload(img,Constant.PRODUCT));
 		}
 		productService.updateProduct(product);
 		return ResultUtil.createSubmitResult(ResultUtil.createSuccess(Config.MESSAGE, 201, null));

@@ -6,7 +6,47 @@ public class SweetCollectVo {
     private String collectProduct;
     private String collectTopic;
     private String collectType;
-    public String getId() {
+    
+    @Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((collectProduct == null) ? 0 : collectProduct.hashCode());
+		result = prime * result
+				+ ((collectTopic == null) ? 0 : collectTopic.hashCode());
+		result = prime * result + ((userId == null) ? 0 : userId.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		SweetCollectVo other = (SweetCollectVo) obj;
+		if (collectProduct == null) {
+			if (other.collectProduct != null)
+				return false;
+		} else if (!collectProduct.equals(other.collectProduct))
+			return false;
+		if (collectTopic == null) {
+			if (other.collectTopic != null)
+				return false;
+		} else if (!collectTopic.equals(other.collectTopic))
+			return false;
+		if (userId == null) {
+			if (other.userId != null)
+				return false;
+		} else if (!userId.equals(other.userId))
+			return false;
+		return true;
+	}
+
+	public String getId() {
         return id;
     }
 

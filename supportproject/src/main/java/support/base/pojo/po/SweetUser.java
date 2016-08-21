@@ -14,6 +14,8 @@ public class SweetUser {
     private String passwd;
 
     private String phoneNum;
+    
+    private String token;
 
     private Integer useAble;
 
@@ -101,5 +103,13 @@ public class SweetUser {
 
 	public void setSex(Integer sex) {
 		this.sex = sex;
+	}
+
+	public String getToken() {
+		return token;
+	}
+
+	public void setToken(String token) {
+		this.token = token;
 	}
 }

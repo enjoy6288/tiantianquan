@@ -17,7 +17,7 @@ public interface ProductService {
 
 	void updateProduct(Product record);
 
-	List<Category> queryCategorys(Long id);
+	Object queryCategorys(Long id);
 	
 	void updateProducts(List<Product> products);
 }

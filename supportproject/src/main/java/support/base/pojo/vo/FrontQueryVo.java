@@ -5,6 +5,7 @@ import java.util.Date;
 
 
 public class FrontQueryVo {
+	
 	private String topicId;
 	//查询单品类型 
 	private String queryProductType;

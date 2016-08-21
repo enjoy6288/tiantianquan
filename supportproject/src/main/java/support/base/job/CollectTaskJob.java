@@ -8,21 +8,21 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import support.base.job.runThread.TopicRunnable;
-import support.base.service.TopicService;
+import support.base.job.runThread.CollectRunnable;
+import support.base.service.UserService;
 
 /**
- * 执行topic上线任务
+ * 执行用户的收藏入库任务
  */
 @Service
-public class TopicTaskJob {
+public class CollectTaskJob {
 	@Autowired
-	TopicService topicService;
-	Logger logger = Logger.getLogger(TopicTaskJob.class);
+	UserService userService;
+	Logger logger = Logger.getLogger(CollectTaskJob.class);
 	private static ExecutorService workerPool = Executors.newFixedThreadPool(1);
 
 	public void job() {
-		logger.info("执行topic任务" + new Date());
-		workerPool.submit(new TopicRunnable(topicService));
+		logger.info("执行收藏任务" + new Date());
+		workerPool.submit(new CollectRunnable(userService));
 	}
 }

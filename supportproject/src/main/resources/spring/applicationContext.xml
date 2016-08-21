@@ -1,4 +1,5 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:task="http://www.springframework.org/schema/task"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"
 	xmlns:context="http://www.springframework.org/schema/context"
 	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
@@ -11,7 +12,9 @@
 		http://www.springframework.org/schema/aop 
 		http://www.springframework.org/schema/aop/spring-aop-3.1.xsd 
 		http://www.springframework.org/schema/tx 
-		http://www.springframework.org/schema/tx/spring-tx-3.1.xsd ">
+		http://www.springframework.org/schema/tx/spring-tx-3.1.xsd 
+		http://www.springframework.org/schema/task
+        http://www.springframework.org/schema/task/spring-task-3.1.xsd">
 
 	<!-- 加载配置文件 -->
 	<context:property-placeholder location="classpath:db.properties" />
@@ -69,4 +72,5 @@
 		<aop:advisor advice-ref="txAdvice"
 			pointcut="execution(* support.*.service.impl.*.*(..))" />
 	</aop:config>
+	
 </beans>
