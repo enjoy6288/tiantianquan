@@ -1,6 +1,7 @@
 package support.base.service.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -10,6 +11,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -64,18 +66,23 @@ public class UserServiceImpl implements UserService {
 		if (user != null) {// 操作成功
 			jsonObject = ResultUtil.createJSONPObject(Config.MESSAGE, 201,
 					ResultInfo.TYPE_RESULT_SUCCESS);
-			String token = UUID.randomUUID().toString();
 			user.setPasswd("");
-			user.setToken(token);
 			Map<String, Object> userMap = new HashMap<>();
 			userMap.put("user", user);
 			jsonObject.put("data", userMap);
-			CommonUse.addCache("token", token);
+			CommonUse.addCache(user.getToken(), user.getToken());
 		} else {// 用户或密码不正确
 			jsonObject = ResultUtil.createJSONPObject(Config.MESSAGE, 306,
 					ResultInfo.TYPE_RESULT_FAIL);
 		}
 		return jsonObject;
+	}
+	
+	@Override
+	public JSONObject loginOut(SweetUserVo vo) {
+		CommonUse.removeCache(vo.getToken());
+		return  ResultUtil.createJSONPObject(Config.MESSAGE, 201,
+				ResultInfo.TYPE_RESULT_SUCCESS);
 	}
 
 	@Override
@@ -132,6 +139,7 @@ public class UserServiceImpl implements UserService {
 		sweetUser.setPasswd(vo.getNewPasswd());
 		UUID randomUUID = UUID.randomUUID();
 		sweetUser.setId(randomUUID.toString());
+		sweetUser.setToken(UUID.randomUUID().toString());
 		int result = userMapper.saveUser(sweetUser);
 		JSONObject jsonObject = null;
 		if (result > 0) {// 操作成功
@@ -146,39 +154,41 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public JSONObject collect(SweetCollectVo vo) {
-		
-		Set<SweetCollectVo> collects = (Set<SweetCollectVo>) CollectCache.getCache("collects");
-		if(collects==null){
-			collects=new HashSet<>();
-		}
+		String userToken = "adfdafd_dsf123";
+		Set<SweetCollectVo> collects = CollectCache.getCache(userToken);
 		collects.add(vo);
-		CollectCache.addCache("collects", collects);
+		CollectCache.addCache(userToken, collects);
 		return ResultUtil.createJSONPObject(Config.MESSAGE, 201,
 				ResultInfo.TYPE_RESULT_SUCCESS);
 	}
-	
+
 	@Override
 	public void saveCollect() {
-		/*List<SweetCollect> collect = frontMapper.queryCollect(vo);
-		if (collect != null && collect.size() > 0) {
-			return ;
-		}*/
-		List<SweetCollectVo> vos=new ArrayList<>();
-		Set<SweetCollectVo> collects = (Set<SweetCollectVo>) CollectCache.getCache("collects");
-		for (SweetCollectVo vo : collects) {
-			String collectTopic = vo.getCollectTopic();
-			// 0为商品 1为主题
-			if (StringUtils.isEmpty(collectTopic)) {
-				vo.setCollectType("0");
-			} else {
-				vo.setCollectType("1");
+		/*
+		 * List<SweetCollect> collect = frontMapper.queryCollect(vo); if
+		 * (collect != null && collect.size() > 0) { return ; }
+		 */
+		List<SweetCollectVo> vos = new ArrayList<>();
+		String userToken = "adfdafd_dsf123";
+		Set<SweetCollectVo> collects = CollectCache.getCache(userToken);
+		if (collects.size() > 0) {
+			for (SweetCollectVo vo : collects) {
+				String collectTopic = vo.getCollectTopic();
+				// 0为商品 1为主题
+				if (StringUtils.isEmpty(collectTopic)) {
+					vo.setCollectType("0");
+				} else {
+					vo.setCollectType("1");
+				}
+				vos.add(vo);
 			}
-			vos.add(vo);
+			if (vos.size() > 0) {
+				userMapper.saveCollect(vos);
+			}
+			CollectCache.removeCache(userToken);
 		}
-		userMapper.saveCollect(vos);
+
 	}
-	
-	
 
 	@Override
 	public JSONObject updateUser(SweetUserVo vo, MultipartFile avatarImg) {
@@ -212,7 +222,18 @@ public class UserServiceImpl implements UserService {
 		userMapper.updateUser(vo);
 		return jsonObject;
 	}
-	
-	
+
+	@Override
+	public JSONObject delCollect(SweetCollectVo vo) {
+		String collectIds = vo.getCollectIds();
+		List<String> ids=new ArrayList<>();
+		if(!StringUtils.isEmpty(collectIds)){
+			String[] idString = collectIds.split(",");
+			ids = Arrays.asList(idString);
+		}
+		userMapper.delCollect(ids);
+		return ResultUtil.createJSONPObject(Config.MESSAGE, 201,
+				ResultInfo.TYPE_RESULT_SUCCESS);
+	}
 
 }

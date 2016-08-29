@@ -47,6 +47,13 @@ public class UserAction {
 		return userService.login(vo);
 	}
 
+	// 退出登录
+	@RequestMapping(value = "/loginOut", method = RequestMethod.POST)
+	public @ResponseBody
+	JSONObject loginOut(SweetUserVo vo) {
+		return userService.login(vo);
+	}
+
 	// 更新个人信息 包含重置密码功能
 	@RequestMapping(value = "/updateUser", method = RequestMethod.POST)
 	public @ResponseBody
@@ -61,9 +68,11 @@ public class UserAction {
 		return userService.collect(vo);
 	}
 
-	@RequestMapping(value = "/test", method = RequestMethod.POST)
+	// 删除收藏
+	@RequestMapping(value = "/delCollect", method = RequestMethod.POST)
 	public @ResponseBody
-	void test() {
-		 userService.saveCollect();
+	JSONObject delCollect(SweetCollectVo vo) {
+		return userService.delCollect(vo);
 	}
+
 }

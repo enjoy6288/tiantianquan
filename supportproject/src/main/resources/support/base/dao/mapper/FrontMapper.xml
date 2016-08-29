@@ -3,6 +3,7 @@
 <mapper namespace="support.base.dao.mapper.FrontMapper">
 	<resultMap id="product" type="support.base.pojo.po.FrontProduct">
 		<id column="id" property="id" jdbcType="VARCHAR" />
+		<id column="collectId" property="collectId" jdbcType="VARCHAR" />
 		<result column="img" property="img" jdbcType="VARCHAR" />
 		<result column="price_now" property="priceNow" jdbcType="VARCHAR" />
 		<result column="title" property="title" jdbcType="VARCHAR" />
@@ -15,6 +16,7 @@
 
 	<resultMap id="topic" type="support.base.pojo.po.FrontTopic">
 		<id column="id" jdbcType="VARCHAR" property="id" />
+		<id column="collectId" property="collectId" jdbcType="VARCHAR" />
 		<result column="topic_name" jdbcType="VARCHAR" property="topicName" />
 		<result column="topic_vice_name" jdbcType="VARCHAR" property="topicViceName" />
 		<result column="topic_desc" jdbcType="VARCHAR" property="topicDesc" />
@@ -66,11 +68,9 @@
 			</if>
 		</where>
 		ORDER BY sort_value DESC
-		<if test="limitNum != null and limitNum !=''">
-			limit 0,${limitNum}
-		</if>
+		limit ${startPage},${pageSize}
 	</select>
-
+	
 	<select id="queryTopics" resultMap="topic"
 		parameterType="support.base.pojo.vo.FrontQueryVo">
 		SELECT
@@ -102,9 +102,7 @@
 			</if>
 		</where>
 		ORDER BY sort_value DESC
-		<if test="limitNum != null and limitNum !=''">
-			limit 0,${limitNum}
-		</if>
+		limit ${startPage},${pageSize}
 
 	</select>
 
@@ -118,11 +116,12 @@
 		link_url,
 		a.product_desc,
 		b.category_name,
+		b.id collectId,
 		(collect_actually+collect_manual) collect
 		from sweet_product a
 		LEFT JOIN
 		sweet_category b on b.id=a.category_id
-		LEFT JOIN sweet_collect c on
+		right JOIN sweet_collect c on
 		a.id=c.collect_product
 		<where>
 			collect_type = 0
@@ -130,11 +129,14 @@
 				and user_id = #{userId}
 			</if>
 		</where>
+		ORDER BY c.collect_time DESC
+		limit ${startPage},${pageSize}
 	</select>
 
 	<select id="queryTopicCollect" resultMap="topic"
 		parameterType="support.base.pojo.vo.SweetCollectVo">
 		select
+		b.id collectId,
 		a.topic_name,
 		a.topic_vice_name,
 		a.topic_desc,
@@ -143,7 +145,7 @@
 		(scan_actually+scan_manual) scan,
 		(collect_actually+collect_manual) collect
 		from sweet_topic a
-		LEFT JOIN
+		right JOIN
 		sweet_collect b on a.id=b.collect_topic
 		<where>
 			collect_type = 1
@@ -151,9 +153,11 @@
 				and user_id = #{userId}
 			</if>
 		</where>
+		ORDER BY b.collect_time DESC
+		limit ${startPage},${pageSize}
 	</select>
 
-	<select id="queryCollect" resultMap="sweetCollect"
+	<!-- <select id="queryCollect" resultMap="sweetCollect"
 		parameterType="support.base.pojo.vo.SweetCollectVo">
 		select *
 		from sweet_collect
@@ -168,6 +172,6 @@
 				and collect_topic = #{collectTopic}
 			</if>
 		</where>
-	</select>
+	</select> -->
 
 </mapper>

@@ -5,6 +5,7 @@ import support.base.util.SpringPropertyUtil;
 
 public class FrontTopic {
 	private String id;
+	private String collectId;
 	private String topicName;
 	private String topicViceName;
 	private String topicDesc;
@@ -78,4 +79,12 @@ public class FrontTopic {
 	public void setScan(long scan) {
 		this.scan = scan;
 	}
+
+	public String getCollectId() {
+		return collectId;
+	}
+
+	public void setCollectId(String collectId) {
+		this.collectId = collectId;
+	} 
 }

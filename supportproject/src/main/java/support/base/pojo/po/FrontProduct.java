@@ -6,6 +6,7 @@ import support.base.util.SpringPropertyUtil;
 
 public class FrontProduct {
     private String id;
+    private String collectId;
     private String categoryName;
     private String title;
     private String productDesc;
@@ -60,6 +61,12 @@ public class FrontProduct {
 	}
 	public void setLinkUrl(String linkUrl) {
 		this.linkUrl = linkUrl;
+	}
+	public String getCollectId() {
+		return collectId;
+	}
+	public void setCollectId(String collectId) {
+		this.collectId = collectId;
 	}
     
 }

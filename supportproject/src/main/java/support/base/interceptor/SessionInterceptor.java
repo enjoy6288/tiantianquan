@@ -21,7 +21,7 @@ public class SessionInterceptor extends HandlerInterceptorAdapter {
 		// 请求路径
 		String path = request.getRequestURI();
 		String clientToken = request.getParameter("token");
-		String serverToken = (String) CommonUse.getCache("token");
+		String serverToken = (String) CommonUse.getCache(clientToken);
 		if (StringUtils.isEmpty(clientToken)) {
 			if (path.contains("queryTopicCollect")
 					|| path.contains("queryProductCollect")) {
@@ -40,7 +40,7 @@ public class SessionInterceptor extends HandlerInterceptorAdapter {
 				}
 				return false;
 			} 
-		}else if (!clientToken.equals(serverToken)) {
+		}else if (clientToken.equals(serverToken)) {
 			return true;
 		}
 		return true;

@@ -9,6 +9,7 @@ import support.base.pojo.vo.FrontQueryVo;
 import support.base.pojo.vo.SweetCollectVo;
 
 public interface FrontMapper {
+	
 	List<FrontProduct> queryNewProducts(FrontQueryVo vo);
 
 	List<FrontTopic> queryTopics(FrontQueryVo vo);
@@ -20,6 +21,6 @@ public interface FrontMapper {
 	List<FrontProduct> queryProductCollect(SweetCollectVo vo);
 
 	// 根据条件查询收藏的内容
-	List<SweetCollect> queryCollect(SweetCollectVo vo);
+	//List<SweetCollect> queryCollect(SweetCollectVo vo);
 
 }

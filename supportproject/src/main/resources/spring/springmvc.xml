@@ -33,7 +33,7 @@
 	</mvc:annotation-driven>
 
 	<!-- 自定义注册属性编辑器 -->
-	<bean id="conversionService"
+	<!-- <bean id="conversionService"
 		class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
 		<property name="converters">
 			<list>
@@ -43,7 +43,7 @@
 				<bean class="support.base.action.converter.ByteConverter" />
 			</list>
 		</property>
-	</bean>
+	</bean> -->
 	
 	<mvc:interceptors>
 		<mvc:interceptor> 
@@ -96,11 +96,11 @@
 	<context:component-scan base-package="support.base.job" />
 	<task:scheduled-tasks>
 		<task:scheduled ref="productTaskJob" method="job"
-			cron="0 0 0 * * ? " />
+			cron="* * 1 * * ? "/>
 		<task:scheduled ref="topicTaskJob" method="job"
-			cron="0 0 0 * * ? " />
-			<task:scheduled ref="collectTaskJob" method="job"
-			cron="*/5 0 0 * * ? " />
+			cron="* * 1 * * ? " />
+		<task:scheduled ref="collectTaskJob" method="job"
+			cron="0 */1 * * * ?" />
 	</task:scheduled-tasks>
 	
 	

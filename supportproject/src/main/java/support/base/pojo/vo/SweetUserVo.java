@@ -2,6 +2,7 @@ package support.base.pojo.vo;
 
 public class SweetUserVo {
 	private String id;
+	private String token;
 	private String userName;
 	private String passwd;
 	private String phoneNum;
@@ -101,6 +102,14 @@ public class SweetUserVo {
 
 	public void setUseAble(String useAble) {
 		this.useAble = useAble;
+	}
+
+	public String getToken() {
+		return token;
+	}
+
+	public void setToken(String token) {
+		this.token = token;
 	}
 
 }

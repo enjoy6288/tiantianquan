@@ -8,7 +8,7 @@ public class SweetUser {
     private String avatarUrl;
 
     private String userName;
-
+    
     private Integer sex;
 
     private String passwd;

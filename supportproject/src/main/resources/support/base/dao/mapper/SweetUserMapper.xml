@@ -4,6 +4,7 @@
 	<resultMap id="sweetUser" type="support.base.pojo.po.SweetUser">
 		<result column="id" property="id" jdbcType="VARCHAR" />
 		<result column="user_name" property="userName" jdbcType="VARCHAR" />
+		<result column="token" property="token" jdbcType="VARCHAR" />
 		<result column="avatar_url" property="avatarUrl" jdbcType="VARCHAR" />
 		<result column="sex" property="sex" jdbcType="INTEGER" />
 		<result column="passwd" property="passwd" jdbcType="VARCHAR" />
@@ -73,14 +74,26 @@
 		</where>
 	</select>
 
+	<!-- 批量添加收藏 -->
 	<insert id="saveCollect" parameterType="java.util.List">
 		insert into sweet_collect
-		(id, user_id, collect_product,collect_topic,collect_type)
+		(id, user_id, collect_product,collect_topic,collect_type,collect_time)
 		 values
 		<foreach collection="list" item="item" index="index" separator=",">
-        (UUID(),#{item.userId},#{item.collectProduct},#{item.collectTopic},#{item.collectType})     
+        (UUID(),#{item.userId},#{item.collectProduct},#{item.collectTopic},#{item.collectType},now())     
    	 	</foreach>
 	</insert>
 	
+	<!-- 批量删除收藏 -->
+    <delete id="delCollect" parameterType="java.util.List">
+    	delete
+		FROM
+			sweet_collect
+		WHERE
+			id in
+		<foreach collection="list" index="index" item="item" open="(" separator="," close=")"> 
+        	#{item} 
+   		</foreach>
+    </delete>
 
 </mapper>

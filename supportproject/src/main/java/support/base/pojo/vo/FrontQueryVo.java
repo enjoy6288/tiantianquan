@@ -15,8 +15,12 @@ public class FrontQueryVo {
 	private Date beginTime;
 	//上架结束时间
 	private Date endTime;
-	//限制个数
-	private String limitNum;
+	//起始页
+	private int startPage;
+	//页数
+	private int pageSize=8;
+	
+	
 	public String getTopicId() {
 		return topicId;
 	}
@@ -48,11 +52,17 @@ public class FrontQueryVo {
 	public void setDispalyPosition(String dispalyPosition) {
 		this.dispalyPosition = dispalyPosition;
 	}
-	public String getLimitNum() {
-		return limitNum;
+	public int getStartPage() {
+		return startPage;
 	}
-	public void setLimitNum(String limitNum) {
-		this.limitNum = limitNum;
+	public void setStartPage(int startPage) {
+		this.startPage = startPage;
+	}
+	public int getPageSize() {
+		return pageSize;
+	}
+	public void setPageSize(int pageSize) {
+		this.pageSize = pageSize;
 	}
 	
 }

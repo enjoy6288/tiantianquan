@@ -1,11 +1,20 @@
 package support.base.pojo.vo;
 
+import java.util.List;
+
 public class SweetCollectVo {
     private String id;
     private String userId;
     private String collectProduct;
     private String collectTopic;
     private String collectType;
+    //删除时传递的id集合
+    private String collectIds;
+  //起始页
+  	private int startPage;
+  	//页数
+  	private int pageSize=10;
+    
     
     @Override
 	public int hashCode() {
@@ -84,5 +93,29 @@ public class SweetCollectVo {
 
 	public void setCollectType(String collectType) {
 		this.collectType = collectType;
+	}
+
+	public String getCollectIds() {
+		return collectIds;
+	}
+
+	public void setCollectIds(String collectIds) {
+		this.collectIds = collectIds;
+	}
+
+	public int getStartPage() {
+		return startPage;
+	}
+
+	public void setStartPage(int startPage) {
+		this.startPage = startPage;
+	}
+
+	public int getPageSize() {
+		return pageSize;
+	}
+
+	public void setPageSize(int pageSize) {
+		this.pageSize = pageSize;
 	}
 }
