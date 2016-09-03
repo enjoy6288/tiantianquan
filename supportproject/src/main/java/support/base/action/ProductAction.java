@@ -24,6 +24,7 @@ import support.base.process.result.SubmitResultInfo;
 import support.base.service.ProductService;
 import support.base.util.CommonUtil;
 import support.base.util.Constant;
+import support.base.util.SpringPropertyUtil;
 
 @Controller
 @RequestMapping("/product")
@@ -143,9 +144,14 @@ public class ProductAction {
 		if (img != null) {
 			// 删除原来的文件
 			String oldImg = vo.getOldImg();
-			File file = new File(oldImg);
-			if (file.exists()) {
-				file.delete();
+			if(oldImg!=null){
+				String imgPrefix = SpringPropertyUtil.getContextProperty(Constant.IMG_PREFIX);
+			    String partOldImg = oldImg.substring(imgPrefix.length());
+			    oldImg=SpringPropertyUtil.getContextProperty(Constant.FILE_PATH_PREFIX)+partOldImg;
+				File file = new File(oldImg);
+				if (file.exists()) {
+					file.delete();
+				}
 			}
 			product.setImg(CommonUtil.upload(img,Constant.PRODUCT));
 		}

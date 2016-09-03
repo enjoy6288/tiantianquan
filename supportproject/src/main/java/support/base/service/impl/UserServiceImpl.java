@@ -1,5 +1,6 @@
 package support.base.service.impl;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -19,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.alibaba.fastjson.JSONObject;
 
+import redis.clients.jedis.Jedis;
 import support.base.dao.mapper.FrontMapper;
 import support.base.dao.mapper.SweetUserMapper;
 import support.base.pojo.po.SweetUser;
@@ -32,6 +34,8 @@ import support.base.util.CollectCache;
 import support.base.util.CommonUse;
 import support.base.util.CommonUtil;
 import support.base.util.Constant;
+import support.base.util.RedisUtil;
+import support.base.util.SpringPropertyUtil;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -40,6 +44,8 @@ public class UserServiceImpl implements UserService {
 	private SweetUserMapper userMapper;
 	@Autowired
 	private FrontMapper frontMapper;
+	//用于记录userId便于根据该值进行收藏保存
+	private String userId;
 
 	@Override
 	public JSONObject login(SweetUserVo vo) {
@@ -68,9 +74,13 @@ public class UserServiceImpl implements UserService {
 					ResultInfo.TYPE_RESULT_SUCCESS);
 			user.setPasswd("");
 			Map<String, Object> userMap = new HashMap<>();
+			String token=UUID.randomUUID().toString();
+			user.setToken(token);
 			userMap.put("user", user);
 			jsonObject.put("data", userMap);
-			CommonUse.addCache(user.getToken(), user.getToken());
+			Jedis jedis = RedisUtil.getJedis();
+			jedis.set(token,token);
+			RedisUtil.closeRedis();
 		} else {// 用户或密码不正确
 			jsonObject = ResultUtil.createJSONPObject(Config.MESSAGE, 306,
 					ResultInfo.TYPE_RESULT_FAIL);
@@ -80,7 +90,12 @@ public class UserServiceImpl implements UserService {
 	
 	@Override
 	public JSONObject loginOut(SweetUserVo vo) {
-		CommonUse.removeCache(vo.getToken());
+		Jedis jedis = RedisUtil.getJedis();
+		String token = vo.getToken();
+		if(!StringUtils.isEmpty(token)){
+			jedis.del(token);
+		}
+		RedisUtil.closeRedis();
 		return  ResultUtil.createJSONPObject(Config.MESSAGE, 201,
 				ResultInfo.TYPE_RESULT_SUCCESS);
 	}
@@ -139,7 +154,6 @@ public class UserServiceImpl implements UserService {
 		sweetUser.setPasswd(vo.getNewPasswd());
 		UUID randomUUID = UUID.randomUUID();
 		sweetUser.setId(randomUUID.toString());
-		sweetUser.setToken(UUID.randomUUID().toString());
 		int result = userMapper.saveUser(sweetUser);
 		JSONObject jsonObject = null;
 		if (result > 0) {// 操作成功
@@ -154,23 +168,18 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public JSONObject collect(SweetCollectVo vo) {
-		String userToken = "adfdafd_dsf123";
-		Set<SweetCollectVo> collects = CollectCache.getCache(userToken);
+	    userId = vo.getUserId();
+		Set<SweetCollectVo> collects = CollectCache.getCache(userId);
 		collects.add(vo);
-		CollectCache.addCache(userToken, collects);
+		CollectCache.addCache(userId, collects);
 		return ResultUtil.createJSONPObject(Config.MESSAGE, 201,
 				ResultInfo.TYPE_RESULT_SUCCESS);
 	}
 
 	@Override
 	public void saveCollect() {
-		/*
-		 * List<SweetCollect> collect = frontMapper.queryCollect(vo); if
-		 * (collect != null && collect.size() > 0) { return ; }
-		 */
 		List<SweetCollectVo> vos = new ArrayList<>();
-		String userToken = "adfdafd_dsf123";
-		Set<SweetCollectVo> collects = CollectCache.getCache(userToken);
+		Set<SweetCollectVo> collects = CollectCache.getCache(userId);
 		if (collects.size() > 0) {
 			for (SweetCollectVo vo : collects) {
 				String collectTopic = vo.getCollectTopic();
@@ -185,7 +194,7 @@ public class UserServiceImpl implements UserService {
 			if (vos.size() > 0) {
 				userMapper.saveCollect(vos);
 			}
-			CollectCache.removeCache(userToken);
+			CollectCache.removeCache(userId);
 		}
 
 	}
@@ -194,7 +203,20 @@ public class UserServiceImpl implements UserService {
 	public JSONObject updateUser(SweetUserVo vo, MultipartFile avatarImg) {
 		// TODO 头像图片上传
 		JSONObject jsonObject = new JSONObject();
-		vo.setAvatarUrl(CommonUtil.upload(avatarImg, Constant.AVATAR));
+		if (avatarImg != null) {
+			// 删除原来的文件
+			String oldImg = vo.getOldAvatarUrl();
+			if(oldImg!=null){
+				String imgPrefix = SpringPropertyUtil.getContextProperty(Constant.IMG_PREFIX);
+			    String partOldImg = oldImg.substring(imgPrefix.length());
+			    oldImg=SpringPropertyUtil.getContextProperty(Constant.FILE_PATH_PREFIX)+partOldImg;
+				File file = new File(oldImg);
+				if (file.exists()) {
+					file.delete();
+				}
+			}
+			vo.setAvatarUrl(CommonUtil.upload(avatarImg, Constant.AVATAR));
+		}
 		Map<String, Object> userMap = new HashMap<>();
 		SweetUser user = new SweetUser();
 		user.setAvatarUrl(vo.getAvatarUrl());

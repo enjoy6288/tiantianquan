@@ -11,6 +11,9 @@ public class Constant {
 	//主题目录
 	public final static String TOPIC = "/topic/";
 	
+	//redis所在服务器地址
+	public final static String REDIS_SERVER = "redis_server";
+	
 	
 	public final static String IMG_PREFIX = "img_prefix";
 	public final static String MSG_URL = "msg_url";

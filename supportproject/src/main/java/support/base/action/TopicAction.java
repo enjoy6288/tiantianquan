@@ -30,6 +30,7 @@ import support.base.service.ProductService;
 import support.base.service.TopicService;
 import support.base.util.CommonUtil;
 import support.base.util.Constant;
+import support.base.util.SpringPropertyUtil;
 
 @Controller
 @RequestMapping("/topic")
@@ -83,9 +84,14 @@ public class TopicAction {
 		// 外部banner
 		if (out != null) {
 			String oldImg = vo.getOldOut();
-			File file = new File(oldImg);
-			if (file.exists()) {
-				file.delete();
+			if(oldImg!=null){
+				String imgPrefix = SpringPropertyUtil.getContextProperty(Constant.IMG_PREFIX);
+			    String partOldImg = oldImg.substring(imgPrefix.length());
+			    oldImg=SpringPropertyUtil.getContextProperty(Constant.FILE_PATH_PREFIX)+partOldImg;
+				File file = new File(oldImg);
+				if (file.exists()) {
+					file.delete();
+				}
 			}
 			topic.setBannerOutterimg(CommonUtil.upload(out,Constant.TOPIC));
 		}
@@ -93,9 +99,14 @@ public class TopicAction {
 		// 内部banner
 		if (inner != null) {
 			String oldImg = vo.getOldInner();
-			File file = new File(oldImg);
-			if (file.exists()) {
-				file.delete();
+			if(oldImg!=null){
+				String imgPrefix = SpringPropertyUtil.getContextProperty(Constant.IMG_PREFIX);
+			    String partOldImg = oldImg.substring(imgPrefix.length());
+			    oldImg=SpringPropertyUtil.getContextProperty(Constant.FILE_PATH_PREFIX)+partOldImg;
+				File file = new File(oldImg);
+				if (file.exists()) {
+					file.delete();
+				}
 			}
 			topic.setBannerInnerimg(CommonUtil.upload(inner,Constant.TOPIC));
 		}

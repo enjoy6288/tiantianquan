@@ -46,7 +46,6 @@ public class FrontServiceImpl implements FrontService {
 				vo.setBeginTime(beginTime);
 				vo.setEndTime(nowTime);
 				nextQuery.put("queryProductType", "more");
-
 			}
 		}
 		String topicId = vo.getTopicId();
@@ -74,6 +73,7 @@ public class FrontServiceImpl implements FrontService {
 		FrontDataInfo info = new FrontDataInfo();
 		if(newProducts.size()==0){
 			newProducts=null;
+			nextQuery=null;
 		}
 		data.put("productList", newProducts);
 		data.put("nextQuery", nextQuery);
@@ -115,6 +115,7 @@ public class FrontServiceImpl implements FrontService {
 		FrontDataInfo info = new FrontDataInfo();
 		if(bottomList.size()==0){
 			bottomList=null;
+			nextQuery=null;
 		}
 		data.put("bottomList", bottomList);
 		data.put("nextQuery", nextQuery);
@@ -133,6 +134,7 @@ public class FrontServiceImpl implements FrontService {
 		Map data = new HashMap<String, List<Object>>();
 		if(topicCollect.size()==0){
 			topicCollect=null;
+			nextQuery=null;
 		}
 		data.put("topicCollectList", topicCollect);
 		data.put("nextQuery", nextQuery);
@@ -151,6 +153,7 @@ public class FrontServiceImpl implements FrontService {
 		Map data = new HashMap<String, List<Object>>();
 		if(productCollect.size()==0){
 			productCollect=null;
+			nextQuery=null;
 		}
 		data.put("productCollectList", productCollect);
 		data.put("nextQuery", nextQuery);

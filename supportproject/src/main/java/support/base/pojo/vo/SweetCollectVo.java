@@ -10,7 +10,7 @@ public class SweetCollectVo {
     private String collectType;
     //删除时传递的id集合
     private String collectIds;
-  //起始页
+    //起始页
   	private int startPage;
   	//页数
   	private int pageSize=10;

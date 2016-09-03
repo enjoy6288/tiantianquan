@@ -1,6 +1,8 @@
 package support.base.pojo.vo;
 
 public class SweetUserVo {
+	//原来的头像
+	private String oldAvatarUrl;
 	private String id;
 	private String token;
 	private String userName;
@@ -110,6 +112,14 @@ public class SweetUserVo {
 
 	public void setToken(String token) {
 		this.token = token;
+	}
+
+	public String getOldAvatarUrl() {
+		return oldAvatarUrl;
+	}
+
+	public void setOldAvatarUrl(String oldAvatarUrl) {
+		this.oldAvatarUrl = oldAvatarUrl;
 	}
 
 }

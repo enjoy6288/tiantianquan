@@ -25,21 +25,21 @@ public class CollectCache {
 	}
 
 	// 用于保存缓存
-	public static void addCache(String userToken,Set<SweetCollectVo> value) {
-		caches.put(userToken, value);
+	public static void addCache(String userId,Set<SweetCollectVo> value) {
+		caches.put(userId, value);
 	}
 
 	// 根据用户token得到该用户缓存
-	public static Set<SweetCollectVo> getCache(String userToken) {
-		Set<SweetCollectVo> set = caches.get(userToken);
+	public static Set<SweetCollectVo> getCache(String userId) {
+		Set<SweetCollectVo> set = caches.get(userId);
 		if (set == null) {
 			set = new HashSet<>();
 		}
 		return set;
 	}
 
-	public static void removeCache(String userToken) {
-		caches.remove(userToken);
+	public static void removeCache(String userId) {
+		caches.remove(userId);
 	}
 
 }

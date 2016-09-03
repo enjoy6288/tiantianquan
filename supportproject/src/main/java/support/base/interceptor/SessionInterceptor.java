@@ -1,5 +1,7 @@
 package support.base.interceptor;
 
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -11,20 +13,19 @@ import org.springframework.stereotype.Repository;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 import org.springframework.web.util.WebUtils;
 
+import redis.clients.jedis.Jedis;
 import support.base.util.CommonUse;
+import support.base.util.RedisUtil;
 
 @Repository
 public class SessionInterceptor extends HandlerInterceptorAdapter {
 	@Override
-	public boolean preHandle(HttpServletRequest request,
-			HttpServletResponse response, Object handler) {
+	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
 		// 请求路径
 		String path = request.getRequestURI();
 		String clientToken = request.getParameter("token");
-		String serverToken = (String) CommonUse.getCache(clientToken);
 		if (StringUtils.isEmpty(clientToken)) {
-			if (path.contains("queryTopicCollect")
-					|| path.contains("queryProductCollect")) {
+			if (path.contains("queryTopicCollect") || path.contains("queryProductCollect")) {
 				JSONObject json = new JSONObject();
 				json.put("code", 0);
 				json.put("info", "请登录");
@@ -39,9 +40,16 @@ public class SessionInterceptor extends HandlerInterceptorAdapter {
 					e.printStackTrace();
 				}
 				return false;
-			} 
-		}else if (clientToken.equals(serverToken)) {
-			return true;
+			}
+		} else {
+			Jedis jedis = RedisUtil.getJedis();
+			String serverToken = jedis.get(clientToken);
+			RedisUtil.closeRedis();
+			if (serverToken!=null) {
+				return true;
+			} else {
+				return false;
+			}
 		}
 		return true;
 	}

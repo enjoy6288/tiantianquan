@@ -109,6 +109,7 @@
 	<select id="queryProductCollect" resultMap="product"
 		parameterType="support.base.pojo.vo.SweetCollectVo">
 		select
+		c.id collectId,
 		a.id,
 		a.img,
 		a.price_now,

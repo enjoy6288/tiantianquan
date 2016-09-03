@@ -51,7 +51,7 @@ public class UserAction {
 	@RequestMapping(value = "/loginOut", method = RequestMethod.POST)
 	public @ResponseBody
 	JSONObject loginOut(SweetUserVo vo) {
-		return userService.login(vo);
+		return userService.loginOut(vo);
 	}
 
 	// 更新个人信息 包含重置密码功能
