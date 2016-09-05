@@ -17,6 +17,7 @@
 	<resultMap id="topic" type="support.base.pojo.po.FrontTopic">
 		<id column="id" jdbcType="VARCHAR" property="id" />
 		<id column="collectId" property="collectId" jdbcType="VARCHAR" />
+		<result column="link_url" property="linkUrl" jdbcType="VARCHAR" />
 		<result column="topic_name" jdbcType="VARCHAR" property="topicName" />
 		<result column="topic_vice_name" jdbcType="VARCHAR" property="topicViceName" />
 		<result column="topic_desc" jdbcType="VARCHAR" property="topicDesc" />
@@ -75,6 +76,7 @@
 		parameterType="support.base.pojo.vo.FrontQueryVo">
 		SELECT
 		id,
+		link_url,
 		topic_name,
 		topic_vice_name,
 		topic_desc,

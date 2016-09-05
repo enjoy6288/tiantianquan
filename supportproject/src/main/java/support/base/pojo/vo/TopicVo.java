@@ -5,6 +5,8 @@ public class TopicVo {
     private String id;
 
     private String goingTo;
+    
+    private String linkUrl;
 
     private String dispalyPosition;
 
@@ -226,5 +228,13 @@ public class TopicVo {
 
 	public void setOldInner(String oldInner) {
 		this.oldInner = oldInner;
+	}
+
+	public String getLinkUrl() {
+		return linkUrl;
+	}
+
+	public void setLinkUrl(String linkUrl) {
+		this.linkUrl = linkUrl;
 	}
 }

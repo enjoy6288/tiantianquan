@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
@@ -44,8 +45,6 @@ public class UserServiceImpl implements UserService {
 	private SweetUserMapper userMapper;
 	@Autowired
 	private FrontMapper frontMapper;
-	//用于记录userId便于根据该值进行收藏保存
-	private String userId;
 
 	@Override
 	public JSONObject login(SweetUserVo vo) {
@@ -168,8 +167,8 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public JSONObject collect(SweetCollectVo vo) {
-	    userId = vo.getUserId();
-		Set<SweetCollectVo> collects = CollectCache.getCache(userId);
+		String userId = vo.getUserId();
+		Set<SweetCollectVo> collects = CollectCache.getCacheByUserId(userId);
 		collects.add(vo);
 		CollectCache.addCache(userId, collects);
 		return ResultUtil.createJSONPObject(Config.MESSAGE, 201,
@@ -179,8 +178,11 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public void saveCollect() {
 		List<SweetCollectVo> vos = new ArrayList<>();
-		Set<SweetCollectVo> collects = CollectCache.getCache(userId);
-		if (collects.size() > 0) {
+		Map<String, Set<SweetCollectVo>> mapCaches = CollectCache.getMapCaches();
+		Set<Entry<String, Set<SweetCollectVo>>> entrySet = mapCaches.entrySet();
+		for (Entry<String, Set<SweetCollectVo>> entry : entrySet) {
+			String key = entry.getKey();
+			Set<SweetCollectVo> collects = entry.getValue();
 			for (SweetCollectVo vo : collects) {
 				String collectTopic = vo.getCollectTopic();
 				// 0为商品 1为主题
@@ -191,12 +193,11 @@ public class UserServiceImpl implements UserService {
 				}
 				vos.add(vo);
 			}
-			if (vos.size() > 0) {
-				userMapper.saveCollect(vos);
-			}
-			CollectCache.removeCache(userId);
 		}
-
+		mapCaches.clear();
+		if(vos.size()>0){
+			userMapper.saveCollect(vos);
+		}
 	}
 
 	@Override

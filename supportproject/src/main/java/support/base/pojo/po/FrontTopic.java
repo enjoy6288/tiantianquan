@@ -5,6 +5,7 @@ import support.base.util.SpringPropertyUtil;
 
 public class FrontTopic {
 	private String id;
+	private String linkUrl;
 	private String collectId;
 	private String topicName;
 	private String topicViceName;
@@ -86,5 +87,12 @@ public class FrontTopic {
 
 	public void setCollectId(String collectId) {
 		this.collectId = collectId;
+	}
+	public String getLinkUrl() {
+		return linkUrl;
+	}
+
+	public void setLinkUrl(String linkUrl) {
+		this.linkUrl = linkUrl;
 	} 
 }

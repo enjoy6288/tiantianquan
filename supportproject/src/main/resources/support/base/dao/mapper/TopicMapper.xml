@@ -4,6 +4,7 @@
 	<resultMap id="topic" type="support.base.pojo.po.Topic">
 		<id column="id" jdbcType="VARCHAR" property="id" />
 		<result column="going_to" jdbcType="TINYINT" property="goingTo" />
+		<result column="link_url" property="linkUrl" jdbcType="VARCHAR" />
 		<result column="dispaly_position" jdbcType="VARCHAR" property="dispalyPosition" />
 		<result column="topic_name" jdbcType="VARCHAR" property="topicName" />
 		<result column="topic_vice_name" jdbcType="VARCHAR" property="topicViceName" />
@@ -26,7 +27,7 @@
 	</resultMap>
 
 	<insert id="saveTopic" parameterType="support.base.pojo.po.Topic">
-		insert into sweet_topic (id,going_to, dispaly_position,
+		insert into sweet_topic (id,going_to,link_url, dispaly_position,
 		topic_name,
 		topic_vice_name,
 		banner_outterimg, banner_innerimg, shelves_time,
@@ -50,7 +51,7 @@
 			remarks,
 		</if>
 		create_time,update_time)
-		values (UUID(),#{goingTo}, #{dispalyPosition},
+		values (UUID(),#{goingTo},#{linkUrl}, #{dispalyPosition},
 		#{topicName}, #{topicViceName},
 		#{bannerOutterimg},#{bannerInnerimg},#{shelvesTime},
 		#{sortValue},#{categoryId},
@@ -171,6 +172,9 @@
 		<set>
 			<if test="goingTo != null">
 				going_to = #{goingTo},
+			</if>
+			<if test="linkUrl != null">
+				link_url = #{linkUrl},
 			</if>
 			<if test="dispalyPosition != null">
 				dispaly_position = #{dispalyPosition},

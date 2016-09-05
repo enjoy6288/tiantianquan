@@ -70,6 +70,11 @@
 				width : 150
 			},
 			{
+				field : 'linkUrl',
+				title : '跳转至',
+				width : 150
+			},
+			{
 				field : 'dispalyPosition',
 				title : '展示位置',
 				width : 80

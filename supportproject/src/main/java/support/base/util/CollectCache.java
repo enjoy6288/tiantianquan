@@ -23,14 +23,20 @@ public class CollectCache {
 	static {
 		caches = new HashMap<String, Set<SweetCollectVo>>();
 	}
+	
+	
 
 	// 用于保存缓存
 	public static void addCache(String userId,Set<SweetCollectVo> value) {
 		caches.put(userId, value);
 	}
+	
+	public static Map<String, Set<SweetCollectVo>> getMapCaches() {
+		return caches;
+	}
 
 	// 根据用户token得到该用户缓存
-	public static Set<SweetCollectVo> getCache(String userId) {
+	public static Set<SweetCollectVo> getCacheByUserId(String userId) {
 		Set<SweetCollectVo> set = caches.get(userId);
 		if (set == null) {
 			set = new HashSet<>();

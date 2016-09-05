@@ -9,6 +9,8 @@ public class Topic {
 	private String id;
 
 	private Byte goingTo;
+	
+	private String linkUrl;
 
 	private String dispalyPosition;
 
@@ -204,5 +206,13 @@ public class Topic {
 
 	public void setCategoryName(String categoryName) {
 		this.categoryName = categoryName;
+	}
+
+	public String getLinkUrl() {
+		return linkUrl;
+	}
+
+	public void setLinkUrl(String linkUrl) {
+		this.linkUrl = linkUrl;
 	}
 }
