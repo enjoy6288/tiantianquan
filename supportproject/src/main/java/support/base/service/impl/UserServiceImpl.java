@@ -75,9 +75,10 @@ public class UserServiceImpl implements UserService {
 			user.setToken(token);
 			userMap.put("user", user);
 			jsonObject.put("data", userMap);
-			Jedis jedis = RedisUtil.getJedis();
+			RedisUtil redisUtil=new RedisUtil();
+			Jedis jedis = redisUtil.getJedis();
 			jedis.set(token, token);
-			RedisUtil.closeRedis();
+			redisUtil.closeRedis();
 		} else {// 用户或密码不正确
 			jsonObject = ResultUtil.createJSONPObject(Config.MESSAGE, 306, ResultInfo.TYPE_RESULT_FAIL);
 		}
@@ -86,12 +87,13 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public JSONObject loginOut(SweetUserVo vo) {
-		Jedis jedis = RedisUtil.getJedis();
+		RedisUtil redisUtil=new RedisUtil();
+		Jedis jedis = redisUtil.getJedis();
 		String token = vo.getToken();
 		if (!StringUtils.isEmpty(token)) {
 			jedis.del(token);
 		}
-		RedisUtil.closeRedis();
+		redisUtil.closeRedis();
 		return ResultUtil.createJSONPObject(Config.MESSAGE, 201, ResultInfo.TYPE_RESULT_SUCCESS);
 	}
 
@@ -156,17 +158,19 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public JSONObject collect(SweetCollectVo vo) {
-		Jedis jedis = RedisUtil.getJedis();
+		RedisUtil redisUtil=new RedisUtil();
+		Jedis jedis = redisUtil.getJedis();
 		String value=vo.getScoUserId()+":"+vo.getScoCollectId()+":"+vo.getScoCollectType();
 		jedis.sadd("userCollect", value);
-		RedisUtil.closeRedis();
+		redisUtil.closeRedis();
 		return ResultUtil.createJSONPObject(Config.MESSAGE, 201, ResultInfo.TYPE_RESULT_SUCCESS);
 	}
 
 	@Override
 	public void saveCollect() {
 		List<SweetCollect> scs = new ArrayList<>();
-		Jedis jedis = RedisUtil.getJedis();
+		RedisUtil redisUtil=new RedisUtil();
+		Jedis jedis = redisUtil.getJedis();
 		Set<String> values = jedis.smembers("userCollect");
 		SweetCollect sc=null;
 		for (String value : values) {
@@ -181,7 +185,7 @@ public class UserServiceImpl implements UserService {
 			jedis.del("userCollect");
 			userMapper.saveCollect(scs);
 		}
-		RedisUtil.closeRedis();
+		redisUtil.closeRedis();
 	}
 
 	@Override

@@ -42,9 +42,10 @@ public class SessionInterceptor extends HandlerInterceptorAdapter {
 				return false;
 			}
 		} else {
-			Jedis jedis = RedisUtil.getJedis();
+			RedisUtil redisUtil=new RedisUtil();
+			Jedis jedis = redisUtil.getJedis();
 			String serverToken = jedis.get(clientToken);
-			RedisUtil.closeRedis();
+			redisUtil.closeRedis();
 			if (serverToken!=null) {
 				return true;
 			} else {

@@ -1,9 +1,11 @@
 package support.base.pojo.po;
 
+import java.io.Serializable;
+
 import support.base.util.Constant;
 import support.base.util.SpringPropertyUtil;
 
-public class FrontTopic {
+public class FrontTopic implements Serializable{
 	private String id;
 	private String linkUrl;
 	private String scoId;

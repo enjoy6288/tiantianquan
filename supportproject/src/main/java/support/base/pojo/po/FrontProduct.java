@@ -1,8 +1,10 @@
 package support.base.pojo.po;
 
+import java.io.Serializable;
 
 
-public class FrontProduct {
+
+public class FrontProduct implements Serializable {
 	//收藏表的ID
 	private String scoId;
     private String id;
