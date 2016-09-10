@@ -24,6 +24,7 @@ import com.alibaba.fastjson.JSONObject;
 import redis.clients.jedis.Jedis;
 import support.base.dao.mapper.FrontMapper;
 import support.base.dao.mapper.SweetUserMapper;
+import support.base.pojo.po.SweetCollect;
 import support.base.pojo.po.SweetUser;
 import support.base.pojo.vo.SweetCollectVo;
 import support.base.pojo.vo.SweetUserVo;
@@ -51,14 +52,12 @@ public class UserServiceImpl implements UserService {
 		String loginName = vo.getLoginName();
 		// 用户名为空
 		if (StringUtils.isEmpty(loginName)) {
-			return ResultUtil.createJSONPObject(Config.MESSAGE, 304,
-					ResultInfo.TYPE_RESULT_FAIL);
+			return ResultUtil.createJSONPObject(Config.MESSAGE, 304, ResultInfo.TYPE_RESULT_FAIL);
 		}
 		// 密码为空
 		String passwd = vo.getPasswd();
 		if (StringUtils.isEmpty(passwd)) {
-			return ResultUtil.createJSONPObject(Config.MESSAGE, 305,
-					ResultInfo.TYPE_RESULT_FAIL);
+			return ResultUtil.createJSONPObject(Config.MESSAGE, 305, ResultInfo.TYPE_RESULT_FAIL);
 		}
 		// 如果是手机号
 		if (StringUtils.isNumeric(loginName)) {
@@ -69,34 +68,31 @@ public class UserServiceImpl implements UserService {
 		SweetUser user = userMapper.queryUser(vo);
 		JSONObject jsonObject = null;
 		if (user != null) {// 操作成功
-			jsonObject = ResultUtil.createJSONPObject(Config.MESSAGE, 201,
-					ResultInfo.TYPE_RESULT_SUCCESS);
+			jsonObject = ResultUtil.createJSONPObject(Config.MESSAGE, 201, ResultInfo.TYPE_RESULT_SUCCESS);
 			user.setPasswd("");
 			Map<String, Object> userMap = new HashMap<>();
-			String token=UUID.randomUUID().toString();
+			String token = UUID.randomUUID().toString();
 			user.setToken(token);
 			userMap.put("user", user);
 			jsonObject.put("data", userMap);
 			Jedis jedis = RedisUtil.getJedis();
-			jedis.set(token,token);
+			jedis.set(token, token);
 			RedisUtil.closeRedis();
 		} else {// 用户或密码不正确
-			jsonObject = ResultUtil.createJSONPObject(Config.MESSAGE, 306,
-					ResultInfo.TYPE_RESULT_FAIL);
+			jsonObject = ResultUtil.createJSONPObject(Config.MESSAGE, 306, ResultInfo.TYPE_RESULT_FAIL);
 		}
 		return jsonObject;
 	}
-	
+
 	@Override
 	public JSONObject loginOut(SweetUserVo vo) {
 		Jedis jedis = RedisUtil.getJedis();
 		String token = vo.getToken();
-		if(!StringUtils.isEmpty(token)){
+		if (!StringUtils.isEmpty(token)) {
 			jedis.del(token);
 		}
 		RedisUtil.closeRedis();
-		return  ResultUtil.createJSONPObject(Config.MESSAGE, 201,
-				ResultInfo.TYPE_RESULT_SUCCESS);
+		return ResultUtil.createJSONPObject(Config.MESSAGE, 201, ResultInfo.TYPE_RESULT_SUCCESS);
 	}
 
 	@Override
@@ -107,16 +103,14 @@ public class UserServiceImpl implements UserService {
 		Matcher m = p.matcher(phoneNum);
 		boolean flag = m.matches();
 		if (!flag) {
-			return ResultUtil.createJSONPObject(Config.MESSAGE, 301,
-					ResultInfo.TYPE_RESULT_FAIL);
+			return ResultUtil.createJSONPObject(Config.MESSAGE, 301, ResultInfo.TYPE_RESULT_FAIL);
 		}
 		// 发送验证码 验证码存入session里面 验证验证码
 		String phoneCode = (new Random().nextInt(9999) + 1000) + "";
 		String msg = "同事您好，感谢您对此次测试的配合。[" + phoneCode + "]";
 		CommonUtil.sendMsg(phoneNum, msg);
 		CommonUse.addCache(phoneNum, phoneCode);
-		return ResultUtil.createJSONPObject(Config.MESSAGE, 201,
-				ResultInfo.TYPE_RESULT_SUCCESS);
+		return ResultUtil.createJSONPObject(Config.MESSAGE, 201, ResultInfo.TYPE_RESULT_SUCCESS);
 	}
 
 	@Override
@@ -127,11 +121,9 @@ public class UserServiceImpl implements UserService {
 			String sessionCode = (String) CommonUse.getCache(phoneNum);
 			if (phoneCode.equals(sessionCode)) {
 				CommonUse.removeCache(phoneNum);
-				return ResultUtil.createJSONPObject(Config.MESSAGE, 201,
-						ResultInfo.TYPE_RESULT_SUCCESS);
+				return ResultUtil.createJSONPObject(Config.MESSAGE, 201, ResultInfo.TYPE_RESULT_SUCCESS);
 			} else {// 验证码有误
-				return ResultUtil.createJSONPObject(Config.MESSAGE, 309,
-						ResultInfo.TYPE_RESULT_FAIL);
+				return ResultUtil.createJSONPObject(Config.MESSAGE, 309, ResultInfo.TYPE_RESULT_FAIL);
 			}
 		}
 		return null;
@@ -142,8 +134,7 @@ public class UserServiceImpl implements UserService {
 		// 验证用户是否存在
 		SweetUser user = userMapper.queryUser(vo);
 		if (user != null) {
-			return ResultUtil.createJSONPObject(Config.MESSAGE, 303,
-					ResultInfo.TYPE_RESULT_FAIL);
+			return ResultUtil.createJSONPObject(Config.MESSAGE, 303, ResultInfo.TYPE_RESULT_FAIL);
 		}
 		String phoneNum = vo.getPhoneNum();
 		vo.setUserName(phoneNum);
@@ -156,48 +147,41 @@ public class UserServiceImpl implements UserService {
 		int result = userMapper.saveUser(sweetUser);
 		JSONObject jsonObject = null;
 		if (result > 0) {// 操作成功
-			jsonObject = ResultUtil.createJSONPObject(Config.MESSAGE, 201,
-					ResultInfo.TYPE_RESULT_SUCCESS);
+			jsonObject = ResultUtil.createJSONPObject(Config.MESSAGE, 201, ResultInfo.TYPE_RESULT_SUCCESS);
 		} else {// 操作失败
-			jsonObject = ResultUtil.createJSONPObject(Config.MESSAGE, 202,
-					ResultInfo.TYPE_RESULT_FAIL);
+			jsonObject = ResultUtil.createJSONPObject(Config.MESSAGE, 202, ResultInfo.TYPE_RESULT_FAIL);
 		}
 		return jsonObject;
 	}
 
 	@Override
 	public JSONObject collect(SweetCollectVo vo) {
-		String userId = vo.getUserId();
-		Set<SweetCollectVo> collects = CollectCache.getCacheByUserId(userId);
-		collects.add(vo);
-		CollectCache.addCache(userId, collects);
-		return ResultUtil.createJSONPObject(Config.MESSAGE, 201,
-				ResultInfo.TYPE_RESULT_SUCCESS);
+		Jedis jedis = RedisUtil.getJedis();
+		String value=vo.getScoUserId()+":"+vo.getScoCollectId()+":"+vo.getScoCollectType();
+		jedis.sadd("userCollect", value);
+		RedisUtil.closeRedis();
+		return ResultUtil.createJSONPObject(Config.MESSAGE, 201, ResultInfo.TYPE_RESULT_SUCCESS);
 	}
 
 	@Override
 	public void saveCollect() {
-		List<SweetCollectVo> vos = new ArrayList<>();
-		Map<String, Set<SweetCollectVo>> mapCaches = CollectCache.getMapCaches();
-		Set<Entry<String, Set<SweetCollectVo>>> entrySet = mapCaches.entrySet();
-		for (Entry<String, Set<SweetCollectVo>> entry : entrySet) {
-			String key = entry.getKey();
-			Set<SweetCollectVo> collects = entry.getValue();
-			for (SweetCollectVo vo : collects) {
-				String collectTopic = vo.getCollectTopic();
-				// 0为商品 1为主题
-				if (StringUtils.isEmpty(collectTopic)) {
-					vo.setCollectType("0");
-				} else {
-					vo.setCollectType("1");
-				}
-				vos.add(vo);
-			}
+		List<SweetCollect> scs = new ArrayList<>();
+		Jedis jedis = RedisUtil.getJedis();
+		Set<String> values = jedis.smembers("userCollect");
+		SweetCollect sc=null;
+		for (String value : values) {
+			String[] split = value.split(":");
+			sc=new SweetCollect();
+			sc.setScoUserId(split[0]);
+			sc.setScoCollectId(split[1]);
+			sc.setScoCollectType(new Integer(split[2]));
+			scs.add(sc);
 		}
-		mapCaches.clear();
-		if(vos.size()>0){
-			userMapper.saveCollect(vos);
+		if (scs.size() > 0) {
+			jedis.del("userCollect");
+			userMapper.saveCollect(scs);
 		}
+		RedisUtil.closeRedis();
 	}
 
 	@Override
@@ -207,10 +191,10 @@ public class UserServiceImpl implements UserService {
 		if (avatarImg != null) {
 			// 删除原来的文件
 			String oldImg = vo.getOldAvatarUrl();
-			if(oldImg!=null){
+			if (oldImg != null) {
 				String imgPrefix = SpringPropertyUtil.getContextProperty(Constant.IMG_PREFIX);
-			    String partOldImg = oldImg.substring(imgPrefix.length());
-			    oldImg=SpringPropertyUtil.getContextProperty(Constant.FILE_PATH_PREFIX)+partOldImg;
+				String partOldImg = oldImg.substring(imgPrefix.length());
+				oldImg = SpringPropertyUtil.getContextProperty(Constant.FILE_PATH_PREFIX) + partOldImg;
 				File file = new File(oldImg);
 				if (file.exists()) {
 					file.delete();
@@ -222,8 +206,7 @@ public class UserServiceImpl implements UserService {
 		SweetUser user = new SweetUser();
 		user.setAvatarUrl(vo.getAvatarUrl());
 		userMap.put("user", user);
-		jsonObject = ResultUtil.createJSONPObject(Config.MESSAGE, 201,
-				ResultInfo.TYPE_RESULT_SUCCESS);
+		jsonObject = ResultUtil.createJSONPObject(Config.MESSAGE, 201, ResultInfo.TYPE_RESULT_SUCCESS);
 		jsonObject.put("data", userMap);
 
 		// 通过原密码重置密码(新旧密码都会填写)
@@ -232,8 +215,7 @@ public class UserServiceImpl implements UserService {
 		if (!StringUtils.isEmpty(passwd) && !StringUtils.isEmpty(newPasswd)) {
 			user = userMapper.queryUser(vo);
 			if (user == null) {// 密码不正确
-				return jsonObject = ResultUtil.createJSONPObject(
-						Config.MESSAGE, 310, ResultInfo.TYPE_RESULT_FAIL);
+				return jsonObject = ResultUtil.createJSONPObject(Config.MESSAGE, 310, ResultInfo.TYPE_RESULT_FAIL);
 			} else {// 重置密码
 				vo.setPasswd(newPasswd);
 			}
@@ -248,15 +230,14 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public JSONObject delCollect(SweetCollectVo vo) {
-		String collectIds = vo.getCollectIds();
-		List<String> ids=new ArrayList<>();
-		if(!StringUtils.isEmpty(collectIds)){
-			String[] idString = collectIds.split(",");
+		String scoIds = vo.getScoIds();
+		List<String> ids = new ArrayList<>();
+		if (!StringUtils.isEmpty(scoIds)) {
+			String[] idString = scoIds.split(",");
 			ids = Arrays.asList(idString);
 		}
 		userMapper.delCollect(ids);
-		return ResultUtil.createJSONPObject(Config.MESSAGE, 201,
-				ResultInfo.TYPE_RESULT_SUCCESS);
+		return ResultUtil.createJSONPObject(Config.MESSAGE, 201, ResultInfo.TYPE_RESULT_SUCCESS);
 	}
 
 }

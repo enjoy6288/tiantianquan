@@ -11,7 +11,7 @@ public class CollectRunnable implements Runnable {
 
 	@Override
 	public void run() {
-		userService.saveCollect();
+		//userService.saveCollect();
 	}
 
 }

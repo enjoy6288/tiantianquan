@@ -1,12 +1,11 @@
 package support.base.pojo.po;
 
-import support.base.util.Constant;
-import support.base.util.SpringPropertyUtil;
 
 
 public class FrontProduct {
+	//收藏表的ID
+	private String scoId;
     private String id;
-    private String collectId;
     private String categoryName;
     private String title;
     private String productDesc;
@@ -62,11 +61,11 @@ public class FrontProduct {
 	public void setLinkUrl(String linkUrl) {
 		this.linkUrl = linkUrl;
 	}
-	public String getCollectId() {
-		return collectId;
+	public String getScoId() {
+		return scoId;
 	}
-	public void setCollectId(String collectId) {
-		this.collectId = collectId;
+	public void setScoId(String scoId) {
+		this.scoId = scoId;
 	}
     
 }

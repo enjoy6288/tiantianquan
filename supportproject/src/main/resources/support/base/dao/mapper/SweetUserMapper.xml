@@ -77,10 +77,10 @@
 	<!-- 批量添加收藏 -->
 	<insert id="saveCollect" parameterType="java.util.List">
 		insert into sweet_collect
-		(id, user_id, collect_product,collect_topic,collect_type,collect_time)
+		(sco_id, sco_user_id, sco_collect_id,sco_collect_type,sco_collect_time)
 		 values
 		<foreach collection="list" item="item" index="index" separator=",">
-        (UUID(),#{item.userId},#{item.collectProduct},#{item.collectTopic},#{item.collectType},now())     
+        (UUID(),#{item.scoUserId},#{item.scoCollectId},#{item.scoCollectType},now())     
    	 	</foreach>
 	</insert>
 	
@@ -90,7 +90,7 @@
 		FROM
 			sweet_collect
 		WHERE
-			id in
+			sco_id in
 		<foreach collection="list" index="index" item="item" open="(" separator="," close=")"> 
         	#{item} 
    		</foreach>

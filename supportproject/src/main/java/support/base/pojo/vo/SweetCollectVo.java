@@ -1,121 +1,66 @@
 package support.base.pojo.vo;
 
-import java.util.List;
+import java.util.Date;
 
-public class SweetCollectVo {
-    private String id;
-    private String userId;
-    private String collectProduct;
-    private String collectTopic;
-    private String collectType;
-    //删除时传递的id集合
-    private String collectIds;
-    //起始页
-  	private int startPage;
-  	//页数
-  	private int pageSize=10;
-    
-    
-    @Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result
-				+ ((collectProduct == null) ? 0 : collectProduct.hashCode());
-		result = prime * result
-				+ ((collectTopic == null) ? 0 : collectTopic.hashCode());
-		result = prime * result + ((userId == null) ? 0 : userId.hashCode());
-		return result;
-	}
+public class SweetCollectVo extends PageParam {
+	//删除时候传递的收藏ID集合
+	private String scoIds;
+	
+	private String scoId;
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		SweetCollectVo other = (SweetCollectVo) obj;
-		if (collectProduct == null) {
-			if (other.collectProduct != null)
-				return false;
-		} else if (!collectProduct.equals(other.collectProduct))
-			return false;
-		if (collectTopic == null) {
-			if (other.collectTopic != null)
-				return false;
-		} else if (!collectTopic.equals(other.collectTopic))
-			return false;
-		if (userId == null) {
-			if (other.userId != null)
-				return false;
-		} else if (!userId.equals(other.userId))
-			return false;
-		return true;
-	}
+    private String scoUserId;
 
-	public String getId() {
-        return id;
+    private String scoCollectId;
+
+    private Integer scoCollectType;
+
+    private Date scoCollectTime;
+
+    public String getScoId() {
+        return scoId;
     }
 
-    public void setId(String id) {
-        this.id = id == null ? null : id.trim();
+    public void setScoId(String scoId) {
+        this.scoId = scoId == null ? null : scoId.trim();
     }
 
-    public String getUserId() {
-        return userId;
+    public String getScoUserId() {
+        return scoUserId;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId == null ? null : userId.trim();
+    public void setScoUserId(String scoUserId) {
+        this.scoUserId = scoUserId == null ? null : scoUserId.trim();
     }
 
-    public String getCollectProduct() {
-        return collectProduct;
+    public String getScoCollectId() {
+        return scoCollectId;
     }
 
-    public void setCollectProduct(String collectProduct) {
-        this.collectProduct = collectProduct == null ? null : collectProduct.trim();
+    public void setScoCollectId(String scoCollectId) {
+        this.scoCollectId = scoCollectId == null ? null : scoCollectId.trim();
     }
 
-    public String getCollectTopic() {
-        return collectTopic;
+    public Integer getScoCollectType() {
+        return scoCollectType;
     }
 
-    public void setCollectTopic(String collectTopic) {
-        this.collectTopic = collectTopic == null ? null : collectTopic.trim();
+    public void setScoCollectType(Integer scoCollectType) {
+        this.scoCollectType = scoCollectType;
     }
 
-	public String getCollectType() {
-		return collectType;
+    public Date getScoCollectTime() {
+        return scoCollectTime;
+    }
+
+    public void setScoCollectTime(Date scoCollectTime) {
+        this.scoCollectTime = scoCollectTime;
+    }
+
+	public String getScoIds() {
+		return scoIds;
 	}
 
-	public void setCollectType(String collectType) {
-		this.collectType = collectType;
-	}
-
-	public String getCollectIds() {
-		return collectIds;
-	}
-
-	public void setCollectIds(String collectIds) {
-		this.collectIds = collectIds;
-	}
-
-	public int getStartPage() {
-		return startPage;
-	}
-
-	public void setStartPage(int startPage) {
-		this.startPage = startPage;
-	}
-
-	public int getPageSize() {
-		return pageSize;
-	}
-
-	public void setPageSize(int pageSize) {
-		this.pageSize = pageSize;
+	public void setScoIds(String scoIds) {
+		this.scoIds = scoIds;
 	}
 }

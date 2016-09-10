@@ -3,7 +3,7 @@
 <mapper namespace="support.base.dao.mapper.FrontMapper">
 	<resultMap id="product" type="support.base.pojo.po.FrontProduct">
 		<id column="id" property="id" jdbcType="VARCHAR" />
-		<id column="collectId" property="collectId" jdbcType="VARCHAR" />
+		<result column="sco_id" property="scoId" jdbcType="VARCHAR" />
 		<result column="img" property="img" jdbcType="VARCHAR" />
 		<result column="price_now" property="priceNow" jdbcType="VARCHAR" />
 		<result column="title" property="title" jdbcType="VARCHAR" />
@@ -13,10 +13,11 @@
 		<result column="link_url" property="linkUrl" jdbcType="VARCHAR" />
 		<result column="collect" jdbcType="BIGINT" property="collect" />
 	</resultMap>
+	
 
 	<resultMap id="topic" type="support.base.pojo.po.FrontTopic">
 		<id column="id" jdbcType="VARCHAR" property="id" />
-		<id column="collectId" property="collectId" jdbcType="VARCHAR" />
+		<result column="sco_id" property="scoId" jdbcType="VARCHAR" />
 		<result column="link_url" property="linkUrl" jdbcType="VARCHAR" />
 		<result column="topic_name" jdbcType="VARCHAR" property="topicName" />
 		<result column="topic_vice_name" jdbcType="VARCHAR" property="topicViceName" />
@@ -110,71 +111,59 @@
 
 	<select id="queryProductCollect" resultMap="product"
 		parameterType="support.base.pojo.vo.SweetCollectVo">
-		select
-		c.id collectId,
-		a.id,
-		a.img,
-		a.price_now,
-		a.title,
-		link_url,
-		a.product_desc,
-		b.category_name,
-		b.id collectId,
-		(collect_actually+collect_manual) collect
-		from sweet_product a
-		LEFT JOIN
-		sweet_category b on b.id=a.category_id
-		right JOIN sweet_collect c on
-		a.id=c.collect_product
+		SELECT
+			a.id,
+			a.img,
+			a.price_now,
+			a.title,
+			a.link_url,
+			a.product_desc,
+			b.category_name,
+			(
+				a.collect_actually + a.collect_manual
+			) collect,
+			c.sco_id
+		FROM
+			sweet_product a
+		LEFT JOIN sweet_category b ON b.id = a.category_id
+		INNER JOIN sweet_collect c ON a.id = c.sco_collect_id
 		<where>
-			collect_type = 0
+			1=1
 			<if test="userId != null and userId !=''">
-				and user_id = #{userId}
+				and sco_user_id = #{userId}
 			</if>
 		</where>
-		ORDER BY c.collect_time DESC
+		ORDER BY c.sco_collect_time DESC
 		limit ${startPage},${pageSize}
 	</select>
 
 	<select id="queryTopicCollect" resultMap="topic"
 		parameterType="support.base.pojo.vo.SweetCollectVo">
-		select
-		b.id collectId,
-		a.topic_name,
-		a.topic_vice_name,
-		a.topic_desc,
-		a.banner_innerimg,
-		a.banner_outterimg,
-		(scan_actually+scan_manual) scan,
-		(collect_actually+collect_manual) collect
-		from sweet_topic a
-		right JOIN
-		sweet_collect b on a.id=b.collect_topic
+		SELECT
+			a.id,
+			a.link_url,
+			a.topic_name,
+			a.topic_vice_name,
+			a.topic_desc,
+			a.banner_innerimg,
+			a.banner_outterimg,
+			(scan_actually + scan_manual) scan,
+			(
+				a.collect_actually + a.collect_manual
+			) collect,
+			b.sco_id
+		FROM
+			sweet_topic a
+		INNER JOIN sweet_collect b ON a.id = b.sco_collect_id
 		<where>
-			collect_type = 1
+			1=1
 			<if test="userId != null and userId !=''">
-				and user_id = #{userId}
+				and sco_user_id = #{userId}
 			</if>
 		</where>
-		ORDER BY b.collect_time DESC
+		ORDER BY b.sco_collect_time DESC
 		limit ${startPage},${pageSize}
 	</select>
 
-	<!-- <select id="queryCollect" resultMap="sweetCollect"
-		parameterType="support.base.pojo.vo.SweetCollectVo">
-		select *
-		from sweet_collect
-		<where>
-			<if test="userId != null and userId !=''">
-				and user_id = #{userId}
-			</if>
-			<if test="collectProduct != null and collectProduct !=''">
-				and collect_product = #{collectProduct}
-			</if>
-			<if test="collectTopic != null and collectTopic !=''">
-				and collect_topic = #{collectTopic}
-			</if>
-		</where>
-	</select> -->
 
 </mapper>

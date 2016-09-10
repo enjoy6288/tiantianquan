@@ -67,12 +67,19 @@ public class UserAction {
 	JSONObject collect(SweetCollectVo vo) {
 		return userService.collect(vo);
 	}
-
+	
 	// 删除收藏
 	@RequestMapping(value = "/delCollect", method = RequestMethod.POST)
 	public @ResponseBody
 	JSONObject delCollect(SweetCollectVo vo) {
 		return userService.delCollect(vo);
+	}
+	
+	@RequestMapping(value = "/saveCollect", method = RequestMethod.POST)
+	public @ResponseBody
+	JSONObject saveCollect() {
+		 userService.saveCollect();
+		 return null;
 	}
 
 }

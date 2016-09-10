@@ -1,52 +1,55 @@
 package support.base.pojo.po;
 
+import java.util.Date;
+
 public class SweetCollect {
-    private String id;
+    private String scoId;
 
-    private String userId;
+    private String scoUserId;
 
-    private String collectProduct;
+    private String scoCollectId;
 
-    private String collectTopic;
-    private String collectType;
+    private Integer scoCollectType;
 
-    public String getId() {
-        return id;
+    private Date scoCollectTime;
+
+    public String getScoId() {
+        return scoId;
     }
 
-    public void setId(String id) {
-        this.id = id == null ? null : id.trim();
+    public void setScoId(String scoId) {
+        this.scoId = scoId == null ? null : scoId.trim();
     }
 
-    public String getUserId() {
-        return userId;
+    public String getScoUserId() {
+        return scoUserId;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId == null ? null : userId.trim();
+    public void setScoUserId(String scoUserId) {
+        this.scoUserId = scoUserId == null ? null : scoUserId.trim();
     }
 
-    public String getCollectProduct() {
-        return collectProduct;
+    public String getScoCollectId() {
+        return scoCollectId;
     }
 
-    public void setCollectProduct(String collectProduct) {
-        this.collectProduct = collectProduct == null ? null : collectProduct.trim();
+    public void setScoCollectId(String scoCollectId) {
+        this.scoCollectId = scoCollectId == null ? null : scoCollectId.trim();
     }
 
-    public String getCollectTopic() {
-        return collectTopic;
+    public Integer getScoCollectType() {
+        return scoCollectType;
     }
 
-    public void setCollectTopic(String collectTopic) {
-        this.collectTopic = collectTopic == null ? null : collectTopic.trim();
+    public void setScoCollectType(Integer scoCollectType) {
+        this.scoCollectType = scoCollectType;
     }
 
-	public String getCollectType() {
-		return collectType;
-	}
+    public Date getScoCollectTime() {
+        return scoCollectTime;
+    }
 
-	public void setCollectType(String collectType) {
-		this.collectType = collectType;
-	}
+    public void setScoCollectTime(Date scoCollectTime) {
+        this.scoCollectTime = scoCollectTime;
+    }
 }

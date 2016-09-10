@@ -45,7 +45,7 @@
 		</property>
 	</bean> -->
 	
-	<mvc:interceptors>
+	<!-- <mvc:interceptors>
 		<mvc:interceptor> 
 			<mvc:mapping path="/**" /> 
 			<mvc:exclude-mapping path="/js/**" />
@@ -54,7 +54,7 @@
 			<mvc:exclude-mapping path="/styles/**" />
 			<bean class="support.base.interceptor.SessionInterceptor" /> 
 		</mvc:interceptor> 
-	</mvc:interceptors>
+	</mvc:interceptors> -->
 	
 	<!-- 视图解析器 -->
 	<bean
