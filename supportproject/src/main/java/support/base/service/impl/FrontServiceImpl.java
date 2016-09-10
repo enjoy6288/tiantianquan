@@ -35,12 +35,13 @@ public class FrontServiceImpl implements FrontService {
 		cl.setTime(nowTime);
 		JSONObject nextQuery = new JSONObject();
 		if (!StringUtils.isEmpty(queryProductType)) {
+			//查询当天的
 			if (queryProductType.equals("today")) {
 				vo.setBeginTime(nowTime);
 				vo.setEndTime(nowTime);
 			}
+			// 查询最近一个月的
 			if (queryProductType.equals("more")) {
-				// 设置一个月前的日期
 				cl.add(Calendar.MONTH, -1);
 				Date beginTime = cl.getTime();
 				vo.setBeginTime(beginTime);
