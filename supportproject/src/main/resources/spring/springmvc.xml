@@ -45,7 +45,7 @@
 		</property>
 	</bean> -->
 	
-	<!-- <mvc:interceptors>
+	<mvc:interceptors>
 		<mvc:interceptor> 
 			<mvc:mapping path="/**" /> 
 			<mvc:exclude-mapping path="/js/**" />
@@ -54,7 +54,7 @@
 			<mvc:exclude-mapping path="/styles/**" />
 			<bean class="support.base.interceptor.SessionInterceptor" /> 
 		</mvc:interceptor> 
-	</mvc:interceptors> -->
+	</mvc:interceptors>
 	
 	<!-- 视图解析器 -->
 	<bean
@@ -100,7 +100,8 @@
 		<task:scheduled ref="topicTaskJob" method="job"
 			cron="* * 1 * * ? " />
 		<task:scheduled ref="collectTaskJob" method="job"
-			cron="0 */2 * * * ?" />
+			cron="0 * 1 * * ?" />
+			<!-- cron="0 */2 * * * ?" /> -->
 	</task:scheduled-tasks>
 	
 	

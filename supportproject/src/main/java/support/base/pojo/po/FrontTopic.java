@@ -16,6 +16,7 @@ public class FrontTopic implements Serializable{
 	private String bannerInnerimg;
 	private long collect;
 	private long scan;
+	private boolean collected;
 	
 
 	public String getId() {
@@ -97,5 +98,13 @@ public class FrontTopic implements Serializable{
 
 	public void setScoId(String scoId) {
 		this.scoId = scoId;
+	}
+
+	public boolean isCollected() {
+		return collected;
+	}
+
+	public void setCollected(boolean collected) {
+		this.collected = collected;
 	} 
 }

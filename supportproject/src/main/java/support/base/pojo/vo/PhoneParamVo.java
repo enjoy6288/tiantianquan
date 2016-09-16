@@ -4,6 +4,7 @@ package support.base.pojo.vo;
 public class PhoneParamVo {
     private String operatingSystem;
     private String timestamp;
+    private String userId;
     private String token;
     private String deviceId;
     private String clientVersion;
@@ -92,6 +93,12 @@ public class PhoneParamVo {
 	}
 	public void setPushToken(String pushToken) {
 		this.pushToken = pushToken;
+	}
+	public String getUserId() {
+		return userId;
+	}
+	public void setUserId(String userId) {
+		this.userId = userId;
 	}
 
 }

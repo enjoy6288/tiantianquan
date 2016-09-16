@@ -20,7 +20,7 @@ public interface FrontMapper {
 	// 查询收藏的商品
 	List<FrontProduct> queryProductCollect(SweetCollectVo vo);
 
-	// 根据条件查询收藏的内容
-	//List<SweetCollect> queryCollect(SweetCollectVo vo);
+	// 根据条件查询所有收藏内容
+	List<SweetCollect> queryCollect(SweetCollectVo vo);
 
 }

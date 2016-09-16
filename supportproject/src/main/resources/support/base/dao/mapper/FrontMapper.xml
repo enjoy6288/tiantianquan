@@ -28,16 +28,13 @@
 		<result column="scan" jdbcType="BIGINT" property="scan" />
 	</resultMap>
 
-	<resultMap id="sweetCollect" type="support.base.pojo.po.SweetCollect">
-		<result column="id" property="id" jdbcType="VARCHAR" />
-		<result column="user_id" property="userId" jdbcType="VARCHAR" />
-		<result column="collect_product" property="collectProduct"
-			jdbcType="VARCHAR" />
-		<result column="collect_topic" property="collectTopic"
-			jdbcType="VARCHAR" />
-		<result column="link_url" property="linkUrl" jdbcType="VARCHAR" />
-		<result column="collect_type" property="collectType" jdbcType="INTEGER" />
-	</resultMap>
+	<resultMap id="sweetCollect" type="support.base.pojo.po.SweetCollect" >
+	    <id column="sco_id" property="scoId" jdbcType="VARCHAR" />
+	    <result column="sco_user_id" property="scoUserId" jdbcType="VARCHAR" />
+	    <result column="sco_collect_id" property="scoCollectId" jdbcType="VARCHAR" />
+	    <result column="sco_collect_type" property="scoCollectType" jdbcType="INTEGER" />
+	    <result column="sco_collect_time" property="scoCollectTime" jdbcType="TIMESTAMP" />
+    </resultMap>
 
 	<select id="queryNewProducts" resultMap="product"
 		parameterType="support.base.pojo.vo.FrontQueryVo">
@@ -129,8 +126,8 @@
 		INNER JOIN sweet_collect c ON a.id = c.sco_collect_id
 		<where>
 			1=1
-			<if test="userId != null and userId !=''">
-				and sco_user_id = #{userId}
+			<if test="scoUserId != null and scoUserId !=''">
+				and sco_user_id = #{scoUserId}
 			</if>
 		</where>
 		ORDER BY c.sco_collect_time DESC
@@ -157,12 +154,26 @@
 		INNER JOIN sweet_collect b ON a.id = b.sco_collect_id
 		<where>
 			1=1
-			<if test="userId != null and userId !=''">
-				and sco_user_id = #{userId}
+			<if test="scoUserId != null and scoUserId !=''">
+				and sco_user_id = #{scoUserId}
 			</if>
 		</where>
 		ORDER BY b.sco_collect_time DESC
 		limit ${startPage},${pageSize}
+	</select>
+	
+	<select id="queryCollect" resultMap="sweetCollect"
+		parameterType="support.base.pojo.vo.SweetCollectVo">
+		SELECT
+			*
+		FROM
+			sweet_collect
+		<where>
+			1=1
+			<if test="scoUserId != null and scoUserId !=''">
+				and sco_user_id = #{scoUserId}
+			</if>
+		</where>
 	</select>
 
 

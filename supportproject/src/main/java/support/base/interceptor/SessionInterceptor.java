@@ -44,7 +44,7 @@ public class SessionInterceptor extends HandlerInterceptorAdapter {
 		} else {
 			RedisUtil redisUtil=new RedisUtil();
 			Jedis jedis = redisUtil.getJedis();
-			String serverToken = jedis.get(clientToken);
+			String serverToken = jedis.get("token:"+clientToken);
 			redisUtil.closeRedis();
 			if (serverToken!=null) {
 				return true;

@@ -75,9 +75,9 @@ public class UserServiceImpl implements UserService {
 			user.setToken(token);
 			userMap.put("user", user);
 			jsonObject.put("data", userMap);
-			RedisUtil redisUtil=new RedisUtil();
+			RedisUtil redisUtil = new RedisUtil();
 			Jedis jedis = redisUtil.getJedis();
-			jedis.set(token, token);
+			jedis.set("token:"+token, token);
 			redisUtil.closeRedis();
 		} else {// 用户或密码不正确
 			jsonObject = ResultUtil.createJSONPObject(Config.MESSAGE, 306, ResultInfo.TYPE_RESULT_FAIL);
@@ -87,11 +87,11 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public JSONObject loginOut(SweetUserVo vo) {
-		RedisUtil redisUtil=new RedisUtil();
+		RedisUtil redisUtil = new RedisUtil();
 		Jedis jedis = redisUtil.getJedis();
 		String token = vo.getToken();
 		if (!StringUtils.isEmpty(token)) {
-			jedis.del(token);
+			jedis.del("token:"+token);
 		}
 		redisUtil.closeRedis();
 		return ResultUtil.createJSONPObject(Config.MESSAGE, 201, ResultInfo.TYPE_RESULT_SUCCESS);
@@ -158,10 +158,11 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public JSONObject collect(SweetCollectVo vo) {
-		RedisUtil redisUtil=new RedisUtil();
+		RedisUtil redisUtil = new RedisUtil();
 		Jedis jedis = redisUtil.getJedis();
-		String value=vo.getScoUserId()+":"+vo.getScoCollectId()+":"+vo.getScoCollectType();
-		jedis.sadd("userCollect", value);
+		String userId = vo.getScoUserId();
+		String value=userId+":"+vo.getScoCollectId()+":"+vo.getScoCollectType();
+		jedis.sadd("userCollect:" + userId+":"+vo.getScoCollectType(), value);
 		redisUtil.closeRedis();
 		return ResultUtil.createJSONPObject(Config.MESSAGE, 201, ResultInfo.TYPE_RESULT_SUCCESS);
 	}
@@ -169,20 +170,22 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public void saveCollect() {
 		List<SweetCollect> scs = new ArrayList<>();
-		RedisUtil redisUtil=new RedisUtil();
+		RedisUtil redisUtil = new RedisUtil();
 		Jedis jedis = redisUtil.getJedis();
-		Set<String> values = jedis.smembers("userCollect");
-		SweetCollect sc=null;
+		Set<String> keys = jedis.keys("userCollect*");
+		String[] arrayKeys = keys.toArray(new String[keys.size()]);
+		Set<String> values = jedis.sunion(arrayKeys);
+		SweetCollect sc = null;
 		for (String value : values) {
 			String[] split = value.split(":");
-			sc=new SweetCollect();
+			sc = new SweetCollect();
 			sc.setScoUserId(split[0]);
 			sc.setScoCollectId(split[1]);
 			sc.setScoCollectType(new Integer(split[2]));
 			scs.add(sc);
 		}
 		if (scs.size() > 0) {
-			jedis.del("userCollect");
+			jedis.del(arrayKeys);
 			userMapper.saveCollect(scs);
 		}
 		redisUtil.closeRedis();

@@ -18,4 +18,9 @@ public class Constant {
 	public final static String IMG_PREFIX = "img_prefix";
 	public final static String MSG_URL = "msg_url";
 	
+	//商品类型
+	public final static String PRODUCT_TYPE = "0";
+	//主题类型
+	public final static String TOPIC_TYPE = "1";
+	
 }

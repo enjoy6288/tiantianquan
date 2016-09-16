@@ -25,25 +25,25 @@ public class FrontAction {
 	@RequestMapping(value = "/queryNewProducts", method = RequestMethod.POST)
 	public @ResponseBody
 	FrontDataInfo queryNewProducts(FrontQueryVo vo,PhoneParamVo phoneVo) {
-		return  frontService.queryNewProducts(vo);
+		return  frontService.queryNewProducts(vo,phoneVo);
 	}
 
 	@RequestMapping(value = "/queryTopics", method = RequestMethod.POST)
 	public @ResponseBody
-	FrontDataInfo queryTopics(FrontQueryVo vo) {
-		return frontService.queryTopics(vo);
+	FrontDataInfo queryTopics(FrontQueryVo vo,PhoneParamVo phoneVo) {
+		return frontService.queryTopics(vo,phoneVo);
 	}
 
 	@RequestMapping(value = "/queryTopicCollect", method = RequestMethod.POST)
 	public @ResponseBody
-	FrontDataInfo queryTopicCollect(SweetCollectVo vo) {
-		return frontService.queryTopicCollect(vo);
+	FrontDataInfo queryTopicCollect(SweetCollectVo vo,PhoneParamVo phoneVo) {
+		return frontService.queryTopicCollect(vo,phoneVo);
 	}
 
 	@RequestMapping(value = "/queryProductCollect", method = RequestMethod.POST)
 	public @ResponseBody
-	FrontDataInfo queryProductCollect(SweetCollectVo vo) {
-		return frontService.queryProductCollect(vo);
+	FrontDataInfo queryProductCollect(SweetCollectVo vo,PhoneParamVo phoneVo) {
+		return frontService.queryProductCollect(vo,phoneVo);
 	}
 
 }

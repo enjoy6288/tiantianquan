@@ -14,7 +14,10 @@ public class FrontProduct implements Serializable {
     private String img;
     private String priceNow;
     private String linkUrl;
+    //收藏数
     private long collect;
+    //是否收藏
+    private boolean collected;
 	public String getId() {
 		return id;
 	}
@@ -68,6 +71,12 @@ public class FrontProduct implements Serializable {
 	}
 	public void setScoId(String scoId) {
 		this.scoId = scoId;
+	}
+	public boolean isCollected() {
+		return collected;
+	}
+	public void setCollected(boolean collected) {
+		this.collected = collected;
 	}
     
 }
