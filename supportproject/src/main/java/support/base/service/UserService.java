@@ -19,6 +19,10 @@ public interface UserService {
 	JSONObject collect(SweetCollectVo vo);
 	JSONObject checkPhoneCode(SweetUserVo vo);
 	void saveCollect();
+	//删除redis里面topic和product的缓存
+	void delCache();
+	//更新收藏值
+	void updateCollectNum();
 	JSONObject delCollect(SweetCollectVo vo);
 	
 	

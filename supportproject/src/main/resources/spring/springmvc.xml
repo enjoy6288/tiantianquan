@@ -96,11 +96,11 @@
 	<context:component-scan base-package="support.base.job" />
 	<task:scheduled-tasks>
 		<task:scheduled ref="productTaskJob" method="job"
-			cron="* * 1 * * ? "/>
+			cron="0 33 17 * * ? "/>
 		<task:scheduled ref="topicTaskJob" method="job"
-			cron="* * 1 * * ? " />
+			cron="0 0 1 * * ? " />
 		<task:scheduled ref="collectTaskJob" method="job"
-			cron="0 * 1 * * ?" />
+			cron="0 16 19 * * ?" />
 			<!-- cron="0 */2 * * * ?" /> -->
 	</task:scheduled-tasks>
 	

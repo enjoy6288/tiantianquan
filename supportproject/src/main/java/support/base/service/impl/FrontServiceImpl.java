@@ -48,7 +48,7 @@ public class FrontServiceImpl implements FrontService {
 		RedisUtil redisUtil = new RedisUtil();
 		Jedis jedis = redisUtil.getJedis();
 		// 获取用户收藏的ID
-		Set<String> collectId = getUserCollectId(phoneVo, jedis,Constant.TOPIC_TYPE);
+		Set<String> collectId = getUserCollectId(phoneVo, jedis, Constant.PRODUCT_TYPE);
 		if (!StringUtils.isEmpty(queryProductType)) {
 			// 查询当天的
 			if (queryProductType.equals("today")) {
@@ -124,6 +124,17 @@ public class FrontServiceImpl implements FrontService {
 				}
 			}
 		}
+		// 实时更新收藏数量
+		// for (FrontProduct product : newProducts) {
+		// String id = product.getId();
+		// String num = jedis.get("incr:" + Constant.PRODUCT_TYPE + ":" + id);
+		// if (!StringUtils.isEmpty(num)) {
+		// long collect = product.getCollect();
+		// collect = collect + Long.parseLong(num);
+		// product.setCollect(collect);
+		// }
+		// }
+
 		FrontDataInfo info = new FrontDataInfo();
 		if (newProducts.size() == 0) {
 			newProducts = null;
@@ -142,8 +153,6 @@ public class FrontServiceImpl implements FrontService {
 		JSONObject nextQuery = new JSONObject();
 		RedisUtil redisUtil = new RedisUtil();
 		Jedis jedis = redisUtil.getJedis();
-		// 获取用户收藏的ID
-		Set<String> collectId = getUserCollectId(phoneVo, jedis,Constant.PRODUCT_TYPE);
 		// 以startpage作为是否是专题列表分页 不查询专题banner和推荐专题
 		if (vo.getStartPage() == 0) {
 			vo.setDispalyPosition("轮播banner");
@@ -157,15 +166,6 @@ public class FrontServiceImpl implements FrontService {
 			} else {
 				topList = JSONObject.parseArray(topListJson, FrontTopic.class);
 			}
-			// 设置收藏状态
-			if (collectId.size() != 0) {
-				for (FrontTopic topic : topList) {
-					String id = topic.getId();
-					if (collectId.contains(id)) {
-						topic.setCollected(true);
-					}
-				}
-			}
 			data.put("topList", topList);
 
 			vo.setDispalyPosition("推荐专题");
@@ -178,15 +178,6 @@ public class FrontServiceImpl implements FrontService {
 				jedis.set("middleList:topic", middleListJson);
 			} else {
 				middleList = JSONObject.parseArray(middleListJson, FrontTopic.class);
-			}
-			// 设置收藏状态
-			if (collectId.size() != 0) {
-				for (FrontTopic topic : middleList) {
-					String id = topic.getId();
-					if (collectId.contains(id)) {
-						topic.setCollected(true);
-					}
-				}
 			}
 			data.put("middleList", middleList);
 
@@ -216,6 +207,18 @@ public class FrontServiceImpl implements FrontService {
 		}
 		redisUtil.closeRedis();
 		data.put("bottomList", bottomList);
+		// 获取用户收藏的ID
+		Set<String> collectId = getUserCollectId(phoneVo, jedis, Constant.TOPIC_TYPE);
+		// 实时更新收藏数量
+		for (FrontTopic topic : bottomList) {
+			String id = topic.getId();
+			String num = jedis.get("incr:" + Constant.TOPIC_TYPE + ":" + id);
+			if (!StringUtils.isEmpty(num)) {
+				long collect = topic.getCollect();
+				collect = collect + Long.parseLong(num);
+				topic.setCollect(collect);
+			}
+		}
 		// 设置收藏状态
 		if (collectId.size() != 0) {
 			for (FrontTopic topic : bottomList) {
@@ -247,7 +250,7 @@ public class FrontServiceImpl implements FrontService {
 		List<SweetCollect> scs = new ArrayList<>();
 		RedisUtil redisUtil = new RedisUtil();
 		Jedis jedis = redisUtil.getJedis();
-		Set<String> values = jedis.smembers("userCollect:" + phoneVo.getUserId()+":"+Constant.TOPIC_TYPE);
+		Set<String> values = jedis.smembers("userCollect:" + phoneVo.getUserId() + ":" + Constant.TOPIC_TYPE);
 		SweetCollect sc = null;
 		for (String value : values) {
 			String[] split = value.split(":");
@@ -256,9 +259,10 @@ public class FrontServiceImpl implements FrontService {
 			sc.setScoCollectId(split[1]);
 			sc.setScoCollectType(new Integer(split[2]));
 			scs.add(sc);
+			jedis.incr("incr:" + split[2] + ":" + split[1]);
 		}
 		if (scs.size() > 0) {
-			jedis.del("userCollect:" + phoneVo.getUserId()+":"+Constant.TOPIC_TYPE);
+			jedis.del("userCollect:" + phoneVo.getUserId() + ":" + Constant.TOPIC_TYPE);
 			userMapper.saveCollect(scs);
 		}
 		redisUtil.closeRedis();
@@ -287,7 +291,7 @@ public class FrontServiceImpl implements FrontService {
 		List<SweetCollect> scs = new ArrayList<>();
 		RedisUtil redisUtil = new RedisUtil();
 		Jedis jedis = redisUtil.getJedis();
-		Set<String> values = jedis.smembers("userCollect:" + phoneVo.getUserId()+":"+Constant.PRODUCT_TYPE);
+		Set<String> values = jedis.smembers("userCollect:" + phoneVo.getUserId() + ":" + Constant.PRODUCT_TYPE);
 		SweetCollect sc = null;
 		for (String value : values) {
 			String[] split = value.split(":");
@@ -296,9 +300,10 @@ public class FrontServiceImpl implements FrontService {
 			sc.setScoCollectId(split[1]);
 			sc.setScoCollectType(new Integer(split[2]));
 			scs.add(sc);
+			jedis.incr("incr:" + split[2] + ":" + split[1]);
 		}
 		if (scs.size() > 0) {
-			jedis.del("userCollect:" + phoneVo.getUserId()+":"+Constant.PRODUCT_TYPE);
+			jedis.del("userCollect:" + phoneVo.getUserId() + ":" + Constant.PRODUCT_TYPE);
 			userMapper.saveCollect(scs);
 		}
 		redisUtil.closeRedis();
@@ -317,15 +322,17 @@ public class FrontServiceImpl implements FrontService {
 
 	/**
 	 * 获取用户的收藏ID
+	 * 
 	 * @param phoneVo
 	 * @param jedis
-	 * @param type类型 0商品 1主题 
+	 * @param type类型
+	 *            0商品 1主题
 	 * @return
 	 */
-	private Set<String> getUserCollectId(PhoneParamVo phoneVo, Jedis jedis,String type) {
+	private Set<String> getUserCollectId(PhoneParamVo phoneVo, Jedis jedis, String type) {
 		Set<String> collectId = new HashSet<>();
 		if (phoneVo != null && phoneVo.getUserId() != null) {
-			Set<String> smembers = jedis.smembers("userCollect:" + phoneVo.getUserId()+":"+type);
+			Set<String> smembers = jedis.smembers("userCollect:" + phoneVo.getUserId() + ":" + type);
 			if (smembers != null && smembers.size() > 0) {
 				for (String member : smembers) {
 					String[] split = member.split(":");

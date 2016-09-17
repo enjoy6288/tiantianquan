@@ -235,8 +235,19 @@
 				status = #{item.status},
 				update_time = now()
 			</set>
-			where id = ${item.id}
+			where id = #{item.id}
 		</foreach>
-
+	</update>
+	
+	<!-- 批量更新数据 -->
+	<update id="changeTopicCollects" parameterType="java.util.List">
+		<foreach collection="list" item="item" index="index" open=""
+			close="" separator=";">
+			update sweet_topic
+			<set>
+				collect_actually =collect_actually + #{item.collectActually}
+			</set>
+			where id = #{item.id}
+		</foreach>
 	</update>
 </mapper>

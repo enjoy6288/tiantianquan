@@ -1,5 +1,7 @@
 package support.base.process.result;
 
+import com.alibaba.fastjson.JSONObject;
+
 
 /**
  * 自定义系统异常类
@@ -8,9 +10,11 @@ public class ExceptionResultInfo extends Exception {
 
 	// 系统统一使用的结果类，包括了 提示信息类型和信息内容
 	private ResultInfo resultInfo;
+	private JSONObject code;
+	
 
 	public ExceptionResultInfo(ResultInfo resultInfo) {
-		super(resultInfo.getMessage());
+		//super(resultInfo.getMessage());
 		this.resultInfo = resultInfo;
 	}
 

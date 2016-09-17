@@ -6,6 +6,7 @@ import java.lang.reflect.Method;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
@@ -17,8 +18,13 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.alibaba.fastjson.JSONObject;
+
+import support.base.action.FrontAction;
+import support.base.process.context.Config;
 import support.base.process.result.ExceptionResultInfo;
 import support.base.process.result.ResultInfo;
+import support.base.process.result.ResultUtil;
 
 
 /**
@@ -38,7 +44,7 @@ import support.base.process.result.ResultInfo;
  * @version 1.0
  */
 public class ExceptionResolverCustom implements HandlerExceptionResolver {
-
+	Logger logger = Logger.getLogger(FrontAction.class);
 	// json转换器
 	// 将异常信息转json
 	private HttpMessageConverter<ExceptionResultInfo> jsonMessageConverter;
@@ -49,8 +55,6 @@ public class ExceptionResolverCustom implements HandlerExceptionResolver {
 	public ModelAndView resolveException(HttpServletRequest request,
 			HttpServletResponse response, Object handler, Exception ex) {
 
-		// 输出 异常信息
-		ex.printStackTrace();
 		// 转成springmvc底层对象（就是对action方法的封装对象，只有一个方法）
 		HandlerMethod handlerMethod = (HandlerMethod) handler;
 		// 取出方法
@@ -63,14 +67,14 @@ public class ExceptionResolverCustom implements HandlerExceptionResolver {
 				ResponseBody.class);
 		if (responseBody != null) {
 			// 将异常信息转json输出
-			return this.resolveJsonException(request, response, handlerMethod,
+			return this.resolveJsonException(method,request, response, handlerMethod,
 					ex);
 
 		}
 		// 这里说明action返回的是jsp页面
 
 		// 解析异常
-		ExceptionResultInfo exceptionResultInfo = resolveExceptionCustom(ex);
+		ExceptionResultInfo exceptionResultInfo = resolveExceptionCustom(method,ex);
 
 		String view = "/base/error";
 		//异常代码
@@ -94,16 +98,16 @@ public class ExceptionResolverCustom implements HandlerExceptionResolver {
 	}
 
 	// 异常信息解析方法
-	private ExceptionResultInfo resolveExceptionCustom(Exception ex) {
+	private ExceptionResultInfo resolveExceptionCustom(Method method,Exception ex) {
 		ResultInfo resultInfo = null;
 		if (ex instanceof ExceptionResultInfo) {
 			// 抛出的是系统自定义异常
 			resultInfo = ((ExceptionResultInfo) ex).getResultInfo();
 		} else {
-			// 重新构造“未知错误”异常
+			logger.info("####错误"+ex.toString()+"####"+method.getName());
 			resultInfo = new ResultInfo();
 			resultInfo.setType(ResultInfo.TYPE_RESULT_FAIL);
-			resultInfo.setMessage("未知错误！");
+			resultInfo.setMessage("服务器忙,请稍会儿再试!");
 		}
 
 		return new ExceptionResultInfo(resultInfo);
@@ -111,14 +115,12 @@ public class ExceptionResolverCustom implements HandlerExceptionResolver {
 	}
 
 	// 将异常信息转json输出
-	private ModelAndView resolveJsonException(HttpServletRequest request,
+	private ModelAndView resolveJsonException(Method method,HttpServletRequest request,
 			HttpServletResponse response, Object handler, Exception ex) {
 
 		// 解析异常
-		ExceptionResultInfo exceptionResultInfo = resolveExceptionCustom(ex);
-		
+		ExceptionResultInfo exceptionResultInfo = resolveExceptionCustom(method,ex);
 		HttpOutputMessage outputMessage = new ServletServerHttpResponse(response);
-		
 		try {
 			//将exceptionResultInfo对象转成json输出
 			jsonMessageConverter.write(exceptionResultInfo, MediaType.APPLICATION_JSON, outputMessage);

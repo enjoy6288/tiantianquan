@@ -87,6 +87,20 @@
 										</div>
 									</td>
 								</tr>
+								
+								<tr>
+									<td height=30 width="10%" align=right><span
+										style="color: red;">*</span> 链接：</td>
+									<td class=category width="90%">
+										<div>
+											<input id="linkUrl" name="linkUrl" style="width: 800px;"
+												type="text"
+												value="https://detail.tmall.com/item.htm?id=527471202371&scene=taobao_shop&ali_trackid=17_77d6befaede9594e73339d656ccb4793&spm=a21bo.50862.201863-6.2.RVurn6" />
+										</div>
+										<div id="linkUrlTip"></div>
+									</td>
+								</tr>
+								
 								<tr>
 									<td height=30 width="10%" align=right><span
 										style="color: red;">*</span> 展示位置：</td>

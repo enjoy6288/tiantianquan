@@ -22,7 +22,7 @@ public class CollectTaskJob {
 	private static ExecutorService workerPool = Executors.newFixedThreadPool(1);
 
 	public void job() {
-		logger.info("执行收藏任务" + new Date());
+		logger.info("执行收藏+清除redis任务" + new Date());
 		workerPool.submit(new CollectRunnable(userService));
 	}
 }

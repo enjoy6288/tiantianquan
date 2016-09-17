@@ -53,14 +53,14 @@
 		<where>
 			status=1
 			<!-- 附加查询统计字段 -->
-			<if test="beginTime != null and beginTime !=''">
+			<!-- <if test="beginTime != null and beginTime !=''">
 				and date_format(shelves_time, '%Y-%m-%d') <![CDATA[>=]]>
 				date_format(#{beginTime}, '%Y-%m-%d')
 			</if>
 			<if test="endTime != null and endTime !=''">
 				and date_format(shelves_time, '%Y-%m-%d') <![CDATA[<=]]>
 				date_format(#{endTime}, '%Y-%m-%d')
-			</if>
+			</if> -->
 
 			<if test="topicId != null and topicId !=''">
 				and topic_id = #{topicId}
@@ -92,14 +92,14 @@
 			<if test="dispalyPosition != null and dispalyPosition !=''">
 				and dispaly_position = #{dispalyPosition}
 			</if>
-			<if test="beginTime != null and beginTime !=''">
+			<!-- <if test="beginTime != null and beginTime !=''">
 				and date_format(shelves_time, '%Y-%m-%d') <![CDATA[>=]]>
 				date_format(#{beginTime}, '%Y-%m-%d')
 			</if>
 			<if test="endTime != null and endTime !=''">
 				and date_format(shelves_time, '%Y-%m-%d') <![CDATA[<=]]>
 				date_format(#{endTime}, '%Y-%m-%d')
-			</if>
+			</if> -->
 		</where>
 		ORDER BY sort_value DESC
 		limit ${startPage},${pageSize}

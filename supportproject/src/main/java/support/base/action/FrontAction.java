@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 
 
+
 import support.base.pojo.vo.FrontQueryVo;
 import support.base.pojo.vo.PhoneParamVo;
 import support.base.pojo.vo.SweetCollectVo;
@@ -24,25 +25,25 @@ public class FrontAction {
 
 	@RequestMapping(value = "/queryNewProducts", method = RequestMethod.POST)
 	public @ResponseBody
-	FrontDataInfo queryNewProducts(FrontQueryVo vo,PhoneParamVo phoneVo) {
+	FrontDataInfo queryNewProducts(FrontQueryVo vo,PhoneParamVo phoneVo) throws Exception{
 		return  frontService.queryNewProducts(vo,phoneVo);
 	}
 
 	@RequestMapping(value = "/queryTopics", method = RequestMethod.POST)
 	public @ResponseBody
-	FrontDataInfo queryTopics(FrontQueryVo vo,PhoneParamVo phoneVo) {
+	FrontDataInfo queryTopics(FrontQueryVo vo,PhoneParamVo phoneVo) throws Exception{
 		return frontService.queryTopics(vo,phoneVo);
 	}
 
 	@RequestMapping(value = "/queryTopicCollect", method = RequestMethod.POST)
 	public @ResponseBody
-	FrontDataInfo queryTopicCollect(SweetCollectVo vo,PhoneParamVo phoneVo) {
+	FrontDataInfo queryTopicCollect(SweetCollectVo vo,PhoneParamVo phoneVo) throws Exception{
 		return frontService.queryTopicCollect(vo,phoneVo);
 	}
 
 	@RequestMapping(value = "/queryProductCollect", method = RequestMethod.POST)
 	public @ResponseBody
-	FrontDataInfo queryProductCollect(SweetCollectVo vo,PhoneParamVo phoneVo) {
+	FrontDataInfo queryProductCollect(SweetCollectVo vo,PhoneParamVo phoneVo) throws Exception{
 		return frontService.queryProductCollect(vo,phoneVo);
 	}
 

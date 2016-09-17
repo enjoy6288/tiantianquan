@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.apache.commons.lang.time.DateUtils;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import redis.clients.jedis.Jedis;
 import support.base.pojo.po.Category;
 import support.base.pojo.po.Product;
 import support.base.pojo.po.Topic;
@@ -30,6 +32,7 @@ import support.base.service.ProductService;
 import support.base.service.TopicService;
 import support.base.util.CommonUtil;
 import support.base.util.Constant;
+import support.base.util.RedisUtil;
 import support.base.util.SpringPropertyUtil;
 
 @Controller
@@ -51,12 +54,20 @@ public class TopicAction {
 	// 保存主题
 	@RequestMapping("/saveTopic")
 	public @ResponseBody
-	SubmitResultInfo saveTopic(TopicVo vo, MultipartFile out,
-			MultipartFile inner) throws Exception {
-
+	SubmitResultInfo saveTopic(TopicVo vo, MultipartFile out, MultipartFile inner) throws Exception {
 		topicService.saveTopic(vo, out, inner);
-		return ResultUtil.createSubmitResult(ResultUtil.createSuccess(
-				Config.MESSAGE, 201, null));
+
+		// 删除redis缓存
+		RedisUtil redisUtil = new RedisUtil();
+		Jedis jedis = redisUtil.getJedis();
+		Set<String> keys = jedis.keys("*topic*");
+		String[] arrayKeys = keys.toArray(new String[keys.size()]);
+		if (arrayKeys.length > 0) {
+			jedis.del(arrayKeys);
+		}
+		redisUtil.closeRedis();
+		
+		return ResultUtil.createSubmitResult(ResultUtil.createSuccess(Config.MESSAGE, 201, null));
 	}
 
 	// 修改主题页面
@@ -76,43 +87,51 @@ public class TopicAction {
 	// 修改主题
 	@RequestMapping("/updateTopic")
 	public @ResponseBody
-	SubmitResultInfo updateTopic(TopicVo vo, MultipartFile out,
-			MultipartFile inner) throws Exception {
+	SubmitResultInfo updateTopic(TopicVo vo, MultipartFile out, MultipartFile inner) throws Exception {
 		Topic topic = new Topic();
 		CommonUtil.VoToPo(vo, topic);
 
 		// 外部banner
 		if (out != null) {
 			String oldImg = vo.getOldOut();
-			if(oldImg!=null){
+			if (oldImg != null) {
 				String imgPrefix = SpringPropertyUtil.getContextProperty(Constant.IMG_PREFIX);
-			    String partOldImg = oldImg.substring(imgPrefix.length());
-			    oldImg=SpringPropertyUtil.getContextProperty(Constant.FILE_PATH_PREFIX)+partOldImg;
+				String partOldImg = oldImg.substring(imgPrefix.length());
+				oldImg = SpringPropertyUtil.getContextProperty(Constant.FILE_PATH_PREFIX) + partOldImg;
 				File file = new File(oldImg);
 				if (file.exists()) {
 					file.delete();
 				}
 			}
-			topic.setBannerOutterimg(CommonUtil.upload(out,Constant.TOPIC));
+			topic.setBannerOutterimg(CommonUtil.upload(out, Constant.TOPIC));
 		}
 
 		// 内部banner
 		if (inner != null) {
 			String oldImg = vo.getOldInner();
-			if(oldImg!=null){
+			if (oldImg != null) {
 				String imgPrefix = SpringPropertyUtil.getContextProperty(Constant.IMG_PREFIX);
-			    String partOldImg = oldImg.substring(imgPrefix.length());
-			    oldImg=SpringPropertyUtil.getContextProperty(Constant.FILE_PATH_PREFIX)+partOldImg;
+				String partOldImg = oldImg.substring(imgPrefix.length());
+				oldImg = SpringPropertyUtil.getContextProperty(Constant.FILE_PATH_PREFIX) + partOldImg;
 				File file = new File(oldImg);
 				if (file.exists()) {
 					file.delete();
 				}
 			}
-			topic.setBannerInnerimg(CommonUtil.upload(inner,Constant.TOPIC));
+			topic.setBannerInnerimg(CommonUtil.upload(inner, Constant.TOPIC));
 		}
 		topicService.updateTopic(topic);
-		return ResultUtil.createSubmitResult(ResultUtil.createSuccess(
-				Config.MESSAGE, 201, null));
+		// 删除redis缓存
+		RedisUtil redisUtil = new RedisUtil();
+		Jedis jedis = redisUtil.getJedis();
+		Set<String> keys = jedis.keys("*topic*");
+		String[] arrayKeys = keys.toArray(new String[keys.size()]);
+		if (arrayKeys.length > 0) {
+			jedis.del(arrayKeys);
+		}
+		redisUtil.closeRedis();
+
+		return ResultUtil.createSubmitResult(ResultUtil.createSuccess(Config.MESSAGE, 201, null));
 	}
 
 	// 查询专题页面

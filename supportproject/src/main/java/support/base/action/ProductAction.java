@@ -3,6 +3,7 @@ package support.base.action;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import redis.clients.jedis.Jedis;
 import support.base.pojo.po.Category;
 import support.base.pojo.po.Product;
 import support.base.pojo.vo.PageQuery;
@@ -24,6 +26,7 @@ import support.base.process.result.SubmitResultInfo;
 import support.base.service.ProductService;
 import support.base.util.CommonUtil;
 import support.base.util.Constant;
+import support.base.util.RedisUtil;
 import support.base.util.SpringPropertyUtil;
 
 @Controller
@@ -89,6 +92,15 @@ public class ProductAction {
 
 		productService.saveProduct(vo, img);
 
+		RedisUtil redisUtil = new RedisUtil();
+		Jedis jedis = redisUtil.getJedis();
+		Set<String> keys = jedis.keys("*product*");
+		String[] arrayKeys = keys.toArray(new String[keys.size()]);
+		if (arrayKeys.length > 0) {
+			jedis.del(arrayKeys);
+		}
+		redisUtil.closeRedis();
+
 		return ResultUtil.createSubmitResult(ResultUtil.createSuccess(Config.MESSAGE, 201, null));
 	}
 
@@ -144,18 +156,28 @@ public class ProductAction {
 		if (img != null) {
 			// 删除原来的文件
 			String oldImg = vo.getOldImg();
-			if(oldImg!=null){
+			if (oldImg != null) {
 				String imgPrefix = SpringPropertyUtil.getContextProperty(Constant.IMG_PREFIX);
-			    String partOldImg = oldImg.substring(imgPrefix.length());
-			    oldImg=SpringPropertyUtil.getContextProperty(Constant.FILE_PATH_PREFIX)+partOldImg;
+				String partOldImg = oldImg.substring(imgPrefix.length());
+				oldImg = SpringPropertyUtil.getContextProperty(Constant.FILE_PATH_PREFIX) + partOldImg;
 				File file = new File(oldImg);
 				if (file.exists()) {
 					file.delete();
 				}
 			}
-			product.setImg(CommonUtil.upload(img,Constant.PRODUCT));
+			product.setImg(CommonUtil.upload(img, Constant.PRODUCT));
 		}
 		productService.updateProduct(product);
+
+		RedisUtil redisUtil = new RedisUtil();
+		Jedis jedis = redisUtil.getJedis();
+		Set<String> keys = jedis.keys("*product*");
+		String[] arrayKeys = keys.toArray(new String[keys.size()]);
+		if (arrayKeys.length > 0) {
+			jedis.del(arrayKeys);
+		}
+		redisUtil.closeRedis();
+
 		return ResultUtil.createSubmitResult(ResultUtil.createSuccess(Config.MESSAGE, 201, null));
 	}
 

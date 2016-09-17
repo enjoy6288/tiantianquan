@@ -23,9 +23,13 @@ import com.alibaba.fastjson.JSONObject;
 
 import redis.clients.jedis.Jedis;
 import support.base.dao.mapper.FrontMapper;
+import support.base.dao.mapper.ProductMapper;
 import support.base.dao.mapper.SweetUserMapper;
+import support.base.dao.mapper.TopicMapper;
+import support.base.pojo.po.Product;
 import support.base.pojo.po.SweetCollect;
 import support.base.pojo.po.SweetUser;
+import support.base.pojo.po.Topic;
 import support.base.pojo.vo.SweetCollectVo;
 import support.base.pojo.vo.SweetUserVo;
 import support.base.process.context.Config;
@@ -46,6 +50,10 @@ public class UserServiceImpl implements UserService {
 	private SweetUserMapper userMapper;
 	@Autowired
 	private FrontMapper frontMapper;
+	@Autowired
+	private TopicMapper topicMapper;
+	@Autowired
+	private ProductMapper productMapper;
 
 	@Override
 	public JSONObject login(SweetUserVo vo) {
@@ -77,7 +85,7 @@ public class UserServiceImpl implements UserService {
 			jsonObject.put("data", userMap);
 			RedisUtil redisUtil = new RedisUtil();
 			Jedis jedis = redisUtil.getJedis();
-			jedis.set("token:"+token, token);
+			jedis.set("token:" + token, token);
 			redisUtil.closeRedis();
 		} else {// 用户或密码不正确
 			jsonObject = ResultUtil.createJSONPObject(Config.MESSAGE, 306, ResultInfo.TYPE_RESULT_FAIL);
@@ -91,7 +99,7 @@ public class UserServiceImpl implements UserService {
 		Jedis jedis = redisUtil.getJedis();
 		String token = vo.getToken();
 		if (!StringUtils.isEmpty(token)) {
-			jedis.del("token:"+token);
+			jedis.del("token:" + token);
 		}
 		redisUtil.closeRedis();
 		return ResultUtil.createJSONPObject(Config.MESSAGE, 201, ResultInfo.TYPE_RESULT_SUCCESS);
@@ -111,7 +119,10 @@ public class UserServiceImpl implements UserService {
 		String phoneCode = (new Random().nextInt(9999) + 1000) + "";
 		String msg = "同事您好，感谢您对此次测试的配合。[" + phoneCode + "]";
 		CommonUtil.sendMsg(phoneNum, msg);
-		CommonUse.addCache(phoneNum, phoneCode);
+		RedisUtil redisUtil = new RedisUtil();
+		Jedis jedis = redisUtil.getJedis();
+		jedis.setex("phoneCode:" + phoneNum, 300, phoneCode);
+		redisUtil.closeRedis();
 		return ResultUtil.createJSONPObject(Config.MESSAGE, 201, ResultInfo.TYPE_RESULT_SUCCESS);
 	}
 
@@ -120,9 +131,11 @@ public class UserServiceImpl implements UserService {
 		String phoneNum = vo.getPhoneNum();
 		String phoneCode = vo.getPhoneCode();
 		if (!StringUtils.isEmpty(phoneNum)) {
-			String sessionCode = (String) CommonUse.getCache(phoneNum);
-			if (phoneCode.equals(sessionCode)) {
-				CommonUse.removeCache(phoneNum);
+			RedisUtil redisUtil = new RedisUtil();
+			Jedis jedis = redisUtil.getJedis();
+			String serverPhoneCode = jedis.get("phoneCode:" + phoneNum);
+			redisUtil.closeRedis();
+			if (phoneCode.equals(serverPhoneCode)) {
 				return ResultUtil.createJSONPObject(Config.MESSAGE, 201, ResultInfo.TYPE_RESULT_SUCCESS);
 			} else {// 验证码有误
 				return ResultUtil.createJSONPObject(Config.MESSAGE, 309, ResultInfo.TYPE_RESULT_FAIL);
@@ -161,8 +174,13 @@ public class UserServiceImpl implements UserService {
 		RedisUtil redisUtil = new RedisUtil();
 		Jedis jedis = redisUtil.getJedis();
 		String userId = vo.getScoUserId();
-		String value=userId+":"+vo.getScoCollectId()+":"+vo.getScoCollectType();
-		jedis.sadd("userCollect:" + userId+":"+vo.getScoCollectType(), value);
+		String value = userId + ":" + vo.getScoCollectId() + ":" + vo.getScoCollectType();
+		Boolean exist = jedis.sismember("userCollect:" + userId + ":" + vo.getScoCollectType(), value);
+		if (exist) {
+			jedis.srem("userCollect:" + userId + ":" + vo.getScoCollectType(), value);
+		} else {
+			jedis.sadd("userCollect:" + userId + ":" + vo.getScoCollectType(), value);
+		}
 		redisUtil.closeRedis();
 		return ResultUtil.createJSONPObject(Config.MESSAGE, 201, ResultInfo.TYPE_RESULT_SUCCESS);
 	}
@@ -174,19 +192,22 @@ public class UserServiceImpl implements UserService {
 		Jedis jedis = redisUtil.getJedis();
 		Set<String> keys = jedis.keys("userCollect*");
 		String[] arrayKeys = keys.toArray(new String[keys.size()]);
-		Set<String> values = jedis.sunion(arrayKeys);
-		SweetCollect sc = null;
-		for (String value : values) {
-			String[] split = value.split(":");
-			sc = new SweetCollect();
-			sc.setScoUserId(split[0]);
-			sc.setScoCollectId(split[1]);
-			sc.setScoCollectType(new Integer(split[2]));
-			scs.add(sc);
-		}
-		if (scs.size() > 0) {
-			jedis.del(arrayKeys);
-			userMapper.saveCollect(scs);
+		if (arrayKeys.length > 0) {
+			Set<String> values = jedis.sunion(arrayKeys);
+			SweetCollect sc = null;
+			for (String value : values) {
+				String[] split = value.split(":");
+				sc = new SweetCollect();
+				sc.setScoUserId(split[0]);
+				sc.setScoCollectId(split[1]);
+				sc.setScoCollectType(new Integer(split[2]));
+				scs.add(sc);
+				jedis.incr("incr:" + split[2] + ":" + split[1]);
+			}
+			if (scs.size() > 0) {
+				jedis.del(arrayKeys);
+				userMapper.saveCollect(scs);
+			}
 		}
 		redisUtil.closeRedis();
 	}
@@ -245,6 +266,62 @@ public class UserServiceImpl implements UserService {
 		}
 		userMapper.delCollect(ids);
 		return ResultUtil.createJSONPObject(Config.MESSAGE, 201, ResultInfo.TYPE_RESULT_SUCCESS);
+	}
+
+	@Override
+	public void delCache() {
+		RedisUtil redisUtil = new RedisUtil();
+		Jedis jedis = redisUtil.getJedis();
+		Set<String> keys = jedis.keys("*topic*");
+		String[] arrayKeys = keys.toArray(new String[keys.size()]);
+		jedis.del(arrayKeys);
+
+		keys = jedis.keys("*product*");
+		arrayKeys = keys.toArray(new String[keys.size()]);
+		jedis.del(arrayKeys);
+		redisUtil.closeRedis();
+	}
+
+	@Override
+	public void updateCollectNum() {
+		RedisUtil redisUtil = new RedisUtil();
+		Jedis jedis = redisUtil.getJedis();
+		Set<String> keys = jedis.keys("incr:" + Constant.TOPIC_TYPE + "*");
+		List<Topic> topics = new ArrayList<>();
+		for (String key : keys) {
+			Topic topic = new Topic();
+			String num = jedis.get(key);
+			key=key.substring(key.lastIndexOf(":")+1);
+			topic.setId(key);
+			topic.setCollectActually(Long.parseLong(num));
+			topics.add(topic);
+			topic = null;
+		}
+		if (topics.size() > 0) {
+			topicMapper.changeTopicCollects(topics);
+		}
+
+		keys = jedis.keys("incr:" + Constant.PRODUCT_TYPE + "*");
+		List<Product> products = new ArrayList<>();
+		for (String key : keys) {
+			Product product = new Product();
+			String num = jedis.get(key);
+			key=key.substring(key.lastIndexOf(":")+1);
+			product.setId(key);
+			product.setCollectActually(Long.parseLong(num));
+			products.add(product);
+			product = null;
+		}
+		if (products.size() > 0) {
+			productMapper.changeProductsCollects(products);
+		}
+
+		keys = jedis.keys("incr*");
+		String[] arrayKeys = keys.toArray(new String[keys.size()]);
+		if (arrayKeys.length > 0) {
+			jedis.del(arrayKeys);
+		}
+
 	}
 
 }

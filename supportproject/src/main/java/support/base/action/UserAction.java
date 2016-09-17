@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.alibaba.fastjson.JSONObject;
 
+import support.base.pojo.vo.PhoneParamVo;
 import support.base.pojo.vo.SweetCollectVo;
 import support.base.pojo.vo.SweetUserVo;
 import support.base.service.UserService;
@@ -64,7 +65,8 @@ public class UserAction {
 	// 收藏
 	@RequestMapping(value = "/collect", method = RequestMethod.POST)
 	public @ResponseBody
-	JSONObject collect(SweetCollectVo vo) {
+	JSONObject collect(SweetCollectVo vo,PhoneParamVo phoneVo) {
+		vo.setScoUserId(phoneVo.getUserId());
 		return userService.collect(vo);
 	}
 	
@@ -75,11 +77,14 @@ public class UserAction {
 		return userService.delCollect(vo);
 	}
 	
-	@RequestMapping(value = "/saveCollect", method = RequestMethod.POST)
-	public @ResponseBody
-	JSONObject saveCollect() {
-		 userService.saveCollect();
-		 return null;
-	}
-
+	// 删除收藏
+		@RequestMapping(value = "/saveC", method = RequestMethod.POST)
+		public @ResponseBody
+		JSONObject saveC(SweetCollectVo vo) {
+			userService.updateCollectNum();
+			return null;
+		}
+	
+	
+	
 }
