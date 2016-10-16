@@ -14,6 +14,7 @@ public interface UserService {
 	JSONObject saveUser(SweetUserVo vo);
 	JSONObject updateUser(SweetUserVo vo,MultipartFile avatarImg);
 	JSONObject login(SweetUserVo vo);
+	JSONObject thirdPlatformSave(SweetUserVo vo);
 	JSONObject loginOut(SweetUserVo vo);
 	JSONObject sendMsg(SweetUserVo vo);
 	JSONObject collect(SweetCollectVo vo);
@@ -24,6 +25,8 @@ public interface UserService {
 	//更新收藏值
 	void updateCollectNum();
 	JSONObject delCollect(SweetCollectVo vo);
+	
+	void statistics();
 	
 	
 }

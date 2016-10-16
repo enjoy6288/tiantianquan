@@ -3,6 +3,7 @@ package support.base.service.impl;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -24,10 +25,12 @@ import com.alibaba.fastjson.JSONObject;
 import redis.clients.jedis.Jedis;
 import support.base.dao.mapper.FrontMapper;
 import support.base.dao.mapper.ProductMapper;
+import support.base.dao.mapper.StatisticsMapper;
 import support.base.dao.mapper.SweetUserMapper;
 import support.base.dao.mapper.TopicMapper;
 import support.base.pojo.po.Product;
 import support.base.pojo.po.SweetCollect;
+import support.base.pojo.po.SweetStatistics;
 import support.base.pojo.po.SweetUser;
 import support.base.pojo.po.Topic;
 import support.base.pojo.vo.SweetCollectVo;
@@ -54,6 +57,47 @@ public class UserServiceImpl implements UserService {
 	private TopicMapper topicMapper;
 	@Autowired
 	private ProductMapper productMapper;
+	@Autowired
+	private StatisticsMapper statisticsMapper;
+
+	@Override
+	public JSONObject thirdPlatformSave(SweetUserVo vo) {
+		SweetUser sweetUser = userMapper.queryUser(vo);
+		JSONObject jsonObject =null;
+		if (sweetUser == null) {
+			jsonObject = ResultUtil.createJSONPObject(Config.MESSAGE, 201, ResultInfo.TYPE_RESULT_SUCCESS);
+			sweetUser = new SweetUser();
+			CommonUtil.VoToPo(vo, sweetUser);
+			sweetUser.setId(CommonUtil.generateId());
+			
+			Map<String, Object> userMap = new HashMap<>();
+			String token = UUID.randomUUID().toString();
+			sweetUser.setToken(token);
+			userMap.put("user", sweetUser);
+			jsonObject.put("data", userMap);
+			RedisUtil redisUtil = new RedisUtil();
+			Jedis jedis = redisUtil.getJedis();
+			jedis.set("token:" + token, token);
+			redisUtil.closeRedis();
+			userMapper.saveUser(sweetUser);
+		} else {
+			//如果用户有更新第三方帐号信息同时更新
+			if (!sweetUser.getUserName().equals(vo.getUserName()) || !sweetUser.getSex().equals(vo.getSex())
+					|| !sweetUser.getAvatarUrl().equals(vo.getAvatarUrl())) {
+				userMapper.updateUser(vo);
+			}
+			jsonObject = ResultUtil.createJSONPObject(Config.MESSAGE, 201, ResultInfo.TYPE_RESULT_SUCCESS);
+			Map<String, Object> userMap = new HashMap<>();
+			userMap.put("user", sweetUser);
+			jsonObject.put("data", userMap);
+			String token = sweetUser.getToken();
+			RedisUtil redisUtil = new RedisUtil();
+			Jedis jedis = redisUtil.getJedis();
+			jedis.set("token:" + token, token);
+			redisUtil.closeRedis();
+		}
+		return jsonObject;
+	}
 
 	@Override
 	public JSONObject login(SweetUserVo vo) {
@@ -157,8 +201,7 @@ public class UserServiceImpl implements UserService {
 		SweetUser sweetUser = new SweetUser();
 		CommonUtil.VoToPo(vo, sweetUser);
 		sweetUser.setPasswd(vo.getNewPasswd());
-		UUID randomUUID = UUID.randomUUID();
-		sweetUser.setId(randomUUID.toString());
+		sweetUser.setId(CommonUtil.generateId());
 		int result = userMapper.saveUser(sweetUser);
 		JSONObject jsonObject = null;
 		if (result > 0) {// 操作成功
@@ -274,11 +317,15 @@ public class UserServiceImpl implements UserService {
 		Jedis jedis = redisUtil.getJedis();
 		Set<String> keys = jedis.keys("*topic*");
 		String[] arrayKeys = keys.toArray(new String[keys.size()]);
-		jedis.del(arrayKeys);
+		if (arrayKeys.length > 0) {
+			jedis.del(arrayKeys);
+		}
 
 		keys = jedis.keys("*product*");
 		arrayKeys = keys.toArray(new String[keys.size()]);
-		jedis.del(arrayKeys);
+		if (arrayKeys.length > 0) {
+			jedis.del(arrayKeys);
+		}
 		redisUtil.closeRedis();
 	}
 
@@ -291,7 +338,7 @@ public class UserServiceImpl implements UserService {
 		for (String key : keys) {
 			Topic topic = new Topic();
 			String num = jedis.get(key);
-			key=key.substring(key.lastIndexOf(":")+1);
+			key = key.substring(key.lastIndexOf(":") + 1);
 			topic.setId(key);
 			topic.setCollectActually(Long.parseLong(num));
 			topics.add(topic);
@@ -306,7 +353,7 @@ public class UserServiceImpl implements UserService {
 		for (String key : keys) {
 			Product product = new Product();
 			String num = jedis.get(key);
-			key=key.substring(key.lastIndexOf(":")+1);
+			key = key.substring(key.lastIndexOf(":") + 1);
 			product.setId(key);
 			product.setCollectActually(Long.parseLong(num));
 			products.add(product);
@@ -318,6 +365,76 @@ public class UserServiceImpl implements UserService {
 
 		keys = jedis.keys("incr*");
 		String[] arrayKeys = keys.toArray(new String[keys.size()]);
+		if (arrayKeys.length > 0) {
+			jedis.del(arrayKeys);
+		}
+
+	}
+
+	@Override
+	public void statistics() {
+		RedisUtil redisUtil = new RedisUtil();
+		Jedis jedis = redisUtil.getJedis();
+		// 主页总浏览量
+		String homePv = jedis.get("home:pv");
+		// 主页独立访客
+		Long homeUv = jedis.scard("home:uv");
+		Set<String> smembers = jedis.smembers("home:uv");
+		SweetStatistics statistics = new SweetStatistics();
+		statistics.setId(CommonUtil.generateId());
+		statistics.setType(0);
+		statistics.setPv(homePv);
+		statistics.setUv(homeUv + "");
+		statisticsMapper.saveStatistics(statistics);
+		jedis.del("home:pv");
+		jedis.del("home:uv");
+
+		// 专题总浏览量
+		String subjectPv = jedis.get("subject:pv");
+		// 专题独立访客
+		Long subjectUv = jedis.scard("subject:uv");
+		statistics = new SweetStatistics();
+		statistics.setId(CommonUtil.generateId());
+		statistics.setType(1);
+		statistics.setPv(subjectPv);
+		statistics.setUv(subjectUv + "");
+		statisticsMapper.saveStatistics(statistics);
+		jedis.del("subject:pv");
+		jedis.del("subject:uv");
+
+		// 单个专题浏览量
+		Set<String> pvKeys = jedis.keys("subject:pv:*");
+		// 单个专题独立访客
+		Set<String> uvKeys = jedis.keys("subject:uv:*");
+		List<Topic> topics = new ArrayList<>();
+		Map<String, Topic> topicMap = new HashMap<>();
+		for (String key : pvKeys) {
+			String singleSubjectPv = jedis.get(key);
+			key = key.substring(11);
+			Topic topic = new Topic();
+			topic.setId(key);
+			topic.setPv(Long.parseLong(singleSubjectPv));
+			topicMap.put(key, topic);
+		}
+		for (String key : uvKeys) {
+			long singleSubjectUv = jedis.scard(key);
+			key = key.substring(11);
+			Topic topic = topicMap.get(key);
+			topic.setUv(singleSubjectUv);
+		}
+		List<Topic> values = new ArrayList<>();
+		Set<Entry<String, Topic>> entrySet = topicMap.entrySet();
+		for (Entry<String, Topic> entry : entrySet) {
+			values.add(entry.getValue());
+		}
+		topicMapper.updateTopicStatistics(values);
+
+		String[] arrayKeys = pvKeys.toArray(new String[pvKeys.size()]);
+		if (arrayKeys.length > 0) {
+			jedis.del(arrayKeys);
+		}
+
+		arrayKeys = uvKeys.toArray(new String[uvKeys.size()]);
 		if (arrayKeys.length > 0) {
 			jedis.del(arrayKeys);
 		}

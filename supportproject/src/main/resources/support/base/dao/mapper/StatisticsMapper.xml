@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="support.base.dao.mapper.StatisticsMapper">
+	<resultMap id="statistics" type="support.base.pojo.po.SweetStatistics">
+		<id column="id" property="id" jdbcType="VARCHAR" />
+		<result column="uv" property="uv" jdbcType="VARCHAR" />
+		<result column="pv" property="pv" jdbcType="VARCHAR" />
+		<result column="type" property="type" jdbcType="INTEGER" />
+		<result column="create_time" property="createTime" jdbcType="DATE" />
+	</resultMap>
+	<select id="queryStatistics" resultMap="statistics"
+		parameterType="support.base.pojo.vo.SweetStatisticsVo">
+		select *
+		from sweet_statistics where type=#{type}
+		order by create_time desc
+		<if test="pageQuery != null ">
+			limit
+			${pageQuery.PageQuery_start},${pageQuery.PageQuery_end}
+		</if>
+	</select>
+
+	<insert id="saveStatistics" parameterType="support.base.pojo.po.SweetStatistics">
+		insert into sweet_statistics (id, uv, pv, type,create_time)
+		values (#{id}, #{uv},#{pv}, #{type},now())
+	</insert>
+
+</mapper>

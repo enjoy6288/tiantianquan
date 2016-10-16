@@ -1,6 +1,7 @@
 package support.base.pojo.po;
 
 import java.io.Serializable;
+import java.util.Date;
 
 
 
@@ -14,6 +15,7 @@ public class FrontProduct implements Serializable {
     private String img;
     private String priceNow;
     private String linkUrl;
+    private Date shelvesTime;
     //收藏数
     private long collect;
     //是否收藏
@@ -77,6 +79,12 @@ public class FrontProduct implements Serializable {
 	}
 	public void setCollected(boolean collected) {
 		this.collected = collected;
+	}
+	public Date getShelvesTime() {
+		return shelvesTime;
+	}
+	public void setShelvesTime(Date shelvesTime) {
+		this.shelvesTime = shelvesTime;
 	}
     
 }

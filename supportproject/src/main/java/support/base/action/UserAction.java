@@ -48,6 +48,13 @@ public class UserAction {
 		return userService.login(vo);
 	}
 
+	// 第三方登录
+	@RequestMapping(value = "/thirdPlatformSave", method = RequestMethod.POST)
+	public @ResponseBody
+	JSONObject thirdPlatformSave(SweetUserVo vo) {
+		return userService.thirdPlatformSave(vo);
+	}
+
 	// 退出登录
 	@RequestMapping(value = "/loginOut", method = RequestMethod.POST)
 	public @ResponseBody
@@ -65,26 +72,22 @@ public class UserAction {
 	// 收藏
 	@RequestMapping(value = "/collect", method = RequestMethod.POST)
 	public @ResponseBody
-	JSONObject collect(SweetCollectVo vo,PhoneParamVo phoneVo) {
+	JSONObject collect(SweetCollectVo vo, PhoneParamVo phoneVo) {
 		vo.setScoUserId(phoneVo.getUserId());
 		return userService.collect(vo);
 	}
-	
+
 	// 删除收藏
 	@RequestMapping(value = "/delCollect", method = RequestMethod.POST)
 	public @ResponseBody
 	JSONObject delCollect(SweetCollectVo vo) {
 		return userService.delCollect(vo);
 	}
-	
+
 	// 删除收藏
-		@RequestMapping(value = "/saveC", method = RequestMethod.POST)
-		public @ResponseBody
-		JSONObject saveC(SweetCollectVo vo) {
-			userService.updateCollectNum();
-			return null;
-		}
-	
-	
-	
+	@RequestMapping(value = "/saveC", method = RequestMethod.POST)
+	public @ResponseBody
+	void saveC(SweetCollectVo vo) {
+		userService.delCache();
+	}
 }

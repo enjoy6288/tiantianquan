@@ -16,9 +16,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.alibaba.fastjson.JSONObject;
+
 import redis.clients.jedis.Jedis;
+import support.base.dao.mapper.SweetGoingtoMapper;
+import support.base.dao.mapper.TopicMapper;
 import support.base.pojo.po.Category;
 import support.base.pojo.po.Product;
+import support.base.pojo.po.SweetGoingto;
 import support.base.pojo.po.Topic;
 import support.base.pojo.vo.PageQuery;
 import support.base.pojo.vo.ProductVo;
@@ -42,11 +47,37 @@ public class TopicAction {
 	private TopicService topicService;
 	@Autowired
 	private ProductService productService;
+	@Autowired
+	private TopicMapper topicMapper;	
+	@Autowired
+	private SweetGoingtoMapper goingtoMapper;
+
+	// 查询已经存在的排序值
+	@RequestMapping("/querySortValue")
+	public @ResponseBody
+	JSONObject querySortValue(String shelvesTime) {
+		List<Integer> sortValue = topicMapper.querySortValue(shelvesTime);
+		JSONObject jsonObject = new JSONObject();
+		jsonObject.put("sortValue", sortValue);
+		return jsonObject;
+	}
+
+	// 查询已经存在的排序值
+	@RequestMapping("/sortValueExist")
+	public @ResponseBody
+	JSONObject sortValueExist(ProductVo vo) {
+		int sortValueExist = topicMapper.sortValueExist(vo);
+		JSONObject jsonObject = new JSONObject();
+		jsonObject.put("sortValueExist", sortValueExist);
+		return jsonObject;
+	}
 
 	// 添加专题页面
 	@RequestMapping("/addTopicView")
 	public String addTopicView(Model model) {
 		List<Category> categorys = (List<Category>) productService.queryCategorys(null);
+		List<SweetGoingto> goingTo = goingtoMapper.queryGoingTo();
+		model.addAttribute("goingTos", goingTo);
 		model.addAttribute("categorys", categorys);
 		return "/topic/addTopic";
 	}
@@ -66,7 +97,7 @@ public class TopicAction {
 			jedis.del(arrayKeys);
 		}
 		redisUtil.closeRedis();
-		
+
 		return ResultUtil.createSubmitResult(ResultUtil.createSuccess(Config.MESSAGE, 201, null));
 	}
 
@@ -76,6 +107,8 @@ public class TopicAction {
 		// 获取类别信息
 		List<Category> categorys = (List<Category>) productService.queryCategorys(null);
 		model.addAttribute("categorys", categorys);
+		List<SweetGoingto> goingTo = goingtoMapper.queryGoingTo();
+		model.addAttribute("goingTos", goingTo);
 		// 获取商品信息
 		List<Topic> topics = topicService.queryTopics(vo);
 		if (topics != null && topics.size() > 0) {
@@ -120,6 +153,7 @@ public class TopicAction {
 			}
 			topic.setBannerInnerimg(CommonUtil.upload(inner, Constant.TOPIC));
 		}
+		topic.setLinkUrl(vo.getGoingTo()+vo.getLinkUrl());
 		topicService.updateTopic(topic);
 		// 删除redis缓存
 		RedisUtil redisUtil = new RedisUtil();

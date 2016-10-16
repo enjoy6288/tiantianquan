@@ -218,4 +218,6 @@ public class MD5Utils {
         // 字符数组组合成字符串返回
         return new String(resultCharArray);
     }
+    
+    
 }

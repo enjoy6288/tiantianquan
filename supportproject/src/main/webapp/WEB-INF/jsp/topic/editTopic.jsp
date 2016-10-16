@@ -39,6 +39,12 @@
 				$(this).attr("selected", true);
 			}
 		});
+		var value = $('#goingTo option:selected').html();
+		if (value == '网页'||value == '主题内页') {
+			$('#trLinkUrl').show();
+		} else {
+			$('#trLinkUrl').hide();
+		}
 
 		//修改之前的值
 		var categoryId = '${topic.categoryId}';
@@ -56,6 +62,44 @@
 			}
 		});
 	});
+	
+	function linkDisplay() {
+		var value = $('#goingTo option:selected').html()
+		if (value == '网页'||value == '主题内页') {
+			$('#trLinkUrl').show();
+		} else {
+			$('#trLinkUrl').hide();
+		}
+	}
+	
+	function querySortValue(){
+		$.post("${baseurl}topic/querySortValue.action",
+		{
+			"shelvesTime" : $('#shelvesTime').val()
+		},
+		function(data){
+			document.getElementById("spanSortValue").innerText=data.sortValue;
+		});
+	}
+	
+	function sortValueExist(){
+		$.post("${baseurl}topic/sortValueExist.action",
+		{
+			"shelvesTime" : $('#shelvesTime').val(),
+			"sortValue" : $('#sortValue').val()
+		},
+		function(data){
+			if(data.sortValueExist>0){
+				var oldValue=${topic.sortValue};
+				var newValue=$('#sortValue').val();
+				if(oldValue!=newValue){
+					alert("该排序值已经存在,请重新填写");
+					$('#sortValue').val("");
+				}
+			}
+			
+		});
+	}
 </script>
 </head>
 <body>
@@ -80,24 +124,23 @@
 										style="color: red;">*</span> 跳转至：</td>
 									<td class=category width="90%">
 										<div>
-											<select id="goingTo" name="goingTo" style="width: 300px;">
-												<option value="0" selected="selected">专题页</option>
-												<option value="1">网页</option>
+											<select id="goingTo" name="goingTo" onchange="linkDisplay()" style="width: 300px;">
+												<option value="">全部</option>
+												<c:forEach items="${goingTos}" var="value">
+													<option value="${value.goingTo}">${value.name}</option>
+												</c:forEach>
 											</select>
 										</div>
 									</td>
 								</tr>
-								
-								<tr>
+								<tr id="trLinkUrl" style="display: none">
 									<td height=30 width="10%" align=right><span
 										style="color: red;">*</span> 链接：</td>
 									<td class=category width="90%">
 										<div>
 											<input id="linkUrl" name="linkUrl" style="width: 800px;"
-												type="text"
-												value="https://detail.tmall.com/item.htm?id=527471202371&scene=taobao_shop&ali_trackid=17_77d6befaede9594e73339d656ccb4793&spm=a21bo.50862.201863-6.2.RVurn6" />
+												type="text"/>
 										</div>
-										<div id="linkUrlTip"></div>
 									</td>
 								</tr>
 								
@@ -151,7 +194,8 @@
 								</tr>
 
 								<tr>
-									<td height=30 width="10%" align=right> banner：</td>
+									<td height=30 width="10%" align=right><span
+										style="color: red;">*</span> 外部banner：</td>
 									<td class=category width="90%">
 										<div>
 											<input type="file" name="out" />
@@ -160,7 +204,7 @@
 									</td>
 								</tr>
 								<tr>
-									<td height=30 width="10%" align=right> 内部banner：</td>
+									<td height=30 width="10%" align=right>内部banner：</td>
 									<td class=category width="90%">
 										<div>
 											<input type="file" name="inner" />
@@ -168,26 +212,38 @@
 
 									</td>
 								</tr>
-
+								
 								<tr>
 									<td height=30 width="10%" align=right><span
 										style="color: red;">*</span> 上架时间：</td>
 									<td class=category width="90%">
 										<div>
-											<INPUT id="shelvesTime" name="shelvesTime"
+											<input id="shelvesTime" name="shelvesTime"
 												onfocus="WdatePicker({isShowWeek:false,skin:'whyGreen',dateFmt:'yyyy-MM-dd'})"
-												style="width: 180px"
-												value="<fmt:formatDate value="${topic.shelvesTime}" type="both"
-												pattern="yyyy.MM.dd HH:mm" />" />
+												style="width: 180px" value="<fmt:formatDate value="${topic.shelvesTime}" type="both"
+												pattern="yyyy-MM-dd" />" onchange="querySortValue()"/>
 										</div>
+										<div id="shelvesTimeTip"></div>
 									</td>
 								</tr>
 
 								<tr>
+									<td height=30 width="10%" align=right><span
+										style="color: red;">*</span> 排序值：</td>
+									<td class=category width="90%">
+										<div>
+											<input id="sortValue" name="sortValue"
+												onblur="sortValueExist()"  value="${topic.sortValue}" style="width: 100px;" type="text" />
+										</div>
+										<div id="sortValueTip"></div> <span id="spanSortValue"></span>
+									</td>
+								</tr>
+								
+								<tr>
 									<td height=30 width="10%" align=right>浏览人数：</td>
 									<td class=category width="90%">
 										<div>
-											<input id="scanActually" name="scanActually"
+											<input id="scanActually" name="scanManual"
 												style="width: 800px;" type="text"
 												value="${topic.scanActually}" />
 										</div>
@@ -204,18 +260,6 @@
 										</div>
 									</td>
 								</tr>
-
-								<tr>
-									<td height=30 width="10%" align=right><span
-										style="color: red;">*</span> 排序值：</td>
-									<td class=category width="90%">
-										<div>
-											<input id="sortValue" name="sortValue" style="width: 800px;"
-												type="text" value="${topic.sortValue}" />
-										</div>
-									</td>
-								</tr>
-
 								<tr>
 									<td height=30 width="10%" align=right><span
 										style="color: red;">*</span> 专题类别：</td>

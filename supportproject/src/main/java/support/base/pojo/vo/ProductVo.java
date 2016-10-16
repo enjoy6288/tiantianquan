@@ -21,12 +21,15 @@ public class ProductVo {
 	private String sortValue;
 	private String status;
 	private String remarks;
-	
+	private Long pv;
+    private Long uv;
+    
 	private PageQuery pageQuery;// 分页参数
 	private String begin;
 	private String end;
 	private String scheduleTask;
 	private String oldImg;//修改时删除图片用
+	
 
 
 	public String getTopicId() {
@@ -203,6 +206,22 @@ public class ProductVo {
 
 	public void setType(String type) {
 		this.type = type;
+	}
+
+	public Long getPv() {
+		return pv;
+	}
+
+	public void setPv(Long pv) {
+		this.pv = pv;
+	}
+
+	public Long getUv() {
+		return uv;
+	}
+
+	public void setUv(Long uv) {
+		this.uv = uv;
 	}
 	
 }

@@ -3,7 +3,7 @@
 <mapper namespace="support.base.dao.mapper.TopicMapper">
 	<resultMap id="topic" type="support.base.pojo.po.Topic">
 		<id column="id" jdbcType="VARCHAR" property="id" />
-		<result column="going_to" jdbcType="TINYINT" property="goingTo" />
+		<result column="going_to" jdbcType="VARCHAR" property="goingTo" />
 		<result column="link_url" property="linkUrl" jdbcType="VARCHAR" />
 		<result column="dispaly_position" jdbcType="VARCHAR" property="dispalyPosition" />
 		<result column="topic_name" jdbcType="VARCHAR" property="topicName" />
@@ -18,6 +18,8 @@
 		<result column="scan_manual" jdbcType="BIGINT" property="scanManual" />
 		<result column="sort_value" jdbcType="INTEGER" property="sortValue" />
 		<result column="category_id" jdbcType="BIGINT" property="categoryId" />
+		<result column="pv" property="pv" jdbcType="BIGINT" />
+		<result column="uv" property="uv" jdbcType="BIGINT" />
 		<result column="category_name" property="categoryName"
 			jdbcType="VARCHAR" />
 		<result column="remarks" jdbcType="VARCHAR" property="remarks" />
@@ -30,7 +32,8 @@
 		insert into sweet_topic (id,going_to,link_url, dispaly_position,
 		topic_name,
 		topic_vice_name,
-		banner_outterimg, banner_innerimg, shelves_time,
+		banner_outterimg, banner_innerimg,
+		shelves_time,
 		sort_value, category_id,
 		<if test="topicDesc != null">
 			topic_desc,
@@ -51,7 +54,8 @@
 			remarks,
 		</if>
 		create_time,update_time)
-		values (UUID(),#{goingTo},#{linkUrl}, #{dispalyPosition},
+		values (#{id},#{goingTo},#{linkUrl},
+		#{dispalyPosition},
 		#{topicName}, #{topicViceName},
 		#{bannerOutterimg},#{bannerInnerimg},#{shelvesTime},
 		#{sortValue},#{categoryId},
@@ -122,7 +126,8 @@
 		parameterType="support.base.pojo.vo.TopicVo">
 		select a.*,b.category_name
 		from sweet_topic a
-		left join sweet_category b on
+		left join sweet_category b
+		on
 		b.id=a.category_id
 		<where>
 			1=1
@@ -159,7 +164,7 @@
 				#{end}
 			</if>
 		</where>
-		order by shelves_time desc
+		order by create_time desc
 
 		<if test="pageQuery != null ">
 			limit
@@ -186,7 +191,7 @@
 				topic_vice_name = #{topicViceName},
 			</if>
 			<if test="topicDesc != null">
-				topic_desc = #{topicDesc}, 
+				topic_desc = #{topicDesc},
 			</if>
 			<if test="bannerOutterimg != null">
 				banner_outterimg = #{bannerOutterimg},
@@ -238,7 +243,7 @@
 			where id = #{item.id}
 		</foreach>
 	</update>
-	
+
 	<!-- 批量更新数据 -->
 	<update id="changeTopicCollects" parameterType="java.util.List">
 		<foreach collection="list" item="item" index="index" open=""
@@ -250,4 +255,38 @@
 			where id = #{item.id}
 		</foreach>
 	</update>
+	
+	<!-- 批量更新数据 -->
+	<update id="updateTopicStatistics" parameterType="java.util.List">
+		<foreach collection="list" item="item" index="index" open=""
+			close="" separator=";">
+			update sweet_topic
+			<set>
+				pv =pv + #{item.pv},
+				uv =uv + #{item.uv}
+			</set>
+			where id = #{item.id}
+		</foreach>
+	</update>
+	
+	
+	<select id="querySortValue" parameterType="String"  resultType="String">
+		SELECT
+			sort_value
+		FROM
+			sweet_topic
+		WHERE
+			shelves_time = #{shelvesTime}
+		ORDER BY
+			sort_value DESC
+	</select>
+	<select id="sortValueExist" parameterType="support.base.pojo.vo.ProductVo"  resultType="java.lang.Integer">
+		SELECT
+			count(0)
+		FROM
+			sweet_topic
+		WHERE
+			shelves_time = #{shelvesTime}
+		AND sort_value =${sortValue}
+	</select>
 </mapper>

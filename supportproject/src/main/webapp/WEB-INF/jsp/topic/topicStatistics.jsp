@@ -84,20 +84,20 @@
 				align : 'center'
 			},
 			{
-				field : '8888',
-				title : 'PV',
+				field : 'pv',
+				title : 'pv',
 				width : 80,
 				align : 'center'
 			},
 			{
-				field : '8888',
-				title : 'UV',
+				field : 'uv',
+				title : 'uv',
 				width : 80,
 				align : 'center'
 			},
 			{
-				field : '8888',
-				title : 'CRT',
+				field : 'ctr',
+				title : 'ctr',
 				width : 80,
 				align : 'center'
 			},
@@ -114,6 +114,30 @@
 
 	] ];
 
+	var statisticsColumns = [ [
+
+	{
+		field : 'desc',
+		title : '概览',
+		width : 100,
+		align : 'center'
+	}, {
+		field : 'pv',
+		title : '专题总浏览量(PV)',
+		width : 350,
+		align : 'center'
+	}, {
+		field : 'uv',
+		title : '专题独立访客(UV)',
+		width : 350,
+		align : 'center'
+	}, {
+		field : 'ctr',
+		title : '专题商品总点击率(CTR)',
+		width : 360,
+		align : 'center'
+	}, ] ];
+
 	function initGrid() {
 		$('#topicList').datagrid({
 			title : '专题列表',
@@ -121,7 +145,7 @@
 			striped : true,
 			//collapsible : true,
 			url : '${baseurl}/topic/statistics.action',
-			queryParams : {//查询参数，只在加载时使用，点击查询使用load重新加载不使用此参数
+			queryParams : {
 				status : '${topic.status}'
 			},
 			//sortName : 'code',
@@ -140,6 +164,20 @@
 				$('#topicList').datagrid('unselectRow', index);
 			}
 		});
+		
+		$('#statisticsList').datagrid({
+			striped : true,
+			url : '${baseurl}/product/statistics.action',
+			queryParams : {
+				type : '1'
+			},
+			columns : statisticsColumns,
+			toolbar : toolbar,
+			autoRowHeight : false,
+			onClickRow : function(index, field, value) {
+				$('#statisticsList').datagrid('unselectRow', index);
+			}
+		});
 
 	}
 	$(function() {
@@ -152,54 +190,25 @@
 	}
 	function topic60DaysView() {
 		var sendUrl = "${baseurl}/topic/topic60DaysView.action";
-		parent.opentabwindow('商品60天统计详情', sendUrl);
+		parent.opentabwindow('主题60天统计详情', sendUrl);
 	}
 </script>
 </HEAD>
 <BODY>
 	<form id="queryTopicForm" name="queryTopicForm" method="post">
 		<input type="hidden" name="status" value="${topic.status}" />
+		<TABLE border=0 cellSpacing=0 cellPadding=0 width="100%" align=center>
+			<TBODY>
+				<TR>
+					<TD>
+						<table id="statisticsList"></table>
+					</TD>
+				</TR>
+			</TBODY>
+		</TABLE>
+		
 		<TABLE class="table_search">
 			<TBODY>
-				<tr class=category width="15%">
-					<td height=30 style="text-align: center">概览</td>
-					<td height=30 style="text-align: center">专题总浏览量(PV)</td>
-					<td height=30 style="text-align: center">专题独立访客(UV)</td>
-					<td height=30 style="text-align: center">专题商品总点击率(CTR)</td>
-				</tr>
-
-				<tr class=category width="15%">
-					<td height=80 style="text-align: center"><span
-						style="font-weight: bold; font-size: 14pt; color: #00BFFF; font-family: 宋体">今日概览:</span></td>
-					<td height=80 style="text-align: center"><span
-						style="font-weight: bold; font-size: 14pt; color: #00BFFF; font-family: 宋体">8888</span></td>
-					<td height=80 style="text-align: center"><span
-						style="font-weight: bold; font-size: 14pt; color: #00BFFF; font-family: 宋体">8888</span></td>
-					<td height=80 style="text-align: center"><span
-						style="font-weight: bold; font-size: 14pt; color: #00BFFF; font-family: 宋体">8888</span></td>
-				</tr>
-
-				<tr class=category width="15%">
-					<td height=30 style="text-align: center">昨日概览:</td>
-					<td height=30 style="text-align: center">8888</td>
-					<td height=30 style="text-align: center">8888</td>
-					<td height=30 style="text-align: center">8888</td>
-				</tr>
-
-				<tr class=category width="15%">
-					<td height=30 style="text-align: center">周平均概览:</td>
-					<td height=30 style="text-align: center">8888</td>
-					<td height=30 style="text-align: center">8888</td>
-					<td height=30 style="text-align: center">8888</td>
-				</tr>
-
-				<!-- 查询所需字段 -->
-				<tr class=category width="25%">
-					<td height=50 colspan=4 style="text-align: right"><a id="btn"
-						href="#" onclick="topic60DaysView()" class="easyui-linkbutton"
-						iconCls='icon-search'>查询60天统计</a></td>
-				</tr>
-
 				<tr>
 					<td height=30 width="15%" style="text-align: center">时间：</td>
 					<td class=category width="25%" style="text-align: center">
@@ -227,12 +236,15 @@
 				</tr>
 
 				<tr class=category>
-					<td colspan=4 height=30 style="text-align: center"><a id="btn"
-						href="#" onclick="queryTopic()" class="easyui-linkbutton"
+					<td colspan=2 height=30 style="text-align: center"><a id="btn"
+						href="#" onclick="queryProduct()" class="easyui-linkbutton"
 						iconCls='icon-search'>查询</a></td>
 
-
+					<td height=50 colspan=2 style="text-align: right"><a id="btn"
+						href="#" onclick="topic60DaysView()" class="easyui-linkbutton"
+						iconCls='icon-search'>查询60天统计</a></td>
 				</tr>
+
 
 			</TBODY>
 		</TABLE>

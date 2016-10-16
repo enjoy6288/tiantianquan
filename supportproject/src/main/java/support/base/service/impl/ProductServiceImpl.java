@@ -17,6 +17,7 @@ import support.base.service.ProductService;
 import support.base.util.CommonUse;
 import support.base.util.CommonUtil;
 import support.base.util.Constant;
+
 @Service
 public class ProductServiceImpl implements ProductService {
 
@@ -38,29 +39,26 @@ public class ProductServiceImpl implements ProductService {
 	@Override
 	public int saveProduct(ProductVo vo, MultipartFile img) throws Exception {
 		Product product = new Product();
-		String linkUrl = vo.getLinkUrl();
-		String taobaoId = vo.getTaobaoId();
 		String title = vo.getTitle();
 		String productDesc = vo.getProductDesc();
 		String priceNow = vo.getPriceNow();
+		String priceOld = vo.getPriceOld();
 		String shelvesTime = vo.getShelvesTime();
 		String sortValue = vo.getSortValue();
-		boolean flag = StringUtils.isEmpty(linkUrl)
-				|| StringUtils.isEmpty(taobaoId) || StringUtils.isEmpty(title)
-				|| StringUtils.isEmpty(productDesc) || img == null
-				|| StringUtils.isEmpty(priceNow)
-				|| StringUtils.isEmpty(shelvesTime)
+		boolean flag = StringUtils.isEmpty(priceOld) || StringUtils.isEmpty(title) || StringUtils.isEmpty(productDesc)
+				|| img == null || StringUtils.isEmpty(priceNow) || StringUtils.isEmpty(shelvesTime)
 				|| StringUtils.isEmpty(sortValue);
 		if (flag) {
-			ResultUtil.throwExcepion(ResultUtil.createFail(Config.MESSAGE, 100,
-					null));
+			ResultUtil.throwExcepion(ResultUtil.createFail(Config.MESSAGE, 100, null));
 		}
 		// 说明是专题商品
 		if (!StringUtils.isEmpty(vo.getTopicId())) {
 			product.setType((byte) 1);
 		}
-		product.setImg(CommonUtil.upload(img,Constant.PRODUCT));
+		product.setImg(CommonUtil.upload(img, Constant.PRODUCT));
 		CommonUtil.VoToPo(vo, product);
+		product.setLinkUrl(vo.getGoingTo()+vo.getLinkUrl());
+		product.setId(CommonUtil.generateId());
 		return productMapper.saveProduct(product);
 	}
 
@@ -73,8 +71,8 @@ public class ProductServiceImpl implements ProductService {
 	public List<Category> queryCategorys(Long id) {
 		List<Category> categorys = null;
 		if (id == null) {
-			categorys =(List<Category>) ( CommonUse.getCache("categorys") == null ? null
-					: CommonUse.getCache("categorys"));
+			categorys = (List<Category>) (CommonUse.getCache("categorys") == null ? null : CommonUse
+					.getCache("categorys"));
 			if (categorys == null) {
 				categorys = productMapper.queryCategorys(id);
 				CommonUse.addCache("categorys", categorys);

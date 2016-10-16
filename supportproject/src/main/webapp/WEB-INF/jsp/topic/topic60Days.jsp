@@ -19,22 +19,37 @@
 	var frozenColumns;
 
 	var columns = [ [ {
-		field : 'date',
+		field : 'createTime',
 		title : '日期',
 		width : 250,
-		align : 'center'
+		align : 'center',
+		formatter : function(value, row, index) {
+				if (value) {
+					try {
+						var date = new Date(value);
+						var y = date.getFullYear();
+						var m = date.getMonth() + 1;
+						var d = date.getDate();
+						var h = date.getHours();
+						return y + "-" + m + "-" + d;
+					} catch (e) {
+						alert(e);
+					}
+				}
+
+			}
 	}, {
-		field : 'PV',
+		field : 'pv',
 		title : '专题总浏览量',
 		width : 250,
 		align : 'center'
 	}, {
-		field : 'UV',
+		field : 'uv',
 		title : '专题独立访客',
 		width : 250,
 		align : 'center'
 	}, {
-		field : 'CTR',
+		field : 'ctr',
 		title : '专题商品总点击率',
 		width : 250,
 		align : 'center'
@@ -44,7 +59,10 @@
 		$('#topic60Days').datagrid({
 			title : '60天统计列表',
 			striped : true,
-			url : '${baseurl}/topic/topic60Days.action',
+			url : '${baseurl}/product/product60Days.action',
+			queryParams : {
+				type : '1'
+			},
 			idField : 'id',//查询结果集主键采购单id
 			columns : columns,
 			pagination : true,

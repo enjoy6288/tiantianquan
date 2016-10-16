@@ -12,6 +12,14 @@
 <title>添加用户</title>
 
 <script type="text/javascript">
+	$(function() {
+		$.post("${baseurl}setting/goingto.action",
+		{},
+		function(data){
+			document.getElementById("spanSortValue").innerText=data.sortValue;
+		});
+	});
+	
 	function saveProduct() {
 		var formObj = jQuery("#productForm");
 		var options = {
@@ -21,6 +29,40 @@
 			}
 		};
 		formObj.ajaxSubmit(options);
+	}
+	
+	function linkDisplay() {
+		var value = $('#goingTo option:selected').html()
+		if (value == '网页'||value == '主题内页') {
+			$('#trLinkUrl').show();
+		} else {
+			$('#trLinkUrl').hide();
+		}
+	}
+	
+	function querySortValue(){
+		$.post("${baseurl}product/querySortValue.action",
+		{
+			"shelvesTime" : $('#shelvesTime').val()
+		},
+		function(data){
+			document.getElementById("spanSortValue").innerText=data.sortValue;
+		});
+	}
+	
+	function sortValueExist(){
+		$.post("${baseurl}product/sortValueExist.action",
+		{
+			"shelvesTime" : $('#shelvesTime').val(),
+			"sortValue" : $('#sortValue').val()
+		},
+		function(data){
+			if(data.sortValueExist>0){
+				alert("该排序值已经存在,请重新填写");
+				$('#sortValue').val("");
+			}
+			
+		});
 	}
 
 	//ajax调用的回调函数，ajax请求完成调用此函数，传入的参数是action返回的结果
@@ -39,7 +81,6 @@
 			onSuccess:function(msg,obj,errorlist){
 			}
 		});
-		$("#linkUrl").formValidator({onShow:"请填写",onCorrect:"正确  "}).inputValidator({min:1,empty:{leftEmpty:false,rightEmpty:false,emptyError:"两边不能有空符号"},onError:"不能为空"});
 		$("#taobaoId").formValidator({onShow:"请填写",onCorrect:"正确  "}).inputValidator({min:1,empty:{leftEmpty:false,rightEmpty:false,emptyError:"两边不能有空符号"},onError:"不能为空"});
 		$("#title").formValidator({onShow:"请填写",onCorrect:"正确  "}).inputValidator({min:1,empty:{leftEmpty:false,rightEmpty:false,emptyError:"两边不能有空符号"},onError:"不能为空"});
 		$("#productDesc").formValidator({onShow:"请填写",onCorrect:"正确  "}).inputValidator({min:1,empty:{leftEmpty:false,rightEmpty:false,emptyError:"两边不能有空符号"},onError:"不能为空"});
@@ -71,33 +112,34 @@
 										style="color: red;">*</span> 跳转至：</td>
 									<td class=category width="90%">
 										<div>
-											<select id="goingTo" name="goingTo" style="width: 300px;">
-												<option value="0">商品页</option>
-												<option value="1">网页</option>
+											<select id="goingTo" name="goingTo" onchange="linkDisplay()"
+												style="width: 300px;">
+												<option value="">全部</option>
+												<c:forEach items="${goingTos}" var="value">
+													<option value="${value.goingTo}">${value.name}</option>
+												</c:forEach>
 											</select>
 										</div>
 									</td>
 								</tr>
-								<tr>
+								<tr id="trLinkUrl" style="display: none">
 									<td height=30 width="10%" align=right><span
 										style="color: red;">*</span> 链接：</td>
 									<td class=category width="90%">
 										<div>
 											<input id="linkUrl" name="linkUrl" style="width: 800px;"
-												type="text"
-												value="https://detail.tmall.com/item.htm?id=527471202371&scene=taobao_shop&ali_trackid=17_77d6befaede9594e73339d656ccb4793&spm=a21bo.50862.201863-6.2.RVurn6" />
+												type="text" />
 										</div>
 										<div id="linkUrlTip"></div>
 									</td>
 								</tr>
 
 								<tr>
-									<td height=30 width="10%" align=right><span
-										style="color: red;">*</span> 淘宝ID：</td>
+									<td height=30 width="10%" align=right>淘宝ID：</td>
 									<td class=category width="90%">
 										<div>
 											<input id="taobaoId" name="taobaoId" style="width: 800px;"
-												type="text" value="enjoy6288" />
+												type="text" />
 										</div>
 										<div id="taobaoIdTip"></div>
 									</td>
@@ -109,7 +151,7 @@
 									<td class=category width="90%">
 										<div>
 											<input id="title" name="title" style="width: 800px;"
-												type="text" value="马可维奇鞋子男潮鞋板鞋运动鞋2016夏季透气新款休闲鞋真皮" />
+												type="text" />
 										</div>
 										<div id="titleTip"></div>
 									</td>
@@ -121,8 +163,7 @@
 									<td class=category width="90%">
 										<div>
 											<input id="productDesc" name="productDesc"
-												style="width: 800px;" type="text"
-												value="高端大气上档次。暑假里要出去旅游，得选择一双合脚舒适的鞋，当然鞋子漂亮帅气也是必不可少的。我轻车熟路地点进马可维奇店，几乎没作什么犹豫就选中这款并下了单，新来的那个小同事见了，大惊小怪地叫道：你怎这么快就下单了这个“马可波罗”了？不看不比不还价了？抱歉，跟他说过几次了，这小子还是把马可维奇叫成马可波罗。我笑他少见多怪，告诉他我的选择错不了。今天这小子也看了鞋，果然信了。" />
+												style="width: 800px;" type="text" />
 										</div>
 										<div id="productDescTip"></div>
 									</td>
@@ -145,28 +186,28 @@
 									<td class=category width="90%">
 										<div>
 											<input id="priceNow" name="priceNow" style="width: 800px;"
-												type="text" value="10" />
+												type="text" />
 										</div>
 										<div id="priceNowTip"></div>
 									</td>
 								</tr>
 								<tr>
-									<td height=30 width="10%" align=right>商品原价：</td>
+									<td height=30 width="10%" align=right><span
+										style="color: red;">*</span> 商品原价：</td>
 									<td class=category width="90%">
 										<div>
 											<input id="priceOld" name="priceOld" style="width: 800px;"
-												type="text" value="150" />
+												type="text" />
 										</div>
 									</td>
 								</tr>
 
 								<tr>
-									<td height=30 width="10%" align=right><span
-										style="color: red;">*</span> 收藏人数：</td>
+									<td height=30 width="10%" align=right>收藏人数：</td>
 									<td class=category width="90%">
 										<div>
 											<input id="collectManual" name="collectManual"
-												style="width: 800px;" type="text" value="2000" />
+												style="width: 800px;" type="text" />
 										</div>
 										<div id="collectManualTip"></div>
 									</td>
@@ -179,7 +220,7 @@
 										<div>
 											<INPUT type="text" id="shelvesTime" name="shelvesTime"
 												onfocus="WdatePicker({isShowWeek:false,skin:'whyGreen',dateFmt:'yyyy-MM-dd'})"
-												style="width: 180px" />
+												style="width: 180px" onchange="querySortValue()" />
 										</div>
 										<div id="shelvesTimeTip"></div>
 									</td>
@@ -190,10 +231,10 @@
 										style="color: red;">*</span> 排序值：</td>
 									<td class=category width="90%">
 										<div>
-											<input id="sortValue" name="sortValue" style="width: 800px;"
-												type="text" value="99" />
+											<input id="sortValue" name="sortValue"
+												onblur="sortValueExist()" style="width: 100px;" type="text" />
 										</div>
-										<div id="sortValueTip"></div>
+										<div id="sortValueTip"></div> <span id="spanSortValue"></span>
 									</td>
 								</tr>
 

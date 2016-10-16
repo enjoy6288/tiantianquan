@@ -13,7 +13,7 @@ public class Product {
 	private Byte type;
 	// 附加字段映射分类名称
 	private String categoryName;
-	private Byte goingTo;
+	private String goingTo;
 	private String linkUrl;
 	private String taobaoId;
 	private String title;
@@ -27,6 +27,8 @@ public class Product {
 	private Integer sortValue;
 	private Integer status;
 	private String remarks;
+	private Long pv;
+    private Long uv;
 	private Date createTime;
 	private Date updateTime;
 
@@ -53,14 +55,6 @@ public class Product {
 
 	public void setCategoryId(Long categoryId) {
 		this.categoryId = categoryId;
-	}
-
-	public Byte getGoingTo() {
-		return goingTo;
-	}
-
-	public void setGoingTo(Byte goingTo) {
-		this.goingTo = goingTo;
 	}
 
 	public String getLinkUrl() {
@@ -197,5 +191,29 @@ public class Product {
 
 	public void setType(Byte type) {
 		this.type = type;
+	}
+
+	public Long getPv() {
+		return pv;
+	}
+
+	public void setPv(Long pv) {
+		this.pv = pv;
+	}
+
+	public Long getUv() {
+		return uv;
+	}
+
+	public void setUv(Long uv) {
+		this.uv = uv;
+	}
+
+	public String getGoingTo() {
+		return goingTo;
+	}
+
+	public void setGoingTo(String goingTo) {
+		this.goingTo = goingTo;
 	}
 }

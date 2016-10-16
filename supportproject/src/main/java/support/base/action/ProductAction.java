@@ -1,7 +1,9 @@
 package support.base.action;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -13,12 +15,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.alibaba.fastjson.JSONObject;
+
 import redis.clients.jedis.Jedis;
+import support.base.dao.mapper.ProductMapper;
+import support.base.dao.mapper.StatisticsMapper;
+import support.base.dao.mapper.SweetGoingtoMapper;
 import support.base.pojo.po.Category;
 import support.base.pojo.po.Product;
+import support.base.pojo.po.SweetGoingto;
+import support.base.pojo.po.SweetStatistics;
 import support.base.pojo.vo.PageQuery;
 import support.base.pojo.vo.ProductVo;
 import support.base.pojo.vo.StatisticDataInfo;
+import support.base.pojo.vo.SweetStatisticsVo;
 import support.base.process.context.Config;
 import support.base.process.result.DataGridResultInfo;
 import support.base.process.result.ResultUtil;
@@ -36,6 +46,13 @@ public class ProductAction {
 	@Autowired
 	private ProductService productService;
 	Logger logger = Logger.getLogger(ProductAction.class);
+
+	@Autowired
+	private StatisticsMapper statisticsMapper;
+	@Autowired
+	private ProductMapper productMapper;
+	@Autowired
+	private SweetGoingtoMapper goingtoMapper;
 
 	// 商品详情
 	@RequestMapping("/productDetail")
@@ -57,9 +74,9 @@ public class ProductAction {
 	}
 
 	// 商品统计
-	@RequestMapping("/statistics")
+	@RequestMapping("/productStatistics")
 	public @ResponseBody
-	DataGridResultInfo statistics(ProductVo vo, int page, int rows) {
+	DataGridResultInfo productStatistics(ProductVo vo, int page, int rows) {
 		// 列表的总数
 		int total = productService.queryProductsNum(vo);
 
@@ -76,13 +93,76 @@ public class ProductAction {
 		return dataGridResultInfo;
 	}
 
+	// 商品统计
+	@RequestMapping("/statistics")
+	public @ResponseBody
+	DataGridResultInfo statistics(SweetStatisticsVo vo) {
+		// 分页参数
+		PageQuery pageQuery = new PageQuery();
+		pageQuery.setPageQuery_end(7);
+		vo.setPageQuery(pageQuery);// 设置分页参数
+
+		List<SweetStatistics> statistics = statisticsMapper.queryStatistics(vo);
+		long pvs = 0;
+		long uvs = 0;
+		for (SweetStatistics ss : statistics) {
+			pvs += Long.parseLong(ss.getPv());
+			uvs += Long.parseLong(ss.getUv());
+		}
+		for (int i = 0; i < statistics.size(); i++) {
+			if (i == 0) {
+				SweetStatistics sweetStatistics = statistics.get(i);
+				sweetStatistics.setDesc("今日概览");
+			}
+			if (i == 1) {
+				SweetStatistics sweetStatistics = statistics.get(i);
+				sweetStatistics.setDesc("昨日概览");
+			}
+			if (i == 2) {
+				SweetStatistics sweetStatistics = statistics.get(i);
+				sweetStatistics.setDesc("周平均概览");
+				pvs = pvs / 7;
+				uvs = uvs / 7;
+				sweetStatistics.setPv(pvs + "");
+				sweetStatistics.setUv(uvs + "");
+			}
+		}
+		DataGridResultInfo dataGridResultInfo = new DataGridResultInfo();
+		dataGridResultInfo.setRows(statistics);
+		return dataGridResultInfo;
+	}
+
 	// 添加商品页面
 	@RequestMapping("/addProductView")
 	public String addProductView(Model model, String topicId) {
 		List<Category> categorys = (List<Category>) productService.queryCategorys(null);
+		List<SweetGoingto> goingTo = goingtoMapper.queryGoingTo();
+		model.addAttribute("goingTos", goingTo);
 		model.addAttribute("categorys", categorys);
 		model.addAttribute("topicId", topicId);
 		return "/product/addProduct";
+	}
+
+	// 查询已经存在的排序值
+	@RequestMapping("/querySortValue")
+	public @ResponseBody
+	JSONObject querySortValue(String shelvesTime) {
+		List<Integer> sortValue = productMapper.querySortValue(shelvesTime);
+		JSONObject jsonObject = new JSONObject();
+		jsonObject.put("sortValue", sortValue);
+		return jsonObject;
+
+	}
+
+	// 查询已经存在的排序值
+	@RequestMapping("/sortValueExist")
+	public @ResponseBody
+	JSONObject sortValueExist(ProductVo vo) {
+		int sortValueExist = productMapper.sortValueExist(vo);
+		JSONObject jsonObject = new JSONObject();
+		jsonObject.put("sortValueExist", sortValueExist);
+		return jsonObject;
+
 	}
 
 	// 保存商品
@@ -139,6 +219,8 @@ public class ProductAction {
 		// 获取类别信息
 		List<Category> categorys = (List<Category>) productService.queryCategorys(null);
 		model.addAttribute("categorys", categorys);
+		List<SweetGoingto> goingTo = goingtoMapper.queryGoingTo();
+		model.addAttribute("goingTos", goingTo);
 		// 获取商品信息
 		List<Product> products = productService.queryProducts(vo);
 		if (products != null && products.size() > 0) {
@@ -167,6 +249,7 @@ public class ProductAction {
 			}
 			product.setImg(CommonUtil.upload(img, Constant.PRODUCT));
 		}
+		product.setLinkUrl(vo.getGoingTo()+vo.getLinkUrl());
 		productService.updateProduct(product);
 
 		RedisUtil redisUtil = new RedisUtil();
@@ -190,18 +273,13 @@ public class ProductAction {
 	// 商品60天数据统计
 	@RequestMapping("/product60Days")
 	public @ResponseBody
-	DataGridResultInfo product60Days() {
+	DataGridResultInfo product60Days(SweetStatisticsVo vo) {
+		PageQuery pageQuery = new PageQuery();
+		pageQuery.setPageQuery_end(60);
+		vo.setPageQuery(pageQuery);// 设置分页参数
+		List<SweetStatistics> statistics = statisticsMapper.queryStatistics(vo);
 		DataGridResultInfo dataGridResultInfo = new DataGridResultInfo();
-		List dataInfo = new ArrayList<StatisticDataInfo>();
-		StatisticDataInfo info = new StatisticDataInfo();
-		info.setCTR(200l);
-		info.setPV(300l);
-		info.setUV(400l);
-		info.setDate("2016-8-15");
-		for (int i = 0; i < 10; i++) {
-			dataInfo.add(info);
-		}
-		dataGridResultInfo.setRows(dataInfo);
+		dataGridResultInfo.setRows(statistics);
 		return dataGridResultInfo;
 	}
 

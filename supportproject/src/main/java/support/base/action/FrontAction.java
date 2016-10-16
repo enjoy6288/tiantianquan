@@ -38,6 +38,7 @@ public class FrontAction {
 	@RequestMapping(value = "/queryTopicCollect", method = RequestMethod.POST)
 	public @ResponseBody
 	FrontDataInfo queryTopicCollect(SweetCollectVo vo,PhoneParamVo phoneVo) throws Exception{
+		
 		return frontService.queryTopicCollect(vo,phoneVo);
 	}
 

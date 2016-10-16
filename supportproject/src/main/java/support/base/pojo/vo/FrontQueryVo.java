@@ -9,6 +9,8 @@ public class FrontQueryVo {
 	private String topicId;
 	//查询单品类型 
 	private String queryProductType;
+	//商品类型(主题商品还是纯单品)
+	private String type;
 	//展示位置:  轮播banner 推荐专题 专题列表
 	private String dispalyPosition;
 	//上架开始时间
@@ -63,6 +65,12 @@ public class FrontQueryVo {
 	}
 	public void setPageSize(int pageSize) {
 		this.pageSize = pageSize;
+	}
+	public String getType() {
+		return type;
+	}
+	public void setType(String type) {
+		this.type = type;
 	}
 	
 }

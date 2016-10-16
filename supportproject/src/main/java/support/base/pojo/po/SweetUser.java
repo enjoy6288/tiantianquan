@@ -4,16 +4,20 @@ import java.util.Date;
 
 public class SweetUser {
     private String id;
-
+    
+    private String loginPlatform;
+    
     private String avatarUrl;
 
     private String userName;
     
-    private Integer sex;
+    private String sex;
 
     private String passwd;
 
     private String phoneNum;
+    
+    private String openId;
     
     private String token;
 
@@ -97,11 +101,11 @@ public class SweetUser {
 		this.avatarUrl = avatarUrl;
 	}
 
-	public Integer getSex() {
+	public String getSex() {
 		return sex;
 	}
 
-	public void setSex(Integer sex) {
+	public void setSex(String sex) {
 		this.sex = sex;
 	}
 
@@ -111,5 +115,21 @@ public class SweetUser {
 
 	public void setToken(String token) {
 		this.token = token;
+	}
+
+	public String getOpenId() {
+		return openId;
+	}
+
+	public void setOpenId(String openId) {
+		this.openId = openId;
+	}
+
+	public String getLoginPlatform() {
+		return loginPlatform;
+	}
+
+	public void setLoginPlatform(String loginPlatform) {
+		this.loginPlatform = loginPlatform;
 	}
 }

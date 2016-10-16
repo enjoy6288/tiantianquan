@@ -6,9 +6,11 @@
 		<result column="user_name" property="userName" jdbcType="VARCHAR" />
 		<result column="token" property="token" jdbcType="VARCHAR" />
 		<result column="avatar_url" property="avatarUrl" jdbcType="VARCHAR" />
-		<result column="sex" property="sex" jdbcType="INTEGER" />
+		<result column="sex" property="sex" jdbcType="VARCHAR" />
 		<result column="passwd" property="passwd" jdbcType="VARCHAR" />
 		<result column="phone_num" property="phoneNum" jdbcType="VARCHAR" />
+		<result column="open_id" property="openId" jdbcType="VARCHAR" />
+		<result column="login_platform" property="loginPlatform" jdbcType="VARCHAR" />
 		<result column="use_able" property="useAble" jdbcType="INTEGER" />
 		<result column="del_status" property="delStatus" jdbcType="INTEGER" />
 		<result column="login_time" property="loginTime" jdbcType="DATE" />
@@ -17,10 +19,8 @@
 
 	<!-- 添加用户 -->
 	<insert id="saveUser" parameterType="support.base.pojo.po.SweetUser">
-		insert into sweet_user (id,
-		user_name, passwd,phone_num, create_time)
-		values (#{id},
-		#{userName},#{passwd},#{phoneNum},now())
+		insert into sweet_user (id,user_name,sex,avatar_url,token, passwd,phone_num,open_id,login_platform, create_time)
+		values (#{id},#{userName},#{sex},#{avatarUrl},#{token},#{passwd},#{phoneNum},#{openId},#{loginPlatform},now())
 	</insert>
 
 	<update id="updateUser" parameterType="support.base.pojo.vo.SweetUserVo">
@@ -40,6 +40,9 @@
 			</if>
 			<if test="useAble != null and useAble !=''">
 				use_able = #{useAble},
+			</if>
+			<if test="openId != null and openId !=''">
+				and open_id = #{openId}
 			</if>
 		</set>
 		<where>
@@ -70,6 +73,9 @@
 			</if>
 			<if test="passwd != null and passwd !=''">
 				and passwd = #{passwd}
+			</if>
+			<if test="openId != null and openId !=''">
+				and open_id = #{openId}
 			</if>
 		</where>
 	</select>

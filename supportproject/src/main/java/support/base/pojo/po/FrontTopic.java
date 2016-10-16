@@ -1,6 +1,7 @@
 package support.base.pojo.po;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import support.base.util.Constant;
 import support.base.util.SpringPropertyUtil;
@@ -14,6 +15,7 @@ public class FrontTopic implements Serializable{
 	private String topicDesc;
 	private String bannerOutterimg;
 	private String bannerInnerimg;
+	private Date shelvesTime;
 	private long collect;
 	private long scan;
 	private boolean collected;
@@ -106,5 +108,13 @@ public class FrontTopic implements Serializable{
 
 	public void setCollected(boolean collected) {
 		this.collected = collected;
+	}
+
+	public Date getShelvesTime() {
+		return shelvesTime;
+	}
+
+	public void setShelvesTime(Date shelvesTime) {
+		this.shelvesTime = shelvesTime;
 	} 
 }

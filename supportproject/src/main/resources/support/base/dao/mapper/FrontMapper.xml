@@ -12,6 +12,7 @@
 			jdbcType="VARCHAR" />
 		<result column="link_url" property="linkUrl" jdbcType="VARCHAR" />
 		<result column="collect" jdbcType="BIGINT" property="collect" />
+		<result column="shelves_time" jdbcType="TIMESTAMP" property="shelvesTime" />
 	</resultMap>
 	
 
@@ -26,6 +27,7 @@
 		<result column="banner_innerimg" jdbcType="VARCHAR" property="bannerInnerimg" />
 		<result column="collect" jdbcType="BIGINT" property="collect" />
 		<result column="scan" jdbcType="BIGINT" property="scan" />
+		<result column="shelves_time" jdbcType="TIMESTAMP" property="shelvesTime" />
 	</resultMap>
 
 	<resultMap id="sweetCollect" type="support.base.pojo.po.SweetCollect" >
@@ -41,6 +43,7 @@
 		SELECT
 		a.id,
 		img,
+		shelves_time,
 		price_now,
 		title,
 		link_url,
@@ -61,12 +64,14 @@
 				and date_format(shelves_time, '%Y-%m-%d') <![CDATA[<=]]>
 				date_format(#{endTime}, '%Y-%m-%d')
 			</if> -->
-
+			<if test="type != null and type !=''">
+				and type = #{type}
+			</if>
 			<if test="topicId != null and topicId !=''">
 				and topic_id = #{topicId}
 			</if>
 		</where>
-		ORDER BY sort_value DESC
+		ORDER BY shelves_time DESC,sort_value DESC
 		limit ${startPage},${pageSize}
 	</select>
 	
@@ -80,6 +85,7 @@
 		topic_desc,
 		banner_innerimg,
 		banner_outterimg,
+		shelves_time,
 		(scan_actually+scan_manual) scan,
 		(collect_actually+collect_manual) collect
 		FROM
@@ -101,7 +107,7 @@
 				date_format(#{endTime}, '%Y-%m-%d')
 			</if> -->
 		</where>
-		ORDER BY sort_value DESC
+		ORDER BY shelves_time DESC,sort_value DESC
 		limit ${startPage},${pageSize}
 
 	</select>

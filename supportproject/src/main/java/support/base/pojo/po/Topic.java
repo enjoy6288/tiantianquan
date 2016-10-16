@@ -8,7 +8,7 @@ import support.base.util.SpringPropertyUtil;
 public class Topic {
 	private String id;
 
-	private Byte goingTo;
+	private String goingTo;
 	
 	private String linkUrl;
 
@@ -43,6 +43,9 @@ public class Topic {
 	private String remarks;
 
 	private Integer status;
+	private Long pv;
+
+    private Long uv;
 
 	private Date updateTime;
 
@@ -56,11 +59,11 @@ public class Topic {
 		this.id = id;
 	}
 
-	public Byte getGoingTo() {
+	public String getGoingTo() {
 		return goingTo;
 	}
 
-	public void setGoingTo(Byte goingTo) {
+	public void setGoingTo(String goingTo) {
 		this.goingTo = goingTo;
 	}
 
@@ -214,5 +217,21 @@ public class Topic {
 
 	public void setLinkUrl(String linkUrl) {
 		this.linkUrl = linkUrl;
+	}
+
+	public Long getPv() {
+		return pv;
+	}
+
+	public void setPv(Long pv) {
+		this.pv = pv;
+	}
+
+	public Long getUv() {
+		return uv;
+	}
+
+	public void setUv(Long uv) {
+		this.uv = uv;
 	}
 }

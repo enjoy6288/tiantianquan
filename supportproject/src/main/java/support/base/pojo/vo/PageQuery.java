@@ -112,6 +112,10 @@ public class PageQuery {
 		return PageQuery_end;
 	}
 
+	public void setPageQuery_end(int pageQuery_end) {
+		PageQuery_end = pageQuery_end;
+	}
+
 
 	
 }

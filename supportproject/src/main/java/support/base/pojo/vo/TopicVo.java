@@ -37,6 +37,9 @@ public class TopicVo {
     private String remarks;
 
     private String status;
+    private Long pv;
+
+    private Long uv;
     
     private PageQuery pageQuery;//分页
     private String scheduleTask;//用于区分定时任务时使用的
@@ -236,5 +239,21 @@ public class TopicVo {
 
 	public void setLinkUrl(String linkUrl) {
 		this.linkUrl = linkUrl;
+	}
+
+	public Long getPv() {
+		return pv;
+	}
+
+	public void setPv(Long pv) {
+		this.pv = pv;
+	}
+
+	public Long getUv() {
+		return uv;
+	}
+
+	public void setUv(Long uv) {
+		this.uv = uv;
 	}
 }

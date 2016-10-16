@@ -10,6 +10,10 @@ public interface ProductMapper {
 	int saveProduct(Product record);
 
 	Integer queryProductsNum(ProductVo vo);
+	//查询已经存在的排序值
+	List<Integer> querySortValue(String shelvesTime);
+	//判断是否存在该值
+	int sortValueExist(ProductVo vo);
 
 	List<Product> queryProducts(ProductVo vo);
 

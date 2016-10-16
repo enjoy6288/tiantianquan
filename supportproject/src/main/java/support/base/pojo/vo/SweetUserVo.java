@@ -8,6 +8,7 @@ public class SweetUserVo {
 	private String userName;
 	private String passwd;
 	private String phoneNum;
+    private String openId;
 	private String loginTime;
 	private String loginName;
 	private String avatarUrl;
@@ -120,6 +121,14 @@ public class SweetUserVo {
 
 	public void setOldAvatarUrl(String oldAvatarUrl) {
 		this.oldAvatarUrl = oldAvatarUrl;
+	}
+
+	public String getOpenId() {
+		return openId;
+	}
+
+	public void setOpenId(String openId) {
+		this.openId = openId;
 	}
 
 }

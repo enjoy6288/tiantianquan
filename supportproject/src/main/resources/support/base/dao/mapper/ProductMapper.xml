@@ -7,7 +7,7 @@
 		<result column="topic_id" property="topicId" jdbcType="VARCHAR" />
 		<result column="category_id" property="categoryId" jdbcType="BIGINT" />
 		<result column="category_name" property="categoryName" jdbcType="BIGINT" />
-		<result column="going_to" property="goingTo" jdbcType="TINYINT" />
+		<result column="going_to" property="goingTo" jdbcType="VARCHAR" />
 		<result column="link_url" property="linkUrl" jdbcType="VARCHAR" />
 		<result column="taobao_id" property="taobaoId" jdbcType="VARCHAR" />
 		<result column="title" property="title" jdbcType="VARCHAR" />
@@ -15,6 +15,8 @@
 		<result column="img" property="img" jdbcType="VARCHAR" />
 		<result column="price_now" property="priceNow" jdbcType="VARCHAR" />
 		<result column="price_old" property="priceOld" jdbcType="VARCHAR" />
+		<result column="pv" property="pv" jdbcType="BIGINT" />
+    	<result column="uv" property="uv" jdbcType="BIGINT" />
 		<result column="collect_actually" property="collectActually"
 			jdbcType="BIGINT" />
 		<result column="collect_manual" property="collectManual"
@@ -57,7 +59,7 @@
 			remarks,
 		</if>
 		shelves_time, sort_value,create_time,update_time)
-		values (UUID(),#{topicId},
+		values (#{id},#{topicId},
 		#{categoryId},#{goingTo}, #{linkUrl}, #{taobaoId},
 		#{title},
 		#{productDesc},#{img},#{priceNow},
@@ -161,7 +163,7 @@
 				and shelves_time <![CDATA[<]]> #{end}
 			</if>
 		</where>
-			order by shelves_time desc
+			order by create_time desc
 		<if test="pageQuery != null ">
 			limit
 			${pageQuery.PageQuery_start},${pageQuery.PageQuery_end}
@@ -258,5 +260,25 @@
 		<if test="id != null and id != '' ">
 				where id=#{id}
 		</if>
+	</select>
+	
+	<select id="querySortValue" parameterType="String"  resultType="String">
+		SELECT
+			sort_value
+		FROM
+			sweet_product
+		WHERE
+			shelves_time = #{shelvesTime}
+		ORDER BY
+			sort_value DESC
+	</select>
+	<select id="sortValueExist" parameterType="support.base.pojo.vo.ProductVo"  resultType="java.lang.Integer">
+		SELECT
+			count(0)
+		FROM
+			sweet_product
+		WHERE
+			shelves_time = #{shelvesTime}
+		AND sort_value =${sortValue}
 	</select>
 </mapper>
