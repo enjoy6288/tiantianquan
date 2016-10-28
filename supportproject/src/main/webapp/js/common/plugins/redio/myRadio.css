@@ -1,0 +1,9 @@
+@charset "utf-8";
+/* CSS Document */
+
+
+span{display:inline-block;height:18px;
+ width:18px;padding-left:18px;
+ background:url(../../../../images/check_no.png) no-repeat;
+ }
+span.on{background:url(../../../../images/check_yes.png) no-repeat;}

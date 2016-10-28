@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+    <link href="css/cjbase.css" rel="stylesheet">
+    <link href="css/login.css" rel="stylesheet">
+    <link rel="stylesheet" href="js/common/plugins/validate/jquery.validator.css">
+    <title>甜甜圈登录</title>
+</head>
+<body class="body">
+    <div class="login_title">
+        <span style="">
+            虚拟人账号关联与人物画像系统
+        </span>
+    </div>
+   <div class="login_container rel">
+       <!--登陆内容 开始-->
+       <form class="loginbox animated fadeInDown" role="form" id="user_login_form">
+            <div style="margin-bottom:20px; color:#19a0d2; font-size:22px;">系统登录</div>
+            <div class="form-group form-bottom" style="position:relative;">
+                <input type="text" id="login_user" class="form-control" name="userName" placeholder="请填写用户名">
+                <!--<span class="input_man"></span>-->
+                
+            </div>
+            <div class="form-group form-bottom" style="position:relative;">
+                <input type="password" class="form-control" name="passwd" placeholder="请输入密码">
+                <!--<span class="input_pass"></span>-->
+            </div>
+            <div id="msg_holder" class="text-center n-right"></div>
+            <div class="form-group">
+                <div class="">
+                    <button type="submit" class="btn btn-block " style="background-color: #19a0d2; boder:none; color: #fff;">登录</button>
+                </div>
+            </div>
+        </form>
+       <!--登陆内容 结束-->
+   </div>
+
+<!-- Mainly scripts -->
+
+<script src="js/common/jquery.min.js"></script>
+<script src="js/common/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/common/plugins/sea.js"></script>
+<script type="text/javascript" src="js/common/plugins/validate/jquery.validator.js"></script>
+<script type="text/javascript" src="js/common/plugins/validate/zh_CN.js"></script>
+<script type="text/javascript" src="js/common/plugins/placeholder.js"></script>
+<script type="text/javascript" src="js/common/plugins/jquery.md5.js"></script>
+<!--<script type="text/javascript" src="js/common/plugins/validator-0.7.3/local/zh_CN.js"></script>-->
+<!-- Mainly scripts -->
+
+<script>
+    seajs.config({
+        base: "./js/common/",
+        alias: {
+            "layer": "plugins/layer-v1.9.3/layer.js"
+        }
+    })
+    $('input[type=text],input[type=password]').each(function(){  
+        if (typeof $(this).attr('placeholder')!='undefined' && $(this).attr('placeholder')!= '') {
+            $(this).placeholder({isUseSpan:true});
+        }
+    });
+    seajs.use(["./js/common/base","./js/common/cookie"],function(base,cookie){ 
+        var jsessionid = base.getSession(); 
+        //接收表单验证通过的事件
+        $('#user_login_form').validator({
+            //timely: false,
+            //stopOnError : true,
+            fields: {
+                userName :{
+                    rule : "required;",
+                    tip : "请输入登录账号!",
+                    msg : {
+                        required : '用户名不能为空！',
+                    },
+                    target: "#msg_holder"
+                },
+               passwd :{
+                    rule : "required;",
+                    msg : {
+                        required : '密码不能为空！',
+                        //password : '密码由6-16位数字、字母、字符组成！'
+                    },
+                    tip: "请输入密码！",
+                    target: "#msg_holder"
+                },
+            },
+            msgWrapper: 'div',
+            msgMaker: function(opt){
+                var addimg = '<img src="images/login/erro.png">'
+                var nbsp = '&nbsp'
+                if(opt.msg){
+                    return '<span class="text-center">' +addimg +nbsp+opt.msg+ '</span>';
+                }else{
+                    return '';
+                }
+            },
+            valid: function(form){
+                // 处理表单data
+                var form_data = $(form).serializeArray()
+                var datas = {};
+                var lists = {};
+                for(key in form_data){
+                    datas[form_data[key].name] =form_data[key].value;
+                }
+                lists.userName = datas.userName;
+                lists.passwd = datas.passwd;//$.md5(datas.passwd);
+                console.log(lists)
+                base.ajax({
+                    login:true,//cookie为空时候不会跳到登录页
+                    beforeSend: function(request) {
+                        request.setRequestHeader("Content-Type", "application/json");
+                    },
+                    url: '/supportproject/backGroundLogin.action',
+                    type : 'POST',
+                    data: JSON.stringify(lists),
+                    success: function(data){
+                        console.log(data)
+                        console.log(data.permissionName)
+                        var code = data.code;
+                        if(code==1){
+                            window.location.href="/supportproject/first.action";
+                            cookie.setCookie('id',data.suId);
+                            cookie.setCookie('name',data.userName);
+                            cookie.setCookie('url',JSON.stringify(data.url));
+                            cookie.setCookie('permissionName',JSON.stringify(data.permissionName));
+                        }else{
+                            var addimg = '<img src="images/login/erro.png">'
+                            var nbsp = '&nbsp'
+                            var info = data.info;
+                            console.log(info)
+                            $('#msg_holder').html('<span class="text-center">' +addimg +nbsp+info+ '</span>');
+                        }
+                    }
+                })
+            }
+        })
+    });
+
+</script>
+</body>
+</html>

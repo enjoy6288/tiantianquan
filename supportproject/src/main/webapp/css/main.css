@@ -1,0 +1,45 @@
+/*公用样式*/
+.head_nav{ height: 60px;}
+.head_nav .nav{ height: 60px;}
+.head_statistical{ height: 80px; padding: 20px 55px 20px 55px; line-height: 34px;  background-color: #fff; border-top: #f3f3f3 solid 2px;}
+.page-heading .cf .w1{ width: 80px; float: left; text-align: center; padding-top: 5px;}
+.page-heading .cf .w2{ width: 210px; float: left; padding-left: 25px; }
+.page-heading .cf .w3{ float: left;}
+.cj-panel{ background-color: #f3f3f3;}
+.cj-panelf9{ background-color: #f9f9f9;}
+.btn-sm-f20{ padding:0 6px; font-size: 20px;}
+/*上一步下一步*/
+.kick_bread{ height:35px; border-radius: 3px; -o-border-radius: 3px; -webkit-border-radius: 3px; overflow: hidden;}
+.kick_bread ul{ height: 35px; padding-left: 0;}
+.kick_bread ul li{ height:35px; line-height:35px; font-size:16px; float:left; width:25%; text-align:center; background-color:#eeeeee; position:relative;}
+.kick_bread ul li:first-child{}
+.kick_bread ul li .span1{ background-image:url(../img/wizzardbg01.png); background-repeat:  no-repeat ;background-position:-37px 0; height:35px; width:9px; position:absolute; left:0; top:0;  display:block;}
+.kick_bread ul li .span2{background-image:url(../img/wizzardbg01.png); background-repeat:  no-repeat ;background-position:-28px 0; height:35px; width:9px; position:absolute; right:0; top:0; display:block;}
+.kick_bread ul li.active{ background-color:#d3e880; color: #fff; border:none; cursor: pointer;
+    -webkit-transition:none;
+    -moz-transition:none;
+    -o-transition: none;
+    transition:none;
+}
+.kick_bread ul li.active .span1{ background-position:-9px -45px;}
+.kick_bread ul li.active .span2{ background-position:0 -45px;}
+.kick_bread ul li.current{ background-color:#98bf00; color: #fff;}
+.kick_bread ul li.current .span1{background-position:-65px 0;}
+.kick_bread ul li.current .span2{ background-position:0 0;}
+/*==财务管理==*/
+/*=账户充值=*/
+.Fin_topup_topbox{ padding:20px; background-color: #fff; border-top: #f3f3f3 solid 1px;}
+.Fin_topup_topbox .topup{ width: 335px; margin: 0 auto;}
+.Fin_topup_topbox .topup ul li{ margin-top: 15px;}
+/*==报表分析==*/
+
+
+
+
+
+
+
+
+
+
+

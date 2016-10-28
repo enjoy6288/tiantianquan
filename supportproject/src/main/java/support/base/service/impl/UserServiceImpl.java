@@ -33,6 +33,7 @@ import support.base.pojo.po.SweetCollect;
 import support.base.pojo.po.SweetStatistics;
 import support.base.pojo.po.SweetUser;
 import support.base.pojo.po.Topic;
+import support.base.pojo.vo.PhoneParamVo;
 import support.base.pojo.vo.SweetCollectVo;
 import support.base.pojo.vo.SweetUserVo;
 import support.base.process.context.Config;
@@ -63,13 +64,13 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public JSONObject thirdPlatformSave(SweetUserVo vo) {
 		SweetUser sweetUser = userMapper.queryUser(vo);
-		JSONObject jsonObject =null;
+		JSONObject jsonObject = null;
 		if (sweetUser == null) {
 			jsonObject = ResultUtil.createJSONPObject(Config.MESSAGE, 201, ResultInfo.TYPE_RESULT_SUCCESS);
 			sweetUser = new SweetUser();
 			CommonUtil.VoToPo(vo, sweetUser);
 			sweetUser.setId(CommonUtil.generateId());
-			
+
 			Map<String, Object> userMap = new HashMap<>();
 			String token = UUID.randomUUID().toString();
 			sweetUser.setToken(token);
@@ -81,7 +82,7 @@ public class UserServiceImpl implements UserService {
 			redisUtil.closeRedis();
 			userMapper.saveUser(sweetUser);
 		} else {
-			//如果用户有更新第三方帐号信息同时更新
+			// 如果用户有更新第三方帐号信息同时更新
 			if (!sweetUser.getUserName().equals(vo.getUserName()) || !sweetUser.getSex().equals(vo.getSex())
 					|| !sweetUser.getAvatarUrl().equals(vo.getAvatarUrl())) {
 				userMapper.updateUser(vo);
@@ -218,11 +219,24 @@ public class UserServiceImpl implements UserService {
 		Jedis jedis = redisUtil.getJedis();
 		String userId = vo.getScoUserId();
 		String value = userId + ":" + vo.getScoCollectId() + ":" + vo.getScoCollectType();
-		Boolean exist = jedis.sismember("userCollect:" + userId + ":" + vo.getScoCollectType(), value);
-		if (exist) {
-			jedis.srem("userCollect:" + userId + ":" + vo.getScoCollectType(), value);
+		// 先查数据库是否收藏有
+		Set<String> partCid = jedis.smembers("uc:" + userId);
+		if (partCid == null || partCid.size() == 0) {
+			List<SweetCollect> collects = frontMapper.queryCollect(vo);
+			for (SweetCollect sweetCollect : collects) {
+				jedis.sadd("uc:" + userId, sweetCollect.getScoCollectId());
+			}
+		}
+		boolean dbExist = jedis.sismember("uc:" + userId, vo.getScoCollectId());
+		if (dbExist) {
+			return ResultUtil.createJSONPObject(Config.MESSAGE, 201, ResultInfo.TYPE_RESULT_SUCCESS);
+		}
+		// 再查当前收藏是否有
+		boolean redisExist = jedis.sismember("collecting:" + userId + ":" + vo.getScoCollectType(), value);
+		if (redisExist) {
+			jedis.srem("collecting:" + userId + ":" + vo.getScoCollectType(), value);
 		} else {
-			jedis.sadd("userCollect:" + userId + ":" + vo.getScoCollectType(), value);
+			jedis.sadd("collecting:" + userId + ":" + vo.getScoCollectType(), value);
 		}
 		redisUtil.closeRedis();
 		return ResultUtil.createJSONPObject(Config.MESSAGE, 201, ResultInfo.TYPE_RESULT_SUCCESS);
@@ -233,7 +247,7 @@ public class UserServiceImpl implements UserService {
 		List<SweetCollect> scs = new ArrayList<>();
 		RedisUtil redisUtil = new RedisUtil();
 		Jedis jedis = redisUtil.getJedis();
-		Set<String> keys = jedis.keys("userCollect*");
+		Set<String> keys = jedis.keys("collecting*");
 		String[] arrayKeys = keys.toArray(new String[keys.size()]);
 		if (arrayKeys.length > 0) {
 			Set<String> values = jedis.sunion(arrayKeys);
@@ -303,10 +317,15 @@ public class UserServiceImpl implements UserService {
 	public JSONObject delCollect(SweetCollectVo vo) {
 		String scoIds = vo.getScoIds();
 		List<String> ids = new ArrayList<>();
+		String[] idString = {};
 		if (!StringUtils.isEmpty(scoIds)) {
-			String[] idString = scoIds.split(",");
+			idString = scoIds.split(",");
 			ids = Arrays.asList(idString);
 		}
+		String userId = vo.getScoUserId();
+		RedisUtil redisUtil = new RedisUtil();
+		Jedis jedis = redisUtil.getJedis();
+		jedis.del("uc:" + userId);
 		userMapper.delCollect(ids);
 		return ResultUtil.createJSONPObject(Config.MESSAGE, 201, ResultInfo.TYPE_RESULT_SUCCESS);
 	}

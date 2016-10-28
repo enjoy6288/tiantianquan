@@ -24,8 +24,17 @@ public class SessionInterceptor extends HandlerInterceptorAdapter {
 		// 请求路径
 		String path = request.getRequestURI();
 		String clientToken = request.getParameter("token");
+		// 获取redis里面的token
+		RedisUtil redisUtil = new RedisUtil();
+		Jedis jedis = redisUtil.getJedis();
+		String serverToken = jedis.get("token:" + clientToken);
+		if(StringUtils.isNotEmpty(clientToken)&&StringUtils.isEmpty(serverToken)){
+			jedis.set("token:" + clientToken, clientToken);
+		}
+		redisUtil.closeRedis();
 		if (StringUtils.isEmpty(clientToken)) {
-			if (path.contains("queryTopicCollect") || path.contains("queryProductCollect")) {
+			boolean loginFlag = path.contains("queryTopicCollect") || path.contains("queryProductCollect");
+			if (loginFlag) {
 				JSONObject json = new JSONObject();
 				json.put("code", 0);
 				json.put("info", "请登录");
@@ -39,16 +48,6 @@ public class SessionInterceptor extends HandlerInterceptorAdapter {
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-				return false;
-			}
-		} else {
-			RedisUtil redisUtil=new RedisUtil();
-			Jedis jedis = redisUtil.getJedis();
-			String serverToken = jedis.get("token:"+clientToken);
-			redisUtil.closeRedis();
-			if (serverToken!=null) {
-				return true;
-			} else {
 				return false;
 			}
 		}

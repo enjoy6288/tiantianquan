@@ -261,7 +261,7 @@ public class FrontServiceImpl implements FrontService {
 		List<SweetCollect> scs = new ArrayList<>();
 		RedisUtil redisUtil = new RedisUtil();
 		Jedis jedis = redisUtil.getJedis();
-		Set<String> values = jedis.smembers("userCollect:" + phoneVo.getUserId() + ":" + Constant.TOPIC_TYPE);
+		Set<String> values = jedis.smembers("collecting:" + phoneVo.getUserId() + ":" + Constant.TOPIC_TYPE);
 		SweetCollect sc = null;
 		for (String value : values) {
 			String[] split = value.split(":");
@@ -273,13 +273,12 @@ public class FrontServiceImpl implements FrontService {
 			jedis.incr("incr:" + split[2] + ":" + split[1]);
 		}
 		if (scs.size() > 0) {
-			jedis.del("userCollect:" + phoneVo.getUserId() + ":" + Constant.TOPIC_TYPE);
-			redisUtil.closeRedis();
+			jedis.del("collecting:" + phoneVo.getUserId() + ":" + Constant.TOPIC_TYPE);
+			jedis.del("uc:" + phoneVo.getUserId());
 			userMapper.saveCollect(scs);
-		} else {
-			redisUtil.closeRedis();
-		}
-
+		} 
+		
+		redisUtil.closeRedis();
 		vo.setScoUserId(phoneVo.getUserId());
 		List<FrontTopic> topicCollect = frontMapper.queryTopicCollect(vo);
 		FrontDataInfo info = new FrontDataInfo();
@@ -295,17 +294,17 @@ public class FrontServiceImpl implements FrontService {
 	}
 
 	@Override
-	public FrontDataInfo queryProductCollect(SweetCollectVo vo, PhoneParamVo phoneVo) {
+	public FrontDataInfo queryProductCollect(SweetCollectVo vo,PhoneParamVo phoneVo) {
 		JSONObject nextQuery = new JSONObject();
 		nextQuery.put("startPage", vo.getStartPage() + 1);
 		nextQuery.put("pageSize", vo.getPageSize());
 		vo.setStartPage(vo.getStartPage() * vo.getPageSize());
-
+		String userId = vo.getScoUserId();
 		// 先把收藏的内容保存到数据库
 		List<SweetCollect> scs = new ArrayList<>();
 		RedisUtil redisUtil = new RedisUtil();
 		Jedis jedis = redisUtil.getJedis();
-		Set<String> values = jedis.smembers("userCollect:" + phoneVo.getUserId() + ":" + Constant.PRODUCT_TYPE);
+		Set<String> values = jedis.smembers("collecting:" + userId + ":" + Constant.PRODUCT_TYPE);
 		SweetCollect sc = null;
 		for (String value : values) {
 			String[] split = value.split(":");
@@ -317,13 +316,11 @@ public class FrontServiceImpl implements FrontService {
 			jedis.incr("incr:" + split[2] + ":" + split[1]);
 		}
 		if (scs.size() > 0) {
-			redisUtil.closeRedis();
-			jedis.del("userCollect:" + phoneVo.getUserId() + ":" + Constant.PRODUCT_TYPE);
+			jedis.del("collecting:" + userId + ":" + Constant.PRODUCT_TYPE);
+			jedis.del("uc:" + userId);
 			userMapper.saveCollect(scs);
-		}else {
-			redisUtil.closeRedis();
-		}
-		vo.setScoUserId(phoneVo.getUserId());
+		} 
+		redisUtil.closeRedis();
 		List<FrontProduct> productCollect = frontMapper.queryProductCollect(vo);
 		FrontDataInfo info = new FrontDataInfo();
 		Map data = new HashMap<String, List<Object>>();
@@ -349,18 +346,28 @@ public class FrontServiceImpl implements FrontService {
 	private Set<String> getUserCollectId(PhoneParamVo phoneVo, Jedis jedis, String type) {
 		Set<String> collectId = new HashSet<>();
 		if (!StringUtils.isEmpty(phoneVo.getUserId())) {
-			Set<String> smembers = jedis.smembers("userCollect:" + phoneVo.getUserId() + ":" + type);
+			Set<String> smembers = jedis.smembers("collecting:" + phoneVo.getUserId() + ":" + type);
 			if (smembers != null && smembers.size() > 0) {
 				for (String member : smembers) {
 					String[] split = member.split(":");
 					collectId.add(split[1]);
 				}
 			}
-			SweetCollectVo vo = new SweetCollectVo();
-			vo.setScoUserId(phoneVo.getUserId());
-			List<SweetCollect> collects = frontMapper.queryCollect(vo);
-			for (SweetCollect collect : collects) {
-				collectId.add(collect.getScoCollectId());
+			//先查询redis 没有再查数据库
+		    Set<String> partCid = jedis.smembers("uc:" + phoneVo.getUserId());
+			if (partCid!=null&&partCid.size()==0) {
+				SweetCollectVo vo = new SweetCollectVo();
+				vo.setScoUserId(phoneVo.getUserId());
+				List<SweetCollect> collects = frontMapper.queryCollect(vo);
+				for (SweetCollect collect : collects) {
+					collectId.add(collect.getScoCollectId());
+				}
+				for (String cid : collectId) {
+					jedis.sadd("uc:" + phoneVo.getUserId(), cid);
+				}
+			}else {
+				//部分收藏ID
+				collectId.addAll(partCid);
 			}
 		}
 		return collectId;

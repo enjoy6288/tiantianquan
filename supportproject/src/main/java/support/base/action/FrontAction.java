@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 
 
+
 import support.base.pojo.vo.FrontQueryVo;
 import support.base.pojo.vo.PhoneParamVo;
 import support.base.pojo.vo.SweetCollectVo;
@@ -38,7 +39,7 @@ public class FrontAction {
 	@RequestMapping(value = "/queryTopicCollect", method = RequestMethod.POST)
 	public @ResponseBody
 	FrontDataInfo queryTopicCollect(SweetCollectVo vo,PhoneParamVo phoneVo) throws Exception{
-		
+		vo.setScoUserId(phoneVo.getUserId());
 		return frontService.queryTopicCollect(vo,phoneVo);
 	}
 

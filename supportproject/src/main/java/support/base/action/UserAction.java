@@ -80,7 +80,8 @@ public class UserAction {
 	// 删除收藏
 	@RequestMapping(value = "/delCollect", method = RequestMethod.POST)
 	public @ResponseBody
-	JSONObject delCollect(SweetCollectVo vo) {
+	JSONObject delCollect(SweetCollectVo vo,PhoneParamVo phoneVo) {
+		vo.setScoUserId(phoneVo.getUserId());
 		return userService.delCollect(vo);
 	}
 

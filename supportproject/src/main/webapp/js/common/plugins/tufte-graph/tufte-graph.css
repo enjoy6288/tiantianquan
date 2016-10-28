@@ -1,0 +1,42 @@
+#awesome-graph {
+  margin-bottom: 50px;
+  margin-top: 30px;
+  clear: both;
+  font-family: georgia, serif;
+  font-size: 14px;
+}
+
+#awesome-graph .label {
+  text-align: center;
+  padding-top: 5px;
+  padding-bottom: 5px;
+ 
+}
+.graph-header h3 {
+  margin-bottom: 0px;
+}
+.graph-header {
+  text-align: center;
+}
+.graph-header p {
+  margin-top: 0px;
+}
+
+#awesome-graph .legend td, .graph .legend, .graph .legend tr {
+  padding: 0px;
+  margin: 0px;
+  border-collapse:collapse;
+}
+
+#awesome-graph .legend {
+  margin-left: 10px;
+}
+#awesome-graph .legend td {
+  padding-right: 5px;
+}
+
+#awesome-graph.legend .color-box {
+  width: 14px;
+  height: 10px;
+  overflow: hidden;
+}
