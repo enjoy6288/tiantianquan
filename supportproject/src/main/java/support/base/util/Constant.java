@@ -10,14 +10,13 @@ public class Constant {
 	public final static String PRODUCT = "/product/";
 	//主题目录
 	public final static String TOPIC = "/topic/";
-	
 	//redis所在服务器地址
 	public final static String REDIS_SERVER = "redis_server";
-	
-	
+	//图片服务器前缀
 	public final static String IMG_PREFIX = "img_prefix";
 	public final static String MSG_URL = "msg_url";
-	
+	//分页大小
+	public final static String PAGE_SIZE = "page_size";
 	//商品类型
 	public final static String PRODUCT_TYPE = "0";
 	//主题类型

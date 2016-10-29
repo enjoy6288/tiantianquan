@@ -15,6 +15,7 @@ import support.base.pojo.po.BackgroundUser;
 import support.base.process.context.Config;
 import support.base.process.result.ResultInfo;
 import support.base.process.result.ResultUtil;
+import support.base.util.CommonUtil;
 
 @Controller
 public class FirstAction {
@@ -35,10 +36,11 @@ public class FirstAction {
 	}
 
 	// 首页
-	@RequestMapping(value = "/first", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/first")
 	public String first() throws Exception {
 		return "/base/first";
 	}
+	
 
 	// 欢迎页面
 	@RequestMapping("/welcome")

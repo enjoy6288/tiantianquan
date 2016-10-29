@@ -83,7 +83,7 @@ public class UserServiceImpl implements UserService {
 			userMapper.saveUser(sweetUser);
 		} else {
 			// 如果用户有更新第三方帐号信息同时更新
-			if (!sweetUser.getUserName().equals(vo.getUserName()) || !sweetUser.getSex().equals(vo.getSex())
+			if (!sweetUser.getNickName().equals(vo.getNickName()) || !sweetUser.getSex().equals(vo.getSex())
 					|| !sweetUser.getAvatarUrl().equals(vo.getAvatarUrl())) {
 				userMapper.updateUser(vo);
 			}
@@ -116,7 +116,7 @@ public class UserServiceImpl implements UserService {
 		if (StringUtils.isNumeric(loginName)) {
 			vo.setPhoneNum(loginName);
 		} else {
-			vo.setUserName(loginName);
+			vo.setNickName(loginName);
 		}
 		SweetUser user = userMapper.queryUser(vo);
 		JSONObject jsonObject = null;
@@ -160,6 +160,21 @@ public class UserServiceImpl implements UserService {
 		if (!flag) {
 			return ResultUtil.createJSONPObject(Config.MESSAGE, 301, ResultInfo.TYPE_RESULT_FAIL);
 		}
+		// 验证用户是否存在
+		SweetUser user = userMapper.queryUser(vo);
+		String sendMsgType = vo.getSendMsgType();
+		// 如果是注册 先判断该记录是否有
+		if ("register".equals(sendMsgType)) {
+			if (user != null) {
+				return ResultUtil.createJSONPObject(Config.MESSAGE, 302, ResultInfo.TYPE_RESULT_FAIL);
+			}
+		}
+		// 如果是重置密码 如果用户没有注册 先注册
+		if ("resetPasswd".equals(sendMsgType)) {
+			if (user == null) {
+				return ResultUtil.createJSONPObject(Config.MESSAGE, 311, ResultInfo.TYPE_RESULT_FAIL);
+			}
+		}
 		// 发送验证码 验证码存入session里面 验证验证码
 		String phoneCode = (new Random().nextInt(9999) + 1000) + "";
 		String msg = "同事您好，感谢您对此次测试的配合。[" + phoneCode + "]";
@@ -191,13 +206,8 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public JSONObject saveUser(SweetUserVo vo) {
-		// 验证用户是否存在
-		SweetUser user = userMapper.queryUser(vo);
-		if (user != null) {
-			return ResultUtil.createJSONPObject(Config.MESSAGE, 303, ResultInfo.TYPE_RESULT_FAIL);
-		}
 		String phoneNum = vo.getPhoneNum();
-		vo.setUserName(phoneNum);
+		vo.setNickName(phoneNum);
 		// 输入密码
 		SweetUser sweetUser = new SweetUser();
 		CommonUtil.VoToPo(vo, sweetUser);

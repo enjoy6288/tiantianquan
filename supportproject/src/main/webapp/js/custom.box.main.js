@@ -1,9 +1,4 @@
 //加载数据字典信息，value值为id
-/**
- * 用于向普通配置项的数据字典下拉框中加载数据
- * @param typecode
- * @param id
- */
 function getDictinfoIdlist(typecode,id){
 		var selectobj = document.getElementById(id);
 		selectobj.length = 0; 
@@ -28,7 +23,6 @@ function getDictinfoIdlist(typecode,id){
 	}
 //加载数据字典信息，value值为code
 /**
- * 用于向业务代码的数据字典下拉框中加载数据
  * typecode为数据字典的typecode
  * id：select下拉框的id
  * 

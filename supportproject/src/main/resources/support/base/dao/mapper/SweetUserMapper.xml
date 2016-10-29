@@ -3,7 +3,7 @@
 <mapper namespace="support.base.dao.mapper.SweetUserMapper">
 	<resultMap id="sweetUser" type="support.base.pojo.po.SweetUser">
 		<result column="id" property="id" jdbcType="VARCHAR" />
-		<result column="user_name" property="userName" jdbcType="VARCHAR" />
+		<result column="nick_name" property="nickName" jdbcType="VARCHAR" />
 		<result column="token" property="token" jdbcType="VARCHAR" />
 		<result column="avatar_url" property="avatarUrl" jdbcType="VARCHAR" />
 		<result column="sex" property="sex" jdbcType="VARCHAR" />
@@ -19,8 +19,8 @@
 
 	<!-- 添加用户 -->
 	<insert id="saveUser" parameterType="support.base.pojo.po.SweetUser">
-		insert into sweet_user (id,user_name,sex,avatar_url,token, passwd,phone_num,open_id,login_platform, create_time)
-		values (#{id},#{userName},#{sex},#{avatarUrl},#{token},#{passwd},#{phoneNum},#{openId},#{loginPlatform},now())
+		insert into sweet_user (id,nick_name,sex,avatar_url,token, passwd,phone_num,open_id,login_platform, create_time)
+		values (#{id},#{nickName},#{sex},#{avatarUrl},#{token},#{passwd},#{phoneNum},#{openId},#{loginPlatform},now())
 	</insert>
 
 	<update id="updateUser" parameterType="support.base.pojo.vo.SweetUserVo">
@@ -53,8 +53,8 @@
 			<if test="phoneNum != null and phoneNum !=''">
 				and phone_num = #{ phoneNum}
 			</if>
-			<if test="userName != null and userName !=''">
-				and user_name = #{userName}
+			<if test="nickName != null and nickName !=''">
+				and nick_name = #{nickName}
 			</if>
 		</where>
 	</update>
@@ -68,8 +68,8 @@
 			<if test="phoneNum != null and phoneNum !=''">
 				and phone_num = #{phoneNum}
 			</if>
-			<if test="userName != null and userName !=''">
-				and user_name = #{userName}
+			<if test="nickName != null and nickName !=''">
+				and nick_name = #{nickName}
 			</if>
 			<if test="passwd != null and passwd !=''">
 				and passwd = #{passwd}

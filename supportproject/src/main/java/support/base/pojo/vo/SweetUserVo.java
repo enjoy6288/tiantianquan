@@ -1,11 +1,13 @@
 package support.base.pojo.vo;
 
 public class SweetUserVo {
+	//发送短信的方式，区分注册还是修改密码等
+	private String sendMsgType;
 	//原来的头像
 	private String oldAvatarUrl;
 	private String id;
 	private String token;
-	private String userName;
+	private String nickName;
 	private String passwd;
 	private String phoneNum;
     private String openId;
@@ -27,12 +29,12 @@ public class SweetUserVo {
 		this.id = id;
 	}
 
-	public String getUserName() {
-		return userName;
+	public String getNickName() {
+		return nickName;
 	}
 
-	public void setUserName(String userName) {
-		this.userName = userName;
+	public void setNickName(String nickName) {
+		this.nickName = nickName;
 	}
 
 	public String getPasswd() {
@@ -129,6 +131,14 @@ public class SweetUserVo {
 
 	public void setOpenId(String openId) {
 		this.openId = openId;
+	}
+
+	public String getSendMsgType() {
+		return sendMsgType;
+	}
+
+	public void setSendMsgType(String sendMsgType) {
+		this.sendMsgType = sendMsgType;
 	}
 
 }

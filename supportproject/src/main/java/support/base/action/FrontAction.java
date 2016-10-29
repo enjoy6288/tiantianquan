@@ -27,26 +27,30 @@ public class FrontAction {
 	@RequestMapping(value = "/queryNewProducts", method = RequestMethod.POST)
 	public @ResponseBody
 	FrontDataInfo queryNewProducts(FrontQueryVo vo,PhoneParamVo phoneVo) throws Exception{
-		return  frontService.queryNewProducts(vo,phoneVo);
+		vo.setPhoneVo(phoneVo);
+		return  frontService.queryNewProducts(vo);
 	}
 
 	@RequestMapping(value = "/queryTopics", method = RequestMethod.POST)
 	public @ResponseBody
 	FrontDataInfo queryTopics(FrontQueryVo vo,PhoneParamVo phoneVo) throws Exception{
-		return frontService.queryTopics(vo,phoneVo);
+		vo.setPhoneVo(phoneVo);
+		return frontService.queryTopics(vo);
 	}
 
 	@RequestMapping(value = "/queryTopicCollect", method = RequestMethod.POST)
 	public @ResponseBody
 	FrontDataInfo queryTopicCollect(SweetCollectVo vo,PhoneParamVo phoneVo) throws Exception{
+		//vo.setPhoneVo(phoneVo);
 		vo.setScoUserId(phoneVo.getUserId());
-		return frontService.queryTopicCollect(vo,phoneVo);
+		return frontService.queryTopicCollect(vo);
 	}
 
 	@RequestMapping(value = "/queryProductCollect", method = RequestMethod.POST)
 	public @ResponseBody
 	FrontDataInfo queryProductCollect(SweetCollectVo vo,PhoneParamVo phoneVo) throws Exception{
-		return frontService.queryProductCollect(vo,phoneVo);
+		vo.setScoUserId(phoneVo.getUserId());
+		return frontService.queryProductCollect(vo);
 	}
 
 }

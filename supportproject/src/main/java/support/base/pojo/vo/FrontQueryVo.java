@@ -2,9 +2,14 @@ package support.base.pojo.vo;
 
 import java.util.Date;
 
+import support.base.util.Constant;
+import support.base.util.SpringPropertyUtil;
+
 
 
 public class FrontQueryVo {
+	//手机公共参数
+	private PhoneParamVo phoneVo;
 	
 	private String topicId;
 	//查询单品类型 
@@ -20,7 +25,7 @@ public class FrontQueryVo {
 	//起始页
 	private int startPage;
 	//页数
-	private int pageSize=8;
+	private int pageSize=Integer.parseInt(SpringPropertyUtil.getContextProperty(Constant.PAGE_SIZE));
 	
 	
 	public String getTopicId() {
@@ -71,6 +76,12 @@ public class FrontQueryVo {
 	}
 	public void setType(String type) {
 		this.type = type;
+	}
+	public PhoneParamVo getPhoneVo() {
+		return phoneVo;
+	}
+	public void setPhoneVo(PhoneParamVo phoneVo) {
+		this.phoneVo = phoneVo;
 	}
 	
 }
