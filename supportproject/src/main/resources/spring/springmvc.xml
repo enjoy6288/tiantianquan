@@ -47,12 +47,14 @@
 	
 	<mvc:interceptors>
 		<mvc:interceptor> 
-			<mvc:mapping path="/**" /> 
-			<mvc:exclude-mapping path="/js/**" />
-			<mvc:exclude-mapping path="/css/**" />
-			<mvc:exclude-mapping path="/images/**" />
-			<mvc:exclude-mapping path="/styles/**" />
+			<mvc:mapping path="/front/queryTopicCollect*" /> 
+			<mvc:mapping path="/front/queryProductCollect*" /> 
 			<bean class="support.base.interceptor.SessionInterceptor" /> 
+		</mvc:interceptor>
+		
+		<mvc:interceptor> 
+			<mvc:mapping path="/first*" /> 
+			<bean class="support.base.interceptor.BackLoginInterceptor" /> 
 		</mvc:interceptor> 
 	</mvc:interceptors>
 	

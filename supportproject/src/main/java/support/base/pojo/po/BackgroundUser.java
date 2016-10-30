@@ -6,6 +6,8 @@ public class BackgroundUser {
     private String userName;
 
     private String passwd;
+    //验证码
+    private String randomcode;
 
     public String getId() {
         return id;
@@ -30,4 +32,12 @@ public class BackgroundUser {
     public void setPasswd(String passwd) {
         this.passwd = passwd == null ? null : passwd.trim();
     }
+
+	public String getRandomcode() {
+		return randomcode;
+	}
+
+	public void setRandomcode(String randomcode) {
+		this.randomcode = randomcode;
+	}
 }

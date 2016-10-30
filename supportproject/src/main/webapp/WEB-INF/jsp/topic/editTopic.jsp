@@ -35,7 +35,7 @@
 		//修改之前的值
 		var goingTo = '${topic.goingTo}';
 		$('#goingTo option').each(function() {
-			if ($(this).val() == goingTo) {
+			if ($(this).text() == goingTo) {
 				$(this).attr("selected", true);
 			}
 		});
@@ -125,7 +125,6 @@
 									<td class=category width="90%">
 										<div>
 											<select id="goingTo" name="goingTo" onchange="linkDisplay()" style="width: 300px;">
-												<option value="">全部</option>
 												<c:forEach items="${goingTos}" var="value">
 													<option value="${value.goingTo}">${value.name}</option>
 												</c:forEach>
@@ -139,7 +138,7 @@
 									<td class=category width="90%">
 										<div>
 											<input id="linkUrl" name="linkUrl" style="width: 800px;"
-												type="text"/>
+												type="text"s value="${topic.linkUrl}"/>
 										</div>
 									</td>
 								</tr>
