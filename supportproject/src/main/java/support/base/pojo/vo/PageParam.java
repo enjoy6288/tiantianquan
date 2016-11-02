@@ -6,7 +6,7 @@ public class PageParam {
 	//个数
 	public int pageSize=10;
 	public int getStartPage() {
-		return startPage;
+		return startPage*pageSize;
 	}
 	public void setStartPage(int startPage) {
 		this.startPage = startPage;

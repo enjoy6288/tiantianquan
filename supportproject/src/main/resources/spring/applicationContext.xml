@@ -1,7 +1,6 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:task="http://www.springframework.org/schema/task"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"
-	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:task="http://www.springframework.org/schema/task" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:context="http://www.springframework.org/schema/context"
 	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans 
 		http://www.springframework.org/schema/beans/spring-beans-3.1.xsd 
@@ -32,17 +31,26 @@
 		</property>
 	</bean>
 
+
 	<!-- 数据库连接池 -->
-	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
+		destroy-method="close">
 		<property name="driverClassName" value="${jdbc.driver}" />
 		<property name="url" value="${jdbc.url}" />
 		<property name="username" value="${jdbc.username}" />
 		<property name="password" value="${jdbc.password}" />
 		<!-- 开发阶段建议最大连接数据尽量少，够用即可 -->
-		<!-- <property name="initialSize" value="${jdbc.initialSize}" />
-		<property name="minIdle" value="${jdbc.minIdle}" />-->
-		<property name="maxIdle" value="${jdbc.maxIdle}" /> 
+		<property name="initialSize" value="${jdbc.initialSize}" />
 		<property name="maxActive" value="${jdbc.maxActive}" />
+		<property name="maxIdle" value="${jdbc.maxIdle}" />
+		<property name="minIdle" value="${jdbc.minIdle}" />
+		<property name="maxWait" value="${jdbc.maxWait}" />
+		<property name="testOnBorrow">
+			<value>true</value>
+		</property>
+		<property name="validationQuery">
+			<value>SELECT 1 FROM DUAL</value>
+		</property>
 	</bean>
 	<!-- 事务管理器 -->
 	<bean id="transactionManager"
@@ -73,5 +81,5 @@
 		<aop:advisor advice-ref="txAdvice"
 			pointcut="execution(* support.*.service.impl.*.*(..))" />
 	</aop:config>
-	
+
 </beans>

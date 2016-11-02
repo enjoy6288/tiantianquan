@@ -52,10 +52,10 @@
 			<bean class="support.base.interceptor.SessionInterceptor" /> 
 		</mvc:interceptor>
 		
-		<mvc:interceptor> 
+		<!-- <mvc:interceptor> 
 			<mvc:mapping path="/first*" /> 
 			<bean class="support.base.interceptor.BackLoginInterceptor" /> 
-		</mvc:interceptor> 
+		</mvc:interceptor>  -->
 	</mvc:interceptors>
 	
 	<!-- 视图解析器 -->

@@ -34,6 +34,8 @@
 	
 	function linkDisplay() {
 		var value = $('#goingTo option:selected').html()
+		var linkValue = $('#goingTo option:selected').attr("defaultLink");
+		$('#linkUrl').val(linkValue);
 		if (value == '网页'||value == '主题内页') {
 			$('#trLinkUrl').show();
 		} else {
@@ -119,7 +121,7 @@
 										<div>
 											<select id="goingTo" name="goingTo" onchange="linkDisplay()" style="width: 300px;">
 												<c:forEach items="${goingTos}" var="value">
-													<option value="${value.goingTo}">${value.name}</option>
+													<option value="${value.name}"  defaultLink="${value.goingTo}">${value.name}</option>
 												</c:forEach>
 											</select>
 										</div>

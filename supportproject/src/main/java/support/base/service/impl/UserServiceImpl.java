@@ -257,10 +257,10 @@ public class UserServiceImpl implements UserService {
 		List<SweetCollect> scs = new ArrayList<>();
 		RedisUtil redisUtil = new RedisUtil();
 		Jedis jedis = redisUtil.getJedis();
-		Set<String> keys = jedis.keys("collecting*");
-		String[] arrayKeys = keys.toArray(new String[keys.size()]);
-		if (arrayKeys.length > 0) {
-			Set<String> values = jedis.sunion(arrayKeys);
+		Set<String> collecting = jedis.keys("collecting*");
+		String[] collectingKeys = collecting.toArray(new String[collecting.size()]);
+		if (collectingKeys.length > 0) {
+			Set<String> values = jedis.sunion(collectingKeys);
 			SweetCollect sc = null;
 			for (String value : values) {
 				String[] split = value.split(":");
@@ -272,7 +272,15 @@ public class UserServiceImpl implements UserService {
 				jedis.incr("incr:" + split[2] + ":" + split[1]);
 			}
 			if (scs.size() > 0) {
-				jedis.del(arrayKeys);
+				//删除收藏中的信息
+				jedis.del(collectingKeys);
+				//删除用户收藏缓存信息
+				Set<String> dbuc = jedis.keys("dbuc*");
+				String[] dbucKeys = dbuc.toArray(new String[dbuc.size()]);
+				if (dbucKeys.length > 0) {
+					jedis.del(dbucKeys);
+				}
+				//更新数据库
 				userMapper.saveCollect(scs);
 			}
 		}
