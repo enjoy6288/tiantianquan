@@ -1,20 +1,15 @@
 package support.base.interceptor;
 
-import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
-import org.springframework.web.util.WebUtils;
 
-import redis.clients.jedis.Jedis;
-import support.base.util.CommonUse;
 import support.base.util.RedisUtil;
 
 @Repository
@@ -25,13 +20,10 @@ public class SessionInterceptor extends HandlerInterceptorAdapter {
 		String path = request.getRequestURI();
 		String clientToken = request.getParameter("token");
 		// 获取redis里面的token
-		RedisUtil redisUtil = new RedisUtil();
-		Jedis jedis = redisUtil.getJedis();
-		String serverToken = jedis.get("token:" + clientToken);
+		String serverToken = RedisUtil.get("token:" + clientToken);
 		if(StringUtils.isNotEmpty(clientToken)&&StringUtils.isEmpty(serverToken)){
-			jedis.set("token:" + clientToken, clientToken);
+			RedisUtil.set("token:" + clientToken, clientToken);
 		}
-		redisUtil.closeRedis();
 		if (StringUtils.isEmpty(clientToken)) {
 			boolean loginFlag = path.contains("queryTopicCollect") || path.contains("queryProductCollect");
 			if (loginFlag) {

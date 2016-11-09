@@ -172,14 +172,11 @@ public class ProductAction {
 
 		productService.saveProduct(vo, img);
 
-		RedisUtil redisUtil = new RedisUtil();
-		Jedis jedis = redisUtil.getJedis();
-		Set<String> keys = jedis.keys("*product*");
-		String[] arrayKeys = keys.toArray(new String[keys.size()]);
-		if (arrayKeys.length > 0) {
-			jedis.del(arrayKeys);
-		}
-		redisUtil.closeRedis();
+//		Set<String> keys = RedisUtil.keys("*product*");
+//		String[] arrayKeys = keys.toArray(new String[keys.size()]);
+//		if (arrayKeys.length > 0) {
+//			RedisUtil.del(arrayKeys);
+//		}
 
 		return ResultUtil.createSubmitResult(ResultUtil.createSuccess(Config.MESSAGE, 201, null));
 	}
@@ -249,17 +246,14 @@ public class ProductAction {
 			}
 			product.setImg(CommonUtil.upload(img, Constant.PRODUCT));
 		}
-		product.setLinkUrl(vo.getGoingTo()+vo.getLinkUrl());
+		product.setLinkUrl(vo.getLinkUrl());
 		productService.updateProduct(product);
 
-		RedisUtil redisUtil = new RedisUtil();
-		Jedis jedis = redisUtil.getJedis();
-		Set<String> keys = jedis.keys("*product*");
-		String[] arrayKeys = keys.toArray(new String[keys.size()]);
-		if (arrayKeys.length > 0) {
-			jedis.del(arrayKeys);
-		}
-		redisUtil.closeRedis();
+//		Set<String> keys = RedisUtil.keys("*product*");
+//		String[] arrayKeys = keys.toArray(new String[keys.size()]);
+//		if (arrayKeys.length > 0) {
+//			RedisUtil.del(arrayKeys);
+//		}
 
 		return ResultUtil.createSubmitResult(ResultUtil.createSuccess(Config.MESSAGE, 201, null));
 	}

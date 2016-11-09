@@ -57,7 +57,7 @@ public class ProductServiceImpl implements ProductService {
 		}
 		product.setImg(CommonUtil.upload(img, Constant.PRODUCT));
 		CommonUtil.VoToPo(vo, product);
-		product.setLinkUrl(vo.getGoingTo()+vo.getLinkUrl());
+		product.setLinkUrl(vo.getLinkUrl());
 		product.setId(CommonUtil.generateId());
 		return productMapper.saveProduct(product);
 	}

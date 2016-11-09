@@ -41,7 +41,7 @@ public class TopicServiceImpl implements TopicService {
 		Topic topic = new Topic();
 		CommonUtil.VoToPo(vo, topic);
 		topic.setId(CommonUtil.generateId());
-		topic.setLinkUrl(vo.getGoingTo()+vo.getLinkUrl());
+		topic.setLinkUrl(vo.getLinkUrl());
 		// 外部banner
 		if (out != null) {
 			topic.setBannerOutterimg(CommonUtil.upload(out,Constant.TOPIC));

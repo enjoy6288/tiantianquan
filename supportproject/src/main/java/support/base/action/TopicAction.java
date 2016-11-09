@@ -89,14 +89,11 @@ public class TopicAction {
 		topicService.saveTopic(vo, out, inner);
 
 		// 删除redis缓存
-		RedisUtil redisUtil = new RedisUtil();
-		Jedis jedis = redisUtil.getJedis();
-		Set<String> keys = jedis.keys("*topic*");
-		String[] arrayKeys = keys.toArray(new String[keys.size()]);
-		if (arrayKeys.length > 0) {
-			jedis.del(arrayKeys);
-		}
-		redisUtil.closeRedis();
+//		Set<String> keys = RedisUtil.keys("*topic*");
+//		String[] arrayKeys = keys.toArray(new String[keys.size()]);
+//		if (arrayKeys.length > 0) {
+//			RedisUtil.del(arrayKeys);
+//		}
 
 		return ResultUtil.createSubmitResult(ResultUtil.createSuccess(Config.MESSAGE, 201, null));
 	}
@@ -153,17 +150,14 @@ public class TopicAction {
 			}
 			topic.setBannerInnerimg(CommonUtil.upload(inner, Constant.TOPIC));
 		}
-		topic.setLinkUrl(vo.getGoingTo()+vo.getLinkUrl());
+		topic.setLinkUrl(vo.getLinkUrl());
 		topicService.updateTopic(topic);
 		// 删除redis缓存
-		RedisUtil redisUtil = new RedisUtil();
-		Jedis jedis = redisUtil.getJedis();
-		Set<String> keys = jedis.keys("*topic*");
-		String[] arrayKeys = keys.toArray(new String[keys.size()]);
-		if (arrayKeys.length > 0) {
-			jedis.del(arrayKeys);
-		}
-		redisUtil.closeRedis();
+//		Set<String> keys = RedisUtil.keys("*topic*");
+//		String[] arrayKeys = keys.toArray(new String[keys.size()]);
+//		if (arrayKeys.length > 0) {
+//			RedisUtil.del(arrayKeys);
+//		}
 
 		return ResultUtil.createSubmitResult(ResultUtil.createSuccess(Config.MESSAGE, 201, null));
 	}

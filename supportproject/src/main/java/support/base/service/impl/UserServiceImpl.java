@@ -22,7 +22,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.alibaba.fastjson.JSONObject;
 
-import redis.clients.jedis.Jedis;
 import support.base.dao.mapper.FrontMapper;
 import support.base.dao.mapper.ProductMapper;
 import support.base.dao.mapper.StatisticsMapper;
@@ -33,15 +32,12 @@ import support.base.pojo.po.SweetCollect;
 import support.base.pojo.po.SweetStatistics;
 import support.base.pojo.po.SweetUser;
 import support.base.pojo.po.Topic;
-import support.base.pojo.vo.PhoneParamVo;
 import support.base.pojo.vo.SweetCollectVo;
 import support.base.pojo.vo.SweetUserVo;
 import support.base.process.context.Config;
 import support.base.process.result.ResultInfo;
 import support.base.process.result.ResultUtil;
 import support.base.service.UserService;
-import support.base.util.CollectCache;
-import support.base.util.CommonUse;
 import support.base.util.CommonUtil;
 import support.base.util.Constant;
 import support.base.util.RedisUtil;
@@ -76,10 +72,7 @@ public class UserServiceImpl implements UserService {
 			sweetUser.setToken(token);
 			userMap.put("user", sweetUser);
 			jsonObject.put("data", userMap);
-			RedisUtil redisUtil = new RedisUtil();
-			Jedis jedis = redisUtil.getJedis();
-			jedis.set("token:" + token, token);
-			redisUtil.closeRedis();
+			RedisUtil.set("token:" + token, token);
 			userMapper.saveUser(sweetUser);
 		} else {
 			// 如果用户有更新第三方帐号信息同时更新
@@ -92,10 +85,7 @@ public class UserServiceImpl implements UserService {
 			userMap.put("user", sweetUser);
 			jsonObject.put("data", userMap);
 			String token = sweetUser.getToken();
-			RedisUtil redisUtil = new RedisUtil();
-			Jedis jedis = redisUtil.getJedis();
-			jedis.set("token:" + token, token);
-			redisUtil.closeRedis();
+			RedisUtil.set("token:" + token, token);
 		}
 		return jsonObject;
 	}
@@ -128,10 +118,9 @@ public class UserServiceImpl implements UserService {
 			user.setToken(token);
 			userMap.put("user", user);
 			jsonObject.put("data", userMap);
-			RedisUtil redisUtil = new RedisUtil();
-			Jedis jedis = redisUtil.getJedis();
-			jedis.set("token:" + token, token);
-			redisUtil.closeRedis();
+			
+			RedisUtil.set("token:" + token, token);
+			
 		} else {// 用户或密码不正确
 			jsonObject = ResultUtil.createJSONPObject(Config.MESSAGE, 306, ResultInfo.TYPE_RESULT_FAIL);
 		}
@@ -140,13 +129,10 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public JSONObject loginOut(SweetUserVo vo) {
-		RedisUtil redisUtil = new RedisUtil();
-		Jedis jedis = redisUtil.getJedis();
 		String token = vo.getToken();
 		if (!StringUtils.isEmpty(token)) {
-			jedis.del("token:" + token);
+			RedisUtil.del("token:" + token);
 		}
-		redisUtil.closeRedis();
 		return ResultUtil.createJSONPObject(Config.MESSAGE, 201, ResultInfo.TYPE_RESULT_SUCCESS);
 	}
 
@@ -179,10 +165,7 @@ public class UserServiceImpl implements UserService {
 		String phoneCode = (new Random().nextInt(9999) + 1000) + "";
 		String msg = "同事您好，感谢您对此次测试的配合。[" + phoneCode + "]";
 		CommonUtil.sendMsg(phoneNum, msg);
-		RedisUtil redisUtil = new RedisUtil();
-		Jedis jedis = redisUtil.getJedis();
-		jedis.setex("phoneCode:" + phoneNum, 300, phoneCode);
-		redisUtil.closeRedis();
+		RedisUtil.setKeyWithExpire("phoneCode:" + phoneNum, 300, phoneCode);
 		return ResultUtil.createJSONPObject(Config.MESSAGE, 201, ResultInfo.TYPE_RESULT_SUCCESS);
 	}
 
@@ -191,10 +174,7 @@ public class UserServiceImpl implements UserService {
 		String phoneNum = vo.getPhoneNum();
 		String phoneCode = vo.getPhoneCode();
 		if (!StringUtils.isEmpty(phoneNum)) {
-			RedisUtil redisUtil = new RedisUtil();
-			Jedis jedis = redisUtil.getJedis();
-			String serverPhoneCode = jedis.get("phoneCode:" + phoneNum);
-			redisUtil.closeRedis();
+			String serverPhoneCode = RedisUtil.get("phoneCode:" + phoneNum);
 			if (phoneCode.equals(serverPhoneCode)) {
 				return ResultUtil.createJSONPObject(Config.MESSAGE, 201, ResultInfo.TYPE_RESULT_SUCCESS);
 			} else {// 验证码有误
@@ -225,42 +205,37 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public JSONObject collect(SweetCollectVo vo) {
-		RedisUtil redisUtil = new RedisUtil();
-		Jedis jedis = redisUtil.getJedis();
 		String userId = vo.getScoUserId();
 		String value = userId + ":" + vo.getScoCollectId() + ":" + vo.getScoCollectType();
 		// 先查数据库是否收藏有
-		Set<String> partCid = jedis.smembers("uc:" + userId);
+		Set<String> partCid = RedisUtil.smembers("uc:" + userId);
 		if (partCid == null || partCid.size() == 0) {
 			List<SweetCollect> collects = frontMapper.queryCollect(vo);
 			for (SweetCollect sweetCollect : collects) {
-				jedis.sadd("uc:" + userId, sweetCollect.getScoCollectId());
+				RedisUtil.sadd("uc:" + userId, sweetCollect.getScoCollectId());
 			}
 		}
-		boolean dbExist = jedis.sismember("uc:" + userId, vo.getScoCollectId());
+		boolean dbExist = RedisUtil.sismember("uc:" + userId, vo.getScoCollectId());
 		if (dbExist) {
 			return ResultUtil.createJSONPObject(Config.MESSAGE, 201, ResultInfo.TYPE_RESULT_SUCCESS);
 		}
 		// 再查当前收藏是否有
-		boolean redisExist = jedis.sismember("collecting:" + userId + ":" + vo.getScoCollectType(), value);
+		boolean redisExist = RedisUtil.sismember("collecting:" + userId + ":" + vo.getScoCollectType(), value);
 		if (redisExist) {
-			jedis.srem("collecting:" + userId + ":" + vo.getScoCollectType(), value);
+			RedisUtil.srem("collecting:" + userId + ":" + vo.getScoCollectType(), value);
 		} else {
-			jedis.sadd("collecting:" + userId + ":" + vo.getScoCollectType(), value);
+			RedisUtil.sadd("collecting:" + userId + ":" + vo.getScoCollectType(), value);
 		}
-		redisUtil.closeRedis();
 		return ResultUtil.createJSONPObject(Config.MESSAGE, 201, ResultInfo.TYPE_RESULT_SUCCESS);
 	}
 
 	@Override
 	public void saveCollect() {
 		List<SweetCollect> scs = new ArrayList<>();
-		RedisUtil redisUtil = new RedisUtil();
-		Jedis jedis = redisUtil.getJedis();
-		Set<String> collecting = jedis.keys("collecting*");
+		Set<String> collecting = RedisUtil.keys("collecting*");
 		String[] collectingKeys = collecting.toArray(new String[collecting.size()]);
 		if (collectingKeys.length > 0) {
-			Set<String> values = jedis.sunion(collectingKeys);
+			Set<String> values = RedisUtil.sunion(collectingKeys);
 			SweetCollect sc = null;
 			for (String value : values) {
 				String[] split = value.split(":");
@@ -269,22 +244,21 @@ public class UserServiceImpl implements UserService {
 				sc.setScoCollectId(split[1]);
 				sc.setScoCollectType(new Integer(split[2]));
 				scs.add(sc);
-				jedis.incr("incr:" + split[2] + ":" + split[1]);
+				RedisUtil.incr("incr:" + split[2] + ":" + split[1]);
 			}
 			if (scs.size() > 0) {
 				//删除收藏中的信息
-				jedis.del(collectingKeys);
+				RedisUtil.del(collectingKeys);
 				//删除用户收藏缓存信息
-				Set<String> dbuc = jedis.keys("dbuc*");
+				Set<String> dbuc = RedisUtil.keys("dbuc*");
 				String[] dbucKeys = dbuc.toArray(new String[dbuc.size()]);
 				if (dbucKeys.length > 0) {
-					jedis.del(dbucKeys);
+					RedisUtil.del(dbucKeys);
 				}
 				//更新数据库
 				userMapper.saveCollect(scs);
 			}
 		}
-		redisUtil.closeRedis();
 	}
 
 	@Override
@@ -341,40 +315,33 @@ public class UserServiceImpl implements UserService {
 			ids = Arrays.asList(idString);
 		}
 		String userId = vo.getScoUserId();
-		RedisUtil redisUtil = new RedisUtil();
-		Jedis jedis = redisUtil.getJedis();
-		jedis.del("uc:" + userId);
+		RedisUtil.del("uc:" + userId);
 		userMapper.delCollect(ids);
 		return ResultUtil.createJSONPObject(Config.MESSAGE, 201, ResultInfo.TYPE_RESULT_SUCCESS);
 	}
 
 	@Override
 	public void delCache() {
-		RedisUtil redisUtil = new RedisUtil();
-		Jedis jedis = redisUtil.getJedis();
-		Set<String> keys = jedis.keys("*topic*");
+		Set<String> keys = RedisUtil.keys("*topic*");
 		String[] arrayKeys = keys.toArray(new String[keys.size()]);
 		if (arrayKeys.length > 0) {
-			jedis.del(arrayKeys);
+			RedisUtil.del(arrayKeys);
 		}
 
-		keys = jedis.keys("*product*");
+		keys = RedisUtil.keys("*product*");
 		arrayKeys = keys.toArray(new String[keys.size()]);
 		if (arrayKeys.length > 0) {
-			jedis.del(arrayKeys);
+			RedisUtil.del(arrayKeys);
 		}
-		redisUtil.closeRedis();
 	}
 
 	@Override
 	public void updateCollectNum() {
-		RedisUtil redisUtil = new RedisUtil();
-		Jedis jedis = redisUtil.getJedis();
-		Set<String> keys = jedis.keys("incr:" + Constant.TOPIC_TYPE + "*");
+		Set<String> keys = RedisUtil.keys("incr:" + Constant.TOPIC_TYPE + "*");
 		List<Topic> topics = new ArrayList<>();
 		for (String key : keys) {
 			Topic topic = new Topic();
-			String num = jedis.get(key);
+			String num = RedisUtil.get(key);
 			key = key.substring(key.lastIndexOf(":") + 1);
 			topic.setId(key);
 			topic.setCollectActually(Long.parseLong(num));
@@ -385,11 +352,11 @@ public class UserServiceImpl implements UserService {
 			topicMapper.changeTopicCollects(topics);
 		}
 
-		keys = jedis.keys("incr:" + Constant.PRODUCT_TYPE + "*");
+		keys = RedisUtil.keys("incr:" + Constant.PRODUCT_TYPE + "*");
 		List<Product> products = new ArrayList<>();
 		for (String key : keys) {
 			Product product = new Product();
-			String num = jedis.get(key);
+			String num = RedisUtil.get(key);
 			key = key.substring(key.lastIndexOf(":") + 1);
 			product.setId(key);
 			product.setCollectActually(Long.parseLong(num));
@@ -400,53 +367,51 @@ public class UserServiceImpl implements UserService {
 			productMapper.changeProductsCollects(products);
 		}
 
-		keys = jedis.keys("incr*");
+		keys = RedisUtil.keys("incr*");
 		String[] arrayKeys = keys.toArray(new String[keys.size()]);
 		if (arrayKeys.length > 0) {
-			jedis.del(arrayKeys);
+			RedisUtil.del(arrayKeys);
 		}
 
 	}
 
 	@Override
 	public void statistics() {
-		RedisUtil redisUtil = new RedisUtil();
-		Jedis jedis = redisUtil.getJedis();
 		// 主页总浏览量
-		String homePv = jedis.get("home:pv");
+		String homePv = RedisUtil.get("home:pv");
 		// 主页独立访客
-		Long homeUv = jedis.scard("home:uv");
-		Set<String> smembers = jedis.smembers("home:uv");
+		Long homeUv = RedisUtil.scard("home:uv");
+		Set<String> smembers = RedisUtil.smembers("home:uv");
 		SweetStatistics statistics = new SweetStatistics();
 		statistics.setId(CommonUtil.generateId());
 		statistics.setType(0);
 		statistics.setPv(homePv);
 		statistics.setUv(homeUv + "");
 		statisticsMapper.saveStatistics(statistics);
-		jedis.del("home:pv");
-		jedis.del("home:uv");
+		RedisUtil.del("home:pv");
+		RedisUtil.del("home:uv");
 
 		// 专题总浏览量
-		String subjectPv = jedis.get("subject:pv");
+		String subjectPv = RedisUtil.get("subject:pv");
 		// 专题独立访客
-		Long subjectUv = jedis.scard("subject:uv");
+		Long subjectUv = RedisUtil.scard("subject:uv");
 		statistics = new SweetStatistics();
 		statistics.setId(CommonUtil.generateId());
 		statistics.setType(1);
 		statistics.setPv(subjectPv);
 		statistics.setUv(subjectUv + "");
 		statisticsMapper.saveStatistics(statistics);
-		jedis.del("subject:pv");
-		jedis.del("subject:uv");
+		RedisUtil.del("subject:pv");
+		RedisUtil.del("subject:uv");
 
 		// 单个专题浏览量
-		Set<String> pvKeys = jedis.keys("subject:pv:*");
+		Set<String> pvKeys = RedisUtil.keys("subject:pv:*");
 		// 单个专题独立访客
-		Set<String> uvKeys = jedis.keys("subject:uv:*");
+		Set<String> uvKeys = RedisUtil.keys("subject:uv:*");
 		List<Topic> topics = new ArrayList<>();
 		Map<String, Topic> topicMap = new HashMap<>();
 		for (String key : pvKeys) {
-			String singleSubjectPv = jedis.get(key);
+			String singleSubjectPv = RedisUtil.get(key);
 			key = key.substring(11);
 			Topic topic = new Topic();
 			topic.setId(key);
@@ -454,7 +419,7 @@ public class UserServiceImpl implements UserService {
 			topicMap.put(key, topic);
 		}
 		for (String key : uvKeys) {
-			long singleSubjectUv = jedis.scard(key);
+			long singleSubjectUv = RedisUtil.scard(key);
 			key = key.substring(11);
 			Topic topic = topicMap.get(key);
 			topic.setUv(singleSubjectUv);
@@ -468,12 +433,12 @@ public class UserServiceImpl implements UserService {
 
 		String[] arrayKeys = pvKeys.toArray(new String[pvKeys.size()]);
 		if (arrayKeys.length > 0) {
-			jedis.del(arrayKeys);
+			RedisUtil.del(arrayKeys);
 		}
 
 		arrayKeys = uvKeys.toArray(new String[uvKeys.size()]);
 		if (arrayKeys.length > 0) {
-			jedis.del(arrayKeys);
+			RedisUtil.del(arrayKeys);
 		}
 
 	}

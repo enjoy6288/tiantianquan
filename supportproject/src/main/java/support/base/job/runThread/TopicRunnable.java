@@ -4,11 +4,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-import redis.clients.jedis.Jedis;
 import support.base.pojo.po.Topic;
 import support.base.pojo.vo.TopicVo;
 import support.base.service.TopicService;
-import support.base.util.RedisUtil;
 
 public class TopicRunnable implements Runnable {
 	private TopicService topicService;
@@ -25,8 +23,6 @@ public class TopicRunnable implements Runnable {
 		Date now=new Date();
 		vo.setShelvesTime(format.format(now));
 		List<Topic> topics = topicService.queryTopics(vo);
-		RedisUtil redisUtil = new RedisUtil();
-		Jedis jedis = redisUtil.getJedis();
 		for (Topic topic : topics) {
 			//已上线
 			topic.setStatus(1);

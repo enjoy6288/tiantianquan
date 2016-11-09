@@ -24,7 +24,6 @@ import support.base.pojo.po.FrontProduct;
 import support.base.pojo.po.FrontTopic;
 import support.base.pojo.po.SweetCollect;
 import support.base.pojo.vo.FrontQueryVo;
-import support.base.pojo.vo.PageQuery;
 import support.base.pojo.vo.PhoneParamVo;
 import support.base.pojo.vo.SweetCollectVo;
 import support.base.process.result.FrontDataInfo;
@@ -43,13 +42,10 @@ public class FrontServiceImpl implements FrontService {
 	public FrontDataInfo queryNewProducts(FrontQueryVo vo) {
 		// 商品总浏览量与商品独立访客
 		PhoneParamVo phoneVo = vo.getPhoneVo();
-		RedisUtil redisUtil = new RedisUtil();
-		Jedis jedis = redisUtil.getJedis();
-		jedis.incr("home:pv");
+		RedisUtil.incr("home:pv");
 		if (!StringUtils.isEmpty(phoneVo.getImei())) {
-			jedis.sadd("home:uv", phoneVo.getImei());
+			RedisUtil.sadd("home:uv", phoneVo.getImei());
 		}
-		redisUtil.closeRedis();
 
 		FrontDataInfo info = new FrontDataInfo();
 		// 设置查询单品
@@ -74,6 +70,14 @@ public class FrontServiceImpl implements FrontService {
 
 	@Override
 	public FrontDataInfo queryTopics(FrontQueryVo vo) {
+		PhoneParamVo phoneVo = vo.getPhoneVo();
+		// 专题总浏览量
+		RedisUtil.incr("subject:pv");
+		// 主题独立访客
+		if (!StringUtils.isEmpty(phoneVo.getImei())) {
+			RedisUtil.sadd("subject:uv", phoneVo.getImei());
+		}
+
 		FrontDataInfo info = new FrontDataInfo();
 		Map data = new HashMap<String, List<Object>>();
 		// 以startpage作为是否是专题列表分页 不查询专题banner和推荐专题
@@ -97,17 +101,15 @@ public class FrontServiceImpl implements FrontService {
 	// 查询当天的
 	private void queryToday(FrontQueryVo vo, FrontDataInfo info, Set<String> collectId) {
 		Map data = new HashMap<String, List<Object>>();
-		RedisUtil redisUtil = new RedisUtil();
-		Jedis jedis = redisUtil.getJedis();
 		List<FrontProduct> todayProducts = null;
-		String productsJson = jedis.get("product:today");
+		String productsJson = RedisUtil.get("product:today");
 		if (StringUtils.isEmpty(productsJson)) {
 			Date nowTime = new Date();
 			vo.setBeginTime(nowTime);
 			vo.setEndTime(nowTime);
 			todayProducts = frontMapper.queryNewProducts(vo);
 			productsJson = JSONObject.toJSONString(todayProducts);
-			jedis.set("product:today", productsJson);
+			RedisUtil.set("product:today", productsJson);
 		} else {
 			todayProducts = JSONObject.parseArray(productsJson, FrontProduct.class);
 		}
@@ -129,9 +131,7 @@ public class FrontServiceImpl implements FrontService {
 		Map data = new HashMap<String, List<Object>>();
 		List<FrontProduct> moreProducts = null;
 
-		RedisUtil redisUtil = new RedisUtil();
-		Jedis jedis = redisUtil.getJedis();
-		String productsJson = jedis.get("product:more:" + vo.getStartPage());
+		String productsJson = RedisUtil.get("product:more:" + vo.getStartPage());
 		if (StringUtils.isEmpty(productsJson)) {
 			Calendar cl = Calendar.getInstance();
 			cl.add(Calendar.MONTH, -1);
@@ -141,7 +141,7 @@ public class FrontServiceImpl implements FrontService {
 			moreProducts = frontMapper.queryNewProducts(vo);
 			if (moreProducts != null && moreProducts.size() > 0) {
 				productsJson = JSONObject.toJSONString(moreProducts);
-				jedis.set("product:more:" + vo.getStartPage(), productsJson);
+				RedisUtil.set("product:more:" + vo.getStartPage(), productsJson);
 			}
 		} else {
 			moreProducts = JSONObject.parseArray(productsJson, FrontProduct.class);
@@ -186,32 +186,35 @@ public class FrontServiceImpl implements FrontService {
 	private void queryTopicProducts(FrontQueryVo vo, FrontDataInfo info, Set<String> collectId) {
 		Map data = new HashMap<String, List<Object>>();
 		String topicId = vo.getTopicId();
-		RedisUtil redisUtil = new RedisUtil();
-		Jedis jedis = redisUtil.getJedis();
-
+		PhoneParamVo phoneVo = vo.getPhoneVo();
+		// 单个专题浏览量
+		RedisUtil.incr("subject:pv:" + topicId);
+		// 单个主题独立访客
+		if (!StringUtils.isEmpty(phoneVo.getImei())) {
+			RedisUtil.sadd("subject:uv:" + topicId, phoneVo.getImei());
+		}
 		FrontTopic topic = null;
 		vo.setType(Constant.TOPIC_TYPE);
-		String topicJson = jedis.get("topic:" + topicId);
+		String topicJson = RedisUtil.get("topic:" + topicId);
 		if (StringUtils.isEmpty(topicJson)) {
 			List<FrontTopic> topList = frontMapper.queryTopics(vo);
 			topic = topList.get(0);
 			topicJson = JSONObject.toJSONString(topic);
-			jedis.set("topic:" + topicId, topicJson);
+			RedisUtil.set("topic:" + topicId, topicJson);
 		} else {
 			topic = JSONObject.parseObject(topicJson, FrontTopic.class);
 		}
 		// 根据主题的ID查询该主题的商品
 		List<FrontProduct> topicProducts = null;
-		String productsJson = jedis.get("topic:" + topicId + ":product:" + vo.getStartPage());
+		String productsJson = RedisUtil.get("topic:" + topicId + ":product:" + vo.getStartPage());
 		if (StringUtils.isEmpty(productsJson)) {
 			topicProducts = frontMapper.queryNewProducts(vo);
 			if (topicProducts != null && topicProducts.size() > 0) {
 				productsJson = JSONObject.toJSONString(topicProducts);
-				jedis.set("topic:" + topicId + ":product:" + vo.getStartPage(), productsJson);
+				RedisUtil.set("topic:" + topicId + ":product:" + vo.getStartPage(), productsJson);
 			}
 		}
 		topicProducts = JSONObject.parseArray(productsJson, FrontProduct.class);
-		redisUtil.closeRedis();
 
 		Map<Long, List<FrontProduct>> groupMap = new HashMap<>();
 		for (FrontProduct product : topicProducts) {
@@ -253,14 +256,12 @@ public class FrontServiceImpl implements FrontService {
 	private void queryTopList(FrontQueryVo vo, Map data) {
 		vo.setDispalyPosition("轮播banner");
 		// 待设置vo.setPageSize(pageSize);
-		RedisUtil redisUtil = new RedisUtil();
-		Jedis jedis = redisUtil.getJedis();
-		String topListJson = jedis.get("topList:topic");
+		String topListJson = RedisUtil.get("topList:topic");
 		List<FrontTopic> topList = new ArrayList<>();
 		if (StringUtils.isEmpty(topListJson)) {
 			topList = frontMapper.queryTopics(vo);
 			topListJson = JSONObject.toJSONString(topList);
-			jedis.set("topList:topic", topListJson);
+			RedisUtil.set("topList:topic", topListJson);
 		} else {
 			topList = JSONObject.parseArray(topListJson, FrontTopic.class);
 		}
@@ -270,14 +271,12 @@ public class FrontServiceImpl implements FrontService {
 	private void queryMiddleList(FrontQueryVo vo, Map data) {
 		vo.setDispalyPosition("推荐专题");
 		// 待设置vo.setPageSize(pageSize);
-		RedisUtil redisUtil = new RedisUtil();
-		Jedis jedis = redisUtil.getJedis();
-		String middleListJson = jedis.get("middleList:topic");
+		String middleListJson = RedisUtil.get("middleList:topic");
 		List<FrontTopic> middleList = new ArrayList<>();
 		if (StringUtils.isEmpty(middleListJson)) {
 			middleList = frontMapper.queryTopics(vo);
 			middleListJson = JSONObject.toJSONString(middleList);
-			jedis.set("middleList:topic", middleListJson);
+			RedisUtil.set("middleList:topic", middleListJson);
 		} else {
 			middleList = JSONObject.parseArray(middleListJson, FrontTopic.class);
 		}
@@ -285,10 +284,8 @@ public class FrontServiceImpl implements FrontService {
 	}
 
 	private List<FrontTopic> queryBottomList(FrontQueryVo vo, Map data) {
-		RedisUtil redisUtil = new RedisUtil();
-		Jedis jedis = redisUtil.getJedis();
 
-		String bottomListJson = jedis.get("bottomList:topic:" + vo.getStartPage());
+		String bottomListJson = RedisUtil.get("bottomList:topic:" + vo.getStartPage());
 		List<FrontTopic> bottomList = new ArrayList<>();
 		if (StringUtils.isEmpty(bottomListJson)) {
 			vo.setDispalyPosition("专题列表");
@@ -302,19 +299,18 @@ public class FrontServiceImpl implements FrontService {
 			bottomList = frontMapper.queryTopics(vo);
 			if (bottomList != null && bottomList.size() > 0) {
 				bottomListJson = JSONObject.toJSONString(bottomList);
-				jedis.set("bottomList:topic:" + vo.getStartPage(), bottomListJson);
+				RedisUtil.set("bottomList:topic:" + vo.getStartPage(), bottomListJson);
 			}
 		} else {
 			bottomList = JSONObject.parseArray(bottomListJson, FrontTopic.class);
 		}
-		redisUtil.closeRedis();
 
 		// 获取用户收藏的ID
 		Set<String> collectId = getUserCollectId(vo, Constant.TOPIC_TYPE);
 		for (FrontTopic topic : bottomList) {
 			// 实时更新收藏数量
 			String id = topic.getId();
-			String num = jedis.get("incr:" + Constant.TOPIC_TYPE + ":" + id);
+			String num = RedisUtil.get("incr:" + Constant.TOPIC_TYPE + ":" + id);
 			if (!StringUtils.isEmpty(num)) {
 				long collect = topic.getCollect();
 				collect = collect + Long.parseLong(num);
@@ -335,9 +331,7 @@ public class FrontServiceImpl implements FrontService {
 
 		// 先把收藏的内容保存到数据库
 		List<SweetCollect> scs = new ArrayList<>();
-		RedisUtil redisUtil = new RedisUtil();
-		Jedis jedis = redisUtil.getJedis();
-		Set<String> values = jedis.smembers("collecting:" + userId + ":" + Constant.TOPIC_TYPE);
+		Set<String> values = RedisUtil.smembers("collecting:" + userId + ":" + Constant.TOPIC_TYPE);
 		SweetCollect sc = null;
 		for (String value : values) {
 			String[] split = value.split(":");
@@ -346,32 +340,31 @@ public class FrontServiceImpl implements FrontService {
 			sc.setScoCollectId(split[1]);
 			sc.setScoCollectType(new Integer(split[2]));
 			scs.add(sc);
-			jedis.incr("incr:" + split[2] + ":" + split[1]);
+			RedisUtil.incr("incr:" + split[2] + ":" + split[1]);
 		}
 		if (scs.size() > 0) {
-			jedis.del("collecting:" + userId + ":" + Constant.TOPIC_TYPE);
-			jedis.del("uc:" + userId);
-			//删除用户收藏缓存信息
-			Set<String> dbuc = jedis.keys("dbuc*");
+			RedisUtil.del("collecting:" + userId + ":" + Constant.TOPIC_TYPE);
+			RedisUtil.del("uc:" + userId);
+			// 删除用户收藏缓存信息
+			Set<String> dbuc = RedisUtil.keys("dbuc*");
 			String[] dbucKeys = dbuc.toArray(new String[dbuc.size()]);
 			if (dbucKeys.length > 0) {
-				jedis.del(dbucKeys);
+				RedisUtil.del(dbucKeys);
 			}
 			userMapper.saveCollect(scs);
 		}
 		List<FrontTopic> topicCollect = null;
-		String topicCollectJson = jedis.get("dbuct:" + userId + ":" + vo.startPage);
+		String topicCollectJson = RedisUtil.get("dbuct:" + userId + ":" + vo.startPage);
 		if (StringUtils.isEmpty(topicCollectJson)) {
 			topicCollect = frontMapper.queryTopicCollect(vo);
 			if (topicCollect != null && topicCollect.size() > 0) {
 				topicCollectJson = JSONObject.toJSONString(topicCollect);
-				jedis.set("dbuct:" + userId + ":" + vo.startPage, topicCollectJson);
+				RedisUtil.set("dbuct:" + userId + ":" + vo.startPage, topicCollectJson);
 			}
 
 		} else {
 			topicCollect = JSONObject.parseArray(topicCollectJson, FrontTopic.class);
 		}
-		redisUtil.closeRedis();
 		FrontDataInfo info = new FrontDataInfo();
 		Map data = new HashMap<String, List<Object>>();
 		JSONObject nextQuery = new JSONObject();
@@ -392,9 +385,7 @@ public class FrontServiceImpl implements FrontService {
 		String userId = vo.getScoUserId();
 		// 先把收藏的内容保存到数据库
 		List<SweetCollect> scs = new ArrayList<>();
-		RedisUtil redisUtil = new RedisUtil();
-		Jedis jedis = redisUtil.getJedis();
-		Set<String> values = jedis.smembers("collecting:" + userId + ":" + Constant.PRODUCT_TYPE);
+		Set<String> values = RedisUtil.smembers("collecting:" + userId + ":" + Constant.PRODUCT_TYPE);
 		for (String value : values) {
 			String[] split = value.split(":");
 			SweetCollect sc = new SweetCollect();
@@ -402,36 +393,35 @@ public class FrontServiceImpl implements FrontService {
 			sc.setScoCollectId(split[1]);
 			sc.setScoCollectType(new Integer(split[2]));
 			scs.add(sc);
-			jedis.incr("incr:" + split[2] + ":" + split[1]);
+			RedisUtil.incr("incr:" + split[2] + ":" + split[1]);
 		}
 		if (scs.size() > 0) {
-			//删除收藏中
-			jedis.del("collecting:" + userId + ":" + Constant.PRODUCT_TYPE);
-			//删除收藏状态
-			jedis.del("uc:" + userId);
-			//删除用户收藏缓存信息
-			Set<String> dbuc = jedis.keys("dbuc*");
+			// 删除收藏中
+			RedisUtil.del("collecting:" + userId + ":" + Constant.PRODUCT_TYPE);
+			// 删除收藏状态
+			RedisUtil.del("uc:" + userId);
+			// 删除用户收藏缓存信息
+			Set<String> dbuc = RedisUtil.keys("dbuc*");
 			String[] dbucKeys = dbuc.toArray(new String[dbuc.size()]);
 			if (dbucKeys.length > 0) {
-				jedis.del(dbucKeys);
+				RedisUtil.del(dbucKeys);
 			}
-			//更新收藏信息
+			// 更新收藏信息
 			userMapper.saveCollect(scs);
 		}
-		//查询数据库或redis
+		// 查询数据库或redis
 		List<FrontProduct> productCollect = null;
-		String productCollectJson = jedis.get("dbucp:" + userId + ":" + vo.startPage);
+		String productCollectJson = RedisUtil.get("dbucp:" + userId + ":" + vo.startPage);
 		if (StringUtils.isEmpty(productCollectJson)) {
 			productCollect = frontMapper.queryProductCollect(vo);
 			if (productCollect != null && productCollect.size() > 0) {
 				productCollectJson = JSONObject.toJSONString(productCollect);
-				jedis.set("dbucp:" + userId + ":" + vo.startPage, productCollectJson);
+				RedisUtil.set("dbucp:" + userId + ":" + vo.startPage, productCollectJson);
 			}
 
 		} else {
 			productCollect = JSONObject.parseArray(productCollectJson, FrontProduct.class);
 		}
-		redisUtil.closeRedis();
 		FrontDataInfo info = new FrontDataInfo();
 		Map data = new HashMap<String, List<Object>>();
 		JSONObject nextQuery = new JSONObject();
@@ -456,11 +446,9 @@ public class FrontServiceImpl implements FrontService {
 	private Set<String> getUserCollectId(FrontQueryVo vo, String type) {
 		PhoneParamVo phoneVo = vo.getPhoneVo();
 		String userId = phoneVo.getUserId();
-		RedisUtil redisUtil = new RedisUtil();
-		Jedis jedis = redisUtil.getJedis();
 		Set<String> collectId = new HashSet<>();
 		if (!StringUtils.isEmpty(userId)) {
-			Set<String> smembers = jedis.smembers("collecting:" + userId + ":" + type);
+			Set<String> smembers = RedisUtil.smembers("collecting:" + userId + ":" + type);
 			if (smembers != null && smembers.size() > 0) {
 				for (String member : smembers) {
 					String[] split = member.split(":");
@@ -468,7 +456,7 @@ public class FrontServiceImpl implements FrontService {
 				}
 			}
 			// 先查询redis 没有再查数据库
-			Set<String> partCid = jedis.smembers("uc:" + userId);
+			Set<String> partCid = RedisUtil.smembers("uc:" + userId);
 			if (partCid != null && partCid.size() == 0) {
 				SweetCollectVo svo = new SweetCollectVo();
 				svo.setScoUserId(userId);
@@ -477,14 +465,13 @@ public class FrontServiceImpl implements FrontService {
 					collectId.add(collect.getScoCollectId());
 				}
 				for (String cid : collectId) {
-					jedis.sadd("uc:" + userId, cid);
+					RedisUtil.sadd("uc:" + userId, cid);
 				}
 			} else {
 				// 部分收藏ID
 				collectId.addAll(partCid);
 			}
 		}
-		redisUtil.closeRedis();
 		return collectId;
 	}
 
