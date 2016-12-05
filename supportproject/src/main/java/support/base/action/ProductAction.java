@@ -172,11 +172,11 @@ public class ProductAction {
 
 		productService.saveProduct(vo, img);
 
-//		Set<String> keys = RedisUtil.keys("*product*");
-//		String[] arrayKeys = keys.toArray(new String[keys.size()]);
-//		if (arrayKeys.length > 0) {
-//			RedisUtil.del(arrayKeys);
-//		}
+		Set<String> keys = RedisUtil.keys("*product*");
+		String[] arrayKeys = keys.toArray(new String[keys.size()]);
+		if (arrayKeys.length > 0) {
+			RedisUtil.del(arrayKeys);
+		}
 
 		return ResultUtil.createSubmitResult(ResultUtil.createSuccess(Config.MESSAGE, 201, null));
 	}
@@ -249,11 +249,11 @@ public class ProductAction {
 		product.setLinkUrl(vo.getLinkUrl());
 		productService.updateProduct(product);
 
-//		Set<String> keys = RedisUtil.keys("*product*");
-//		String[] arrayKeys = keys.toArray(new String[keys.size()]);
-//		if (arrayKeys.length > 0) {
-//			RedisUtil.del(arrayKeys);
-//		}
+		Set<String> keys = RedisUtil.keys("*product*");
+		String[] arrayKeys = keys.toArray(new String[keys.size()]);
+		if (arrayKeys.length > 0) {
+			RedisUtil.del(arrayKeys);
+		}
 
 		return ResultUtil.createSubmitResult(ResultUtil.createSuccess(Config.MESSAGE, 201, null));
 	}

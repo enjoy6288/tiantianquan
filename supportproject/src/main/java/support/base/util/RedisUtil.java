@@ -54,7 +54,6 @@ public class RedisUtil {
 		try {
 			jedis = getJedis();
 			value = jedis.get(key);
-			logger.info("get方法获取参数【"+key+"】");
 		} catch (Exception e) {
 			pool.returnBrokenResource(jedis);
 			logger.error("redis方法get错误【"+key+"】" + e.getMessage());
@@ -69,7 +68,6 @@ public class RedisUtil {
 		try {
 			jedis = getJedis();
 			jedis.set(key, value);
-			logger.info("set存入参数【"+key+"】:" +"【"+value+"】");
 		} catch (Exception e) {
 			pool.returnBrokenResource(jedis);
 			logger.error("redis方法set错误【"+key+"】"+"【"+value+"】" + e.getMessage());
@@ -84,7 +82,6 @@ public class RedisUtil {
 		try {
 			jedis = getJedis();
 			scard = jedis.scard(key);
-			logger.info("scard方法【"+key+"】");
 		} catch (Exception e) {
 			pool.returnBrokenResource(jedis);
 			logger.error("redis方法scard错误【"+key+"】" + e.getMessage());
@@ -99,7 +96,6 @@ public class RedisUtil {
 		try {
 			jedis = getJedis();
 			jedis.setex(key, seconds, value);
-			logger.info("set存入参数【"+key+"】:" +"【"+value+"】" + "有效时间" +"【"+seconds+"】" + "秒");
 		} catch (Exception e) {
 			pool.returnBrokenResource(jedis);
 			logger.error("redis方法setex错误【"+key+"】"+"【"+value+"】" + e.getMessage());
@@ -115,7 +111,6 @@ public class RedisUtil {
 		try {
 			jedis = getJedis();
 			smembers = jedis.smembers(key);
-			logger.info("smembers方法【"+key+"】");
 		} catch (Exception e) {
 			pool.returnBrokenResource(jedis);
 			logger.error("redis方法smembers错误【"+key+"】" + e.getMessage());
@@ -130,7 +125,18 @@ public class RedisUtil {
 		try {
 			jedis = getJedis();
 			jedis.sadd(key, value);
-			logger.info("sadd方法【"+key+"】:" +"【"+value+"】");
+		} catch (Exception e) {
+			pool.returnBrokenResource(jedis);
+			logger.error("redis方法sadd错误【"+key+"】" + e.getMessage());
+		} finally {
+			pool.returnResource(jedis);
+		}
+	}
+	public static void sadd(String key, String... value) {
+		Jedis jedis = null;
+		try {
+			jedis = getJedis();
+			jedis.sadd(key, value);
 		} catch (Exception e) {
 			pool.returnBrokenResource(jedis);
 			logger.error("redis方法sadd错误【"+key+"】" + e.getMessage());
@@ -145,7 +151,6 @@ public class RedisUtil {
 		try {
 			jedis = getJedis();
 			isExist = jedis.sismember(key, value);
-			logger.info("sismember方法【"+key+"】:" +"【"+value+"】");
 		} catch (Exception e) {
 			pool.returnBrokenResource(jedis);
 			logger.error("redis方法sismember错误【"+key+"】" + e.getMessage());
@@ -160,7 +165,6 @@ public class RedisUtil {
 		try {
 			jedis = getJedis();
 			jedis.srem(key, value);
-			logger.info("srem方法【"+key+"】:" +"【"+value+"】");
 		} catch (Exception e) {
 			pool.returnBrokenResource(jedis);
 			logger.error("redis方法srem错误【"+key+"】" + e.getMessage());
@@ -175,7 +179,6 @@ public class RedisUtil {
 		try {
 			jedis = getJedis();
 			keys = jedis.keys(key);
-			logger.info("keys方法【"+key+"】:" );
 		} catch (Exception e) {
 			pool.returnBrokenResource(jedis);
 			logger.error("redis方法keys错误【"+key+"】" + e.getMessage());
@@ -190,7 +193,6 @@ public class RedisUtil {
 		try {
 			jedis = getJedis();
 			jedis.incr(key);
-			logger.info("incr方法【"+key+"】:" );
 		} catch (Exception e) {
 			pool.returnBrokenResource(jedis);
 			logger.error("redis方法incr错误【"+key+"】" + e.getMessage());
@@ -205,7 +207,6 @@ public class RedisUtil {
 		try {
 			jedis = getJedis();
 			sunion = jedis.sunion(keys);
-			logger.info("sunion方法【"+keys+"】:" );
 		} catch (Exception e) {
 			pool.returnBrokenResource(jedis);
 			logger.error("redis方法sunion错误【"+keys+"】" + e.getMessage());
@@ -220,7 +221,6 @@ public class RedisUtil {
 		try {
 			jedis = getJedis();
 			jedis.del(key);
-			logger.info("del方法【"+key+"】:" );
 		} catch (Exception e) {
 			pool.returnBrokenResource(jedis);
 			logger.error("redis方法del错误【"+key+"】" + e.getMessage());
@@ -234,7 +234,6 @@ public class RedisUtil {
 		try {
 			jedis = getJedis();
 			jedis.del(keys);
-			logger.info("del方法【"+keys+"】:" );
 		} catch (Exception e) {
 			pool.returnBrokenResource(jedis);
 			logger.error("redis方法del错误【"+keys+"】" + e.getMessage());

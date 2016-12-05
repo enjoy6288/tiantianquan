@@ -163,9 +163,10 @@ public class UserServiceImpl implements UserService {
 		}
 		// 发送验证码 验证码存入session里面 验证验证码
 		String phoneCode = (new Random().nextInt(9999) + 1000) + "";
-		String msg = "同事您好，感谢您对此次测试的配合。[" + phoneCode + "]";
+		String msg = "您的短信验证码是"+phoneCode +",在15分钟内有效。如非本人操作,请忽略此短信。";
+		//String msg = "同事您好，感谢您对此次测试的配合。[" + phoneCode + "]";
 		CommonUtil.sendMsg(phoneNum, msg);
-		RedisUtil.setKeyWithExpire("phoneCode:" + phoneNum, 300, phoneCode);
+		RedisUtil.setKeyWithExpire("phoneCode:" + phoneNum, 900, phoneCode);
 		return ResultUtil.createJSONPObject(Config.MESSAGE, 201, ResultInfo.TYPE_RESULT_SUCCESS);
 	}
 

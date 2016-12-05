@@ -54,12 +54,14 @@ public class FrontServiceImpl implements FrontService {
 		Set<String> collectId = getUserCollectId(vo, Constant.PRODUCT_TYPE);
 		String queryProductType = vo.getQueryProductType();
 		// 查询当天的内容
-		if (queryProductType.equals("today")) {
-			queryToday(vo, info, collectId);
-		}
-		// 查询最近一个月的
-		if (queryProductType.equals("more")) {
-			queryMore(vo, info, collectId);
+		if (queryProductType!=null) {
+			if ("today".equals(queryProductType)) {
+				queryToday(vo, info, collectId);
+			}
+			// 查询最近一个月的
+			if ("more".equals(queryProductType)) {
+				queryMore(vo, info, collectId);
+			}
 		}
 		// 在查询主题商品的时候查询出主题信息
 		if (StringUtils.isNotEmpty(vo.getTopicId())) {

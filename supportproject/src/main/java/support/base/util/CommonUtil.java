@@ -99,12 +99,14 @@ public class CommonUtil {
 		CloseableHttpClient httpclient = HttpClients.createDefault();
 		try {
 			String msgUrl = SpringPropertyUtil.getContextProperty(Constant.MSG_URL);
+			String userId = SpringPropertyUtil.getContextProperty(Constant.MSG_USERID);
+			String password = SpringPropertyUtil.getContextProperty(Constant.MSG_PASSWD);
 			HttpPost httpPost = new HttpPost(msgUrl);
 			httpPost.setHeader("Content-Type", "application/x-www-form-urlencoded;charset=gbk");
 			List<NameValuePair> params = new ArrayList<NameValuePair>();
 			// 建立一个NameValuePair数组，用于存储欲传送的参数
-			params.add(new BasicNameValuePair("userId", "JC2195"));
-			params.add(new BasicNameValuePair("password", "232110"));
+			params.add(new BasicNameValuePair("userId", userId));
+			params.add(new BasicNameValuePair("password", password));
 			params.add(new BasicNameValuePair("pszMobis", phoneNum));
 			params.add(new BasicNameValuePair("pszMsg", msg));
 			params.add(new BasicNameValuePair("iMobiCount", "1"));

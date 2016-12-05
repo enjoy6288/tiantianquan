@@ -15,6 +15,9 @@ public class Constant {
 	//图片服务器前缀
 	public final static String IMG_PREFIX = "img_prefix";
 	public final static String MSG_URL = "msg_url";
+	public final static String MSG_USERID = "msg_userId";
+	public final static String MSG_PASSWD = "msg_passwd";
+	
 	//分页大小
 	public final static String PAGE_SIZE = "page_size";
 	//商品类型

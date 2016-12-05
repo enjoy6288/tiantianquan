@@ -65,7 +65,7 @@ public class UserAction {
 	// 更新个人信息 包含重置密码功能
 	@RequestMapping(value = "/updateUser", method = RequestMethod.POST)
 	public @ResponseBody
-	JSONObject updateUser(SweetUserVo vo, MultipartFile avatarImg) {
+	JSONObject updateUser(SweetUserVo vo,PhoneParamVo phoneVo, MultipartFile avatarImg) {
 		return userService.updateUser(vo, avatarImg);
 	}
 
